@@ -34,6 +34,9 @@ void CreateRenderTarget()
 	g_pd3dDevice->CreateRenderTargetView(pBackBuffer, &render_target_view_desc, &g_mainRenderTargetView);
 	g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
 	pBackBuffer->Release();
+
+
+
 }
 
 void CleanupRenderTarget()
@@ -111,38 +114,6 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-int main_example(HINSTANCE wc, HWND hwnd)
-{
-	ImGui_ImplDX11_Init(hwnd, g_pd3dDevice, g_pd3dDeviceContext);
-
-	ImVec4 clear_col = ImColor(114, 144, 154);
-
-	// Main loop
-	MSG msg;
-	ZeroMemory(&msg, sizeof(msg));
-	while (msg.message != WM_QUIT)
-	{
-		if (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-			continue;
-		}
-		ImGui_ImplDX11_NewFrame();
-		ImGui::Text("Hello, world!");
-
-		// Rendering
-		g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, (float*)&clear_col);
-		ImGui::Render();
-		g_pSwapChain->Present(0, 0);
-	}
-
-	ImGui_ImplDX11_Shutdown();
-	CleanupDeviceD3D();
-	UnregisterClass(_T("ImGui Example"), wc);
-
-	return 0;
-}
 
 // --------------------------------------------------------
 // Entry point for a graphical (non-console) Windows application
@@ -191,3 +162,38 @@ int WINAPI WinMain(
 	// whatever we get back once the game loop is over
 	return dxContext.Run();
 }
+/*
+
+int main_example(HINSTANCE wc, HWND hwnd)
+{
+ImGui_ImplDX11_Init(hwnd, g_pd3dDevice, g_pd3dDeviceContext);
+
+ImVec4 clear_col = ImColor(114, 144, 154);
+
+// Main loop
+MSG msg;
+ZeroMemory(&msg, sizeof(msg));
+while (msg.message != WM_QUIT)
+{
+if (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
+{
+TranslateMessage(&msg);
+DispatchMessage(&msg);
+continue;
+}
+ImGui_ImplDX11_NewFrame();
+ImGui::Text("Hello, world!");
+
+// Rendering
+g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, (float*)&clear_col);
+ImGui::Render();
+g_pSwapChain->Present(0, 0);
+}
+
+ImGui_ImplDX11_Shutdown();
+CleanupDeviceD3D();
+UnregisterClass(_T("ImGui Example"), wc);
+
+return 0;
+}
+*/

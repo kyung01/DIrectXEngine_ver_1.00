@@ -75,7 +75,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
       <BrowseInformation>true</BrowseInformation>
-      <AdditionalIncludeDirectories>C:\Users\kyunghwan chang\Documents\GitHub\DX11Starter\Files;$(ProjectDir)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\kyunghwan chang\Documents\GitHub\DX11Starter\Files;$(ProjectDir)\Include;$(ProjectDir)\Files;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -127,7 +127,6 @@
     <ClCompile Include="Files\DXCore.cpp" />
     <ClCompile Include="Files\imgui\example\ImGuiContext.cpp" />
     <ClCompile Include="Files\imgui\example\imgui_impl_dx11.cpp" />
-    <ClCompile Include="Files\imgui\example\main_example.cpp" />
     <ClCompile Include="Files\imgui\imgui.cpp" />
     <ClCompile Include="Files\imgui\imgui_demo.cpp" />
     <ClCompile Include="Files\imgui\imgui_draw.cpp" />
@@ -138,6 +137,7 @@
     <ClCompile Include="Files\KGraphic\Shader.cpp" />
     <ClCompile Include="Files\Mesh.cpp" />
     <ClCompile Include="Files\Object.cpp" />
+    <ClCompile Include="Files\rendertextureclass.cpp" />
     <ClCompile Include="Files\SimpleShader.cpp" />
     <ClCompile Include="Files\WorldCamera.cpp" />
     <ClCompile Include="Files\WorldMain.cpp" />
@@ -160,6 +160,7 @@
   <ItemGroup>
     <ClInclude Include="Files\Camera.h" />
     <ClInclude Include="Files\DXCore.h" />
+    <ClInclude Include="Files\imgui\example\Context.h" />
     <ClInclude Include="Files\imgui\example\imgui_impl_dx11.h" />
     <ClInclude Include="Files\imgui\imconfig.h" />
     <ClInclude Include="Files\imgui\imgui.h" />
@@ -177,6 +178,7 @@
     <ClInclude Include="Files\Material.h" />
     <ClInclude Include="Files\Mesh.h" />
     <ClInclude Include="Files\Object.h" />
+    <ClInclude Include="Files\rendertextureclass.h" />
     <ClInclude Include="Files\SimpleShader.h" />
     <ClInclude Include="Files\Vertex.h" />
     <ClInclude Include="Files\WorldMain.h" />

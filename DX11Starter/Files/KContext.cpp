@@ -1,6 +1,10 @@
 #include "KContext.h"
 #include "Vertex.h"
 #include <iostream>
+
+
+
+
 // For the DirectX Math library
 using namespace DirectX;
 
@@ -68,6 +72,10 @@ void KContext::Init()
 	// geometric primitives (points, lines or triangles) we want to draw.  
 	// Essentially: "What kind of shape should the GPU draw with our data?"
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+
+	renderTexture.Initialize(this->device, width, height);
+
 }
 
 // --------------------------------------------------------
@@ -251,6 +259,8 @@ void KContext::Draw(float deltaTime, float totalTime)
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
 		1.0f,
 		0);
+	renderTexture.SetRenderTarget(context, this->depthStencilView);
+	renderTexture.ClearRenderTarget(context, this->depthStencilView, 0, 1, 0, 0);
 
 	XMVECTOR pos = XMVector4Transform(XMVectorSet(0,0,0,1), XMLoadFloat4x4(&world.cam.pos));
 	XMVECTOR dir = XMVector4Transform(XMVectorSet(0, 0, 1, 1) , XMLoadFloat4x4(&world.cam.rotation));
@@ -312,7 +322,7 @@ void KContext::Draw(float deltaTime, float totalTime)
 		}
 	}
 
-
+	context->OMSetRenderTargets(1,&this-> backBufferRTV, depthStencilView);
 	if (myImGui) myImGui->draw();
 	swapChain->Present(0, 0);
 }

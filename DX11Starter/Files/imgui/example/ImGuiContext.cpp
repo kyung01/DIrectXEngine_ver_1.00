@@ -72,6 +72,8 @@ void Context::CleanupDeviceD3D()
 	if (g_pd3dDevice) { g_pd3dDevice->Release(); g_pd3dDevice = NULL; }
 }
 void Context::draw() {
+	
+
 	ImGui_ImplDX11_NewFrame();
 	ImGui::Text("Hello, world!");
 
@@ -92,7 +94,8 @@ int Context::init(HINSTANCE wc, HWND hwnd,
 	this->g_mainRenderTargetView = g_mainRenderTargetView;
 
 	ImGui_ImplDX11_Init(hwnd, g_pd3dDevice, g_pd3dDeviceContext);
-	return 0;
+	//return 0;
+
 	ImVec4 clear_col = ImColor(114, 144, 154);
 
 	// Main loop
@@ -106,8 +109,10 @@ int Context::init(HINSTANCE wc, HWND hwnd,
 			DispatchMessage(&msg);
 			continue;
 		}
+		static float f = 0.0f;
 		ImGui_ImplDX11_NewFrame();
 		ImGui::Text("Hello, world!");
+		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
 
 		// Rendering
 		g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, (float*)&clear_col);

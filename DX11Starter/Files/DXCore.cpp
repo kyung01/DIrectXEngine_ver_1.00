@@ -3,6 +3,8 @@
 #include <WindowsX.h>
 #include <sstream>
 
+
+
 // Define the static instance variable so our OS-level 
 // message handling function below can talk to our object
 DXCore* DXCore::DXCoreInstance = 0;
@@ -13,8 +15,10 @@ DXCore* DXCore::DXCoreInstance = 0;
 // This needs to be a global function (not part of a class), but we want
 // to forward the parameters to our class to properly handle them.
 // --------------------------------------------------------
+extern LRESULT ImGui_ImplDX11_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT DXCore::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	ImGui_ImplDX11_WndProcHandler(hWnd, uMsg, wParam, lParam);
 	return DXCoreInstance->ProcessMessage(hWnd, uMsg, wParam, lParam);
 }
 
@@ -140,7 +144,7 @@ HRESULT DXCore::InitWindow()
 		0);			// No other windows in our application
 
 	// Ensure the window was created properly
-	if (hWnd == NULL)
+	if (hWnd == NULL) 
 	{
 		DWORD error = GetLastError();
 		return HRESULT_FROM_WIN32(error);
@@ -248,7 +252,7 @@ HRESULT DXCore::InitDirectX()
 	device->CreateTexture2D(&depthStencilDesc, 0, &depthBufferTexture);
 	device->CreateDepthStencilView(depthBufferTexture, 0, &depthStencilView);
 	depthBufferTexture->Release();
-
+	
 	// Bind the views to the pipeline, so rendering properly 
 	// uses their underlying textures
 	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);

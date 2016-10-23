@@ -10,6 +10,7 @@
 
 
 #include "imgui\example\Context.h"
+#include "rendertextureclass.h"
 
 class KContext
 	: public DXCore
@@ -17,7 +18,7 @@ class KContext
 
 private:
 	World::WorldMain world;
-
+	
 	// Initialization helper methods - feel free to customize, combine, etc.
 	void LoadShaders(); 
 	void CreateMatrices();
@@ -44,6 +45,7 @@ private:
 	void renderMesh(Graphic::Mesh* mesh);
 	void renderMesh(Graphic::Mesh mesh);
 
+	RenderTextureClass renderTexture;
 public:
 	KContext(HINSTANCE hInstance);
 	~KContext();
