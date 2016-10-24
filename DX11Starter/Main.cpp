@@ -1,6 +1,6 @@
 
 #include <Windows.h>
-#include "KContext.h"
+#include "DirectX\KContext.h"
 
 // ImGui - standalone example application for DirectX 11
 // If you are new to ImGui, see examples/README.txt and documentation at the top of imgui.cpp.
@@ -147,7 +147,6 @@ int WINAPI WinMain(
 	// early if something failed
 	hr = dxContext.InitDirectX();
 	if(FAILED(hr)) return hr;
-
 	NImGui::Context guiContext;
 
 	g_pd3dDevice = dxContext.device;
@@ -157,7 +156,7 @@ int WINAPI WinMain(
 	//main_example(hInstance, dxContext.hWnd);
 	guiContext.init(hInstance, dxContext.hWnd, dxContext.device, dxContext.context, dxContext.swapChain, dxContext.backBufferRTV);
 	dxContext.myImGui = &guiContext;
-
+	
 	// Begin the message and game loop, and then return
 	// whatever we get back once the game loop is over
 	return dxContext.Run();

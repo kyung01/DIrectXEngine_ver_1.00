@@ -94,7 +94,7 @@ int Context::init(HINSTANCE wc, HWND hwnd,
 	this->g_mainRenderTargetView = g_mainRenderTargetView;
 
 	ImGui_ImplDX11_Init(hwnd, g_pd3dDevice, g_pd3dDeviceContext);
-	//return 0;
+	return 0;
 
 	ImVec4 clear_col = ImColor(114, 144, 154);
 

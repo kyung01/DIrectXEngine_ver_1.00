@@ -7,6 +7,12 @@
 #include <d3dcompiler.h>
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
+/*
+TODO learn how to display resourceview into an image and make an example
+TODO UI should display current loaded/saved shaders
+TODO UI should display currently loaded/saved framebuffers
+TODO UI should display currently loaded/saved models objects
+*/
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 namespace NImGui {
