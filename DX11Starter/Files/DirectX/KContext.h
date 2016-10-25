@@ -11,7 +11,7 @@
 
 #include "imgui\DirectX\Context.h"
 #include "Graphic\GraphicMain.h"
-#include "rendertextureclass.h"
+#include "Graphic\RenderTexture.h"
 
 //TODO Draw triangle with different backgrounds onto three different framebuffers
 namespace DirectX {
@@ -49,7 +49,7 @@ namespace DirectX {
 		void renderMesh(Graphic::Mesh* mesh);
 		void renderMesh(Graphic::Mesh mesh);
 
-		RenderTextureClass renderTexture;
+		Graphic::RenderTexture renderTexture;
 	public:
 		KContext(HINSTANCE hInstance);
 		~KContext();

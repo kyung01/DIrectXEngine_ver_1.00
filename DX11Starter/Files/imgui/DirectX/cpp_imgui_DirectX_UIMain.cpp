@@ -2,7 +2,7 @@
 #include "imgui\imgui.h"
 using namespace NImGui;
 
-RenderTextureClass * NImGui::UIMain::example_texture;
+Graphic::RenderTexture * NImGui::UIMain::example_texture;
 void NImGui::UIMain::init(Graphic::GraphicMain * graphicMain)
 {
 	this->graphicMain = graphicMain;

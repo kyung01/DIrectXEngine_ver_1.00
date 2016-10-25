@@ -128,6 +128,7 @@
     <ClCompile Include="Files\DirectX\DXCore.cpp" />
     <ClCompile Include="Files\DirectX\KContext.cpp" />
     <ClCompile Include="Files\DirectX\Mesh.cpp" />
+    <ClCompile Include="Files\Graphic\RenderTexture.cpp" />
     <ClCompile Include="Files\imgui\DirectX\cpp_imgui_DirectX_Context.cpp" />
     <ClCompile Include="Files\imgui\DirectX\cpp_imgui_DirectX_UIMain.cpp" />
     <ClCompile Include="Files\imgui\DirectX\cpp_imgui_impl_dx11.cpp" />
@@ -140,7 +141,6 @@
     <ClCompile Include="Files\Graphic\Object_KGraphic.cpp" />
     <ClCompile Include="Files\Graphic\Shader.cpp" />
     <ClCompile Include="Files\Object.cpp" />
-    <ClCompile Include="Files\rendertextureclass.cpp" />
     <ClCompile Include="Files\Graphic\SimpleShader.cpp" />
     <ClCompile Include="Files\WorldCamera.cpp" />
     <ClCompile Include="Files\WorldMain.cpp" />
@@ -196,7 +196,7 @@
     <ClInclude Include="Files\Graphic\Shader.h" />
     <ClInclude Include="Files\Material.h" />
     <ClInclude Include="Files\Object.h" />
-    <ClInclude Include="Files\rendertextureclass.h" />
+    <ClInclude Include="Files\Graphic\RenderTexture.h" />
     <ClInclude Include="Files\Graphic\SimpleShader.h" />
     <ClInclude Include="Files\Vertex.h" />
     <ClInclude Include="Files\WorldMain.h" />
