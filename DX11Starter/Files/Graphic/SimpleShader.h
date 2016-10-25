@@ -67,6 +67,8 @@ namespace Graphic {
 		// Initialization method (since we can't invoke derived class
 		// overrides in the base class constructor)
 		bool LoadShaderFile(LPCWSTR shaderFile);
+		bool LoadShaderFileHLSL(LPCWSTR shaderFile, LPCSTR target);
+		bool LoadShaderFile(ID3DBlob *blob);
 
 		// Simple helpers
 		bool IsShaderValid() { return shaderValid; }

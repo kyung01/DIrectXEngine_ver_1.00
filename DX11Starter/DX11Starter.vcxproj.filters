@@ -82,6 +82,7 @@
     </FxCompile>
     <FxCompile Include="Resource\default_vert.hlsl" />
     <FxCompile Include="Resource\default_frag.hlsl" />
+    <FxCompile Include="Resource\New folder\default_frag.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Files\imgui\example\imgui_impl_dx11.h">
@@ -163,6 +164,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Files\Graphic\SimpleShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Files\DirectX\DirectXUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

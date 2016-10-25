@@ -157,6 +157,9 @@
     <FxCompile Include="Resource\default_vert.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
     </FxCompile>
+    <FxCompile Include="Resource\New folder\default_frag.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+    </FxCompile>
     <FxCompile Include="VertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
@@ -166,6 +169,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Files\Camera.h" />
+    <ClInclude Include="Files\DirectX\DirectXUtility.h" />
     <ClInclude Include="Files\DirectX\DXCore.h" />
     <ClInclude Include="Files\DirectX\KContext.h" />
     <ClInclude Include="Files\DirectX\Mesh.h" />

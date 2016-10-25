@@ -77,15 +77,18 @@ void Graphic::GraphicMain::rendering(Scene scene)
 
 void Graphic::GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *context)
 {
-	/*
-	*/
 	auto vertexShader = new Graphic::SimpleVertexShader(device, context);
-	if (!vertexShader->LoadShaderFile(L"Debug/VertexShader.cso"))
-		vertexShader->LoadShaderFile(L"VertexShader.cso");
+	vertexShader->LoadShaderFileHLSL(L"Resource/default_vert.hlsl","vs_5_0");
+
 
 	auto pixelShader = new Graphic::SimpleFragmentShader(device, context);
-	if (!pixelShader->LoadShaderFile(L"Debug/PixelShader.cso"))
-		pixelShader->LoadShaderFile(L"PixelShader.cso");
+	pixelShader->LoadShaderFileHLSL(L"Resource/default_frag.hlsl", "ps_5_0");
+	//if (!vertexShader->LoadShaderFile(L"Debug/VertexShader.cso"))
+	//	vertexShader->LoadShaderFile(L"VertexShader.cso");
+
+	//auto pixelShader = new Graphic::SimpleFragmentShader(device, context);
+	//if (!pixelShader->LoadShaderFile(L"Debug/PixelShader.cso"))
+	//	pixelShader->LoadShaderFile(L"PixelShader.cso");
 	this->shadersVert[ShaderID::DEFAULT] = std::make_unique<SimpleVertexShader*>(vertexShader);
 	this->shadersFrag[ShaderID::DEFAULT] = std::make_unique<SimpleFragmentShader*>(pixelShader);
 	return;
