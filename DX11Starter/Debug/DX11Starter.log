@@ -1,7 +1,0 @@
-﻿  Main.cpp
-  GraphicMain.cpp
-  KContext.cpp
-c:\users\kyunghwan chang\documents\github\directxengine\dx11starter\files\directx\kcontext.cpp(378): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
-  Generating Code...
-  DX11Starter.vcxproj -> C:\Users\kyunghwan chang\Documents\GitHub\DIrectXEngine\DX11Starter\Debug\DX11Starter.exe
-  DX11Starter.vcxproj -> C:\Users\kyunghwan chang\Documents\GitHub\DIrectXEngine\DX11Starter\Debug\DX11Starter.pdb (Full PDB)
