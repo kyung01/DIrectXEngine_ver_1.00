@@ -175,6 +175,7 @@
     <ClInclude Include="Files\DirectX\DXCore.h" />
     <ClInclude Include="Files\DirectX\KContext.h" />
     <ClInclude Include="Files\DirectX\Mesh.h" />
+    <ClInclude Include="Files\Graphic\RenderTextureID.h" />
     <ClInclude Include="Files\Graphic\ShaderID.h" />
     <ClInclude Include="Files\Graphic\ShaderInformation.h" />
     <ClInclude Include="Files\Graphic\ShaderType.h" />
