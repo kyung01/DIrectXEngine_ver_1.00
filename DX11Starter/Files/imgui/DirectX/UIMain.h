@@ -1,5 +1,6 @@
 #pragma once
 #include "Graphic\GraphicMain.h"
+#include "rendertextureclass.h"
 namespace NImGui {
 	class UIMain {
 	private:
@@ -7,6 +8,7 @@ namespace NImGui {
 
 	protected:
 	public:
+		static RenderTextureClass *example_texture;
 		void init(Graphic::GraphicMain * graphicMain);
 		void render();
 	};

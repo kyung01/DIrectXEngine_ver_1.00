@@ -381,6 +381,9 @@ void ImGui::ShowTestWindow(bool* p_open)
             ImGui::InputText("UTF-8 input", buf, IM_ARRAYSIZE(buf));
             ImGui::TreePop();
         }
+		//ImTextureID tex_id2 = ImGui::GetIO().Fonts->TexID;
+		//ImGui::Text("%.0fx%.0f", tex_w, tex_h);
+		//ImGui::Image(tex_id, ImVec2(tex_w, tex_h), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
 
         if (ImGui::TreeNode("Images"))
         {

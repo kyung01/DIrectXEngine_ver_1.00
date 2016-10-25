@@ -1,6 +1,7 @@
 #pragma once
 #include "KContext.h"
 #include "Vertex.h"
+#include "imgui\DirectX\UIMain.h" //TODO delete this line
 #include <iostream>
 
 
@@ -79,7 +80,7 @@ void KContext::Init()
 
 
 	renderTexture.Initialize(this->device, width, height);
-
+	NImGui::UIMain::example_texture = &renderTexture;
 }
 
 // --------------------------------------------------------
@@ -263,8 +264,8 @@ void KContext::Draw(float deltaTime, float totalTime)
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
 		1.0f,
 		0);
-	//renderTexture.SetRenderTarget(context, this->depthStencilView);
-	//renderTexture.ClearRenderTarget(context, this->depthStencilView, 0, 1, 0, 0);
+	renderTexture.SetRenderTarget(context, this->depthStencilView);
+	renderTexture.ClearRenderTarget(context, this->depthStencilView, 0, 1, 0, 0);
 
 	XMVECTOR pos = XMVector4Transform(XMVectorSet(0,0,0,1), XMLoadFloat4x4(&world.cam.pos));
 	XMVECTOR dir = XMVector4Transform(XMVectorSet(0, 0, 1, 1) , XMLoadFloat4x4(&world.cam.rotation));
