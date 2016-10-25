@@ -29,6 +29,7 @@ namespace Graphic {
 			std::map<ShaderID, std::unique_ptr<SimpleFragmentShader>> &shadersFrag, 
 			std::map<ShaderID, std::unique_ptr<SimpleVertexShader>> &shadersVert,
 			ShaderInformation data[],  int dataSize);
+		bool initShaders(ID3D11Device* device, ID3D11DeviceContext *context);
 	protected:
 		//glm::mat4 matProjection, matView, matModel;
 		void processCamera(Camera cam);// = 0;
@@ -42,7 +43,7 @@ namespace Graphic {
 		float width, height;
 		std::map<int, Model*> models;
 		std::map<int, Shader*> shaders;
-		void init(ID3D11Device *device, ID3D11DeviceContext *context);
+		bool init(ID3D11Device *device, ID3D11DeviceContext *context);
 		void render(Scene scene);
 	};
 }

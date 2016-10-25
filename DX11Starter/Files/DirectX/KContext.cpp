@@ -1,3 +1,4 @@
+#pragma once
 #include "KContext.h"
 #include "Vertex.h"
 #include <iostream>
@@ -326,7 +327,7 @@ void KContext::Draw(float deltaTime, float totalTime)
 	}
 
 	context->OMSetRenderTargets(1,&this-> backBufferRTV, depthStencilView);
-	if (myImGui) myImGui->draw();
+	if (myImGui) myImGui->render();
 	swapChain->Present(0, 0);
 }
 
@@ -399,4 +400,3 @@ void KContext::OnMouseWheel(float wheelDelta, int x, int y)
 {
 	// Add any custom code here...
 }
-#pragma endregion

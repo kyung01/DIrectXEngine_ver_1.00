@@ -21,9 +21,6 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Files\imgui\example\imgui_impl_dx11.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Files\imgui\imgui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -40,9 +37,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Files\WorldMain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Files\imgui\example\ImGuiContext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Files\rendertextureclass.cpp">
@@ -72,6 +66,18 @@
     <ClCompile Include="Files\Graphic\SimpleShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Files\imgui\DirectX\cpp_imgui_DirectX_Context.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Files\imgui\DirectX\cpp_imgui_DirectX_KContext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Files\imgui\DirectX\cpp_imgui_DirectX_UIMain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Files\imgui\DirectX\cpp_imgui_impl_dx11.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">
@@ -85,9 +91,6 @@
     <FxCompile Include="Resource\New folder\default_frag.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Files\imgui\example\imgui_impl_dx11.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Files\imgui\imconfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -122,9 +125,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Files\rendertextureclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Files\imgui\example\Context.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Files\DirectX\DXCore.h">
@@ -167,6 +167,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Files\DirectX\DirectXUtility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Files\imgui\DirectX\Context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Files\imgui\DirectX\imgui_impl_dx11.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Files\imgui\DirectX\UIMain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Files\imgui\DirectX\KContext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

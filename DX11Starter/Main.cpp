@@ -6,8 +6,8 @@
 // If you are new to ImGui, see examples/README.txt and documentation at the top of imgui.cpp.
 
 #include "imgui\imgui.h"
-#include "imgui\example\imgui_impl_dx11.h"
-#include "imgui\example\Context.h"
+#include "imgui\DirectX\imgui_impl_dx11.h"
+#include "imgui\DirectX\KContext.h"
 #include <d3d11.h>
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
@@ -133,7 +133,7 @@ int WINAPI WinMain(
 
 	// Create the Game object using
 	// the app handle we got from WinMain
-	KContext dxContext(hInstance);
+	DirectX::KContext dxContext(hInstance);
 
 	// Result variable for function calls below
 	HRESULT hr = S_OK;
@@ -147,14 +147,15 @@ int WINAPI WinMain(
 	// early if something failed
 	hr = dxContext.InitDirectX();
 	if(FAILED(hr)) return hr;
-	NImGui::Context guiContext;
+	NImGui::KContext guiContext;
 
 	g_pd3dDevice = dxContext.device;
 	g_pd3dDeviceContext = dxContext.context;
 	g_pSwapChain = dxContext.swapChain;
 	g_mainRenderTargetView = dxContext.backBufferRTV;
 	//main_example(hInstance, dxContext.hWnd);
-	guiContext.init(hInstance, dxContext.hWnd, dxContext.device, dxContext.context, dxContext.swapChain, dxContext.backBufferRTV);
+	guiContext.init(hInstance, dxContext.hWnd, dxContext.device, dxContext.context, dxContext.swapChain, dxContext.backBufferRTV,
+		&dxContext.m_graphicMain);
 	dxContext.myImGui = &guiContext;
 	
 	// Begin the message and game loop, and then return

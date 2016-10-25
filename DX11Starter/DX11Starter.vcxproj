@@ -128,8 +128,10 @@
     <ClCompile Include="Files\DirectX\DXCore.cpp" />
     <ClCompile Include="Files\DirectX\KContext.cpp" />
     <ClCompile Include="Files\DirectX\Mesh.cpp" />
-    <ClCompile Include="Files\imgui\example\ImGuiContext.cpp" />
-    <ClCompile Include="Files\imgui\example\imgui_impl_dx11.cpp" />
+    <ClCompile Include="Files\imgui\DirectX\cpp_imgui_DirectX_Context.cpp" />
+    <ClCompile Include="Files\imgui\DirectX\cpp_imgui_DirectX_UIMain.cpp" />
+    <ClCompile Include="Files\imgui\DirectX\cpp_imgui_impl_dx11.cpp" />
+    <ClCompile Include="Files\imgui\DirectX\cpp_imgui_DirectX_KContext.cpp" />
     <ClCompile Include="Files\imgui\imgui.cpp" />
     <ClCompile Include="Files\imgui\imgui_demo.cpp" />
     <ClCompile Include="Files\imgui\imgui_draw.cpp" />
@@ -176,8 +178,10 @@
     <ClInclude Include="Files\Graphic\ShaderID.h" />
     <ClInclude Include="Files\Graphic\ShaderInformation.h" />
     <ClInclude Include="Files\Graphic\ShaderType.h" />
-    <ClInclude Include="Files\imgui\example\Context.h" />
-    <ClInclude Include="Files\imgui\example\imgui_impl_dx11.h" />
+    <ClInclude Include="Files\imgui\DirectX\Context.h" />
+    <ClInclude Include="Files\imgui\DirectX\imgui_impl_dx11.h" />
+    <ClInclude Include="Files\imgui\DirectX\KContext.h" />
+    <ClInclude Include="Files\imgui\DirectX\UIMain.h" />
     <ClInclude Include="Files\imgui\imconfig.h" />
     <ClInclude Include="Files\imgui\imgui.h" />
     <ClInclude Include="Files\imgui\imgui_internal.h" />

@@ -45,3 +45,8 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+DX11Starter/Debug/SimpleShader.obj
+*.obj
+DX11Starter/Debug/rendertextureclass.obj
+DX11Starter/Debug/Camera.obj
+*.obj

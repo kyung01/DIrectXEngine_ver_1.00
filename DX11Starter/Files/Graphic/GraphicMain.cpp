@@ -75,32 +75,22 @@ void Graphic::GraphicMain::rendering(Scene scene)
 	
 }
 
-void Graphic::GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *context)
-{
+bool GraphicMain::initShaders(ID3D11Device* device, ID3D11DeviceContext *context) {
 	auto vertexShader = new Graphic::SimpleVertexShader(device, context);
-	vertexShader->LoadShaderFileHLSL(L"Resource/default_vert.hlsl","vs_5_0");
-
-
 	auto pixelShader = new Graphic::SimpleFragmentShader(device, context);
-	pixelShader->LoadShaderFileHLSL(L"Resource/default_frag.hlsl", "ps_5_0");
-	//if (!vertexShader->LoadShaderFile(L"Debug/VertexShader.cso"))
-	//	vertexShader->LoadShaderFile(L"VertexShader.cso");
+	if (!vertexShader->LoadShaderFileHLSL(L"Resource/default_vert.hlsl", "vs_5_0") ||
+		!pixelShader->LoadShaderFileHLSL(L"Resource/default_frag.hlsl", "ps_5_0"))
+		return false;
 
-	//auto pixelShader = new Graphic::SimpleFragmentShader(device, context);
-	//if (!pixelShader->LoadShaderFile(L"Debug/PixelShader.cso"))
-	//	pixelShader->LoadShaderFile(L"PixelShader.cso");
 	this->shadersVert[ShaderID::DEFAULT] = std::make_unique<SimpleVertexShader*>(vertexShader);
 	this->shadersFrag[ShaderID::DEFAULT] = std::make_unique<SimpleFragmentShader*>(pixelShader);
-	return;
-	/*
-	ShaderInformation shaderInfos[] = { 
-		{ShaderID::DEFAULT,ShaderType::FRAGMENT_SHADER,"Debug/default_frag.cso"},
-		{ShaderID::DEFAULT,ShaderType::VERTEX_SHADER,"Debug/default_vert.cso" } 
-	};
-	if (!loadShaders(device, context, this->shadersFrag, shadersVert, shaderInfos, 1 * 2)) {
-		std::cout << "ShaderLoadingFailed" << std::endl;
-	}
-	*/
+	return true;
+
+}
+bool Graphic::GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *context)
+{
+	if (!initShaders(device, context)) return false;
+	return true;
 }
 
 void Graphic::GraphicMain::render(Graphic::Scene scene)
