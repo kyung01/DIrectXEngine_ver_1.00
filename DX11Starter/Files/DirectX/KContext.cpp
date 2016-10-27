@@ -61,9 +61,14 @@ KContext::~KContext()
 void KContext::Init()
 {
 	//temporary world information 
-	m_graphicMain.init(this->device, this->context);
-	vertexShader	= *m_graphicMain.shadersVert[Graphic::ShaderID::DEFAULT].get();
-	pixelShader		= *m_graphicMain.shadersFrag[Graphic::ShaderID::DEFAULT].get();
+	m_renderContexts.push_back({ "example00","Created for demo purpose.", Graphic::GraphicMain(), Graphic::Scene() });
+	for (auto it = m_renderContexts.begin(); it != m_renderContexts.end(); it++) {
+		it->main.init(this->device, this->context,this->width,this->height);
+		it->scene.loadExample00();
+	}
+
+	vertexShader	= *m_renderContexts.begin()->main.shadersVert[Graphic::RENDER_TYPE::DEFAULT].get();
+	pixelShader		= *m_renderContexts.begin()->main.shadersFrag[Graphic::RENDER_TYPE::DEFAULT].get();
 	world.objs.push_back(World::Object());
 	world.objs.push_back(World::Object());
 	world.objs.push_back(World::Object());
@@ -327,6 +332,9 @@ void KContext::Draw(float deltaTime, float totalTime)
 		}
 	}
 
+	for (auto it = m_renderContexts.begin(); it != m_renderContexts.end(); it++) {
+		it->main.render(this->depthStencilView , it->scene);
+	}
 	context->OMSetRenderTargets(1,&this-> backBufferRTV, depthStencilView);
 	if (myImGui) myImGui->render();
 	swapChain->Present(0, 0);

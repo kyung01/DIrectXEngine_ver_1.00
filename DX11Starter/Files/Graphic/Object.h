@@ -1,15 +1,26 @@
 #pragma once
 #include <memory>
-#include "glm\glm.hpp"
-#include "Shader.h"
-namespace Graphic {
-	class DumbObject {
-	public:
-		enum KType{GEOMETRY_TRIANGLE_2D=0,GEOMETRY_RECT_2D};
-		KType type;
-		std::shared_ptr<Shader> shader;
-		glm::mat4 pos, rotation, scale;
-		DumbObject();
+#include <d3d11.h>
+#include <SimpleMath.h>
+//#include "glm\glm.hpp"
+//#include "Shader.h"
+using namespace DirectX::SimpleMath;
 
+namespace Graphic {
+	class Object {
+	private:
+		bool isDirty;
+	protected:
+		Vector3 m_scale;
+		Vector3 m_pos;
+		Quaternion m_rotation;
+		Matrix m_matModel;
+	public:
+
+		Object();
+		virtual void setScale(Vector3 scale);
+		virtual void setPos(Vector3 pos);
+		virtual void setRotation(Quaternion quaternion);
+		Matrix getModelMatrix();
 	};
 }

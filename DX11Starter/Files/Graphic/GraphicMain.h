@@ -6,7 +6,9 @@
 #include "Camera.h"
 
 #include "ShaderInformation.h"
+#include "RenderType.h"
 #include "SimpleShader.h"
+#include "RenderTexture.h"
 #include <map>
 #include <memory>
 #include <d3d11.h>
@@ -19,16 +21,17 @@ namespace Graphic {
 
 	class GraphicMain {
 	private:
-
+		int width, height;
 		void rendering(Scene scene);
-		void processObject(DumbObject obj);
+		void processObject(Object obj);
 		
 
 		bool loadShaders(
 			ID3D11Device* device, ID3D11DeviceContext *context,
-			std::map<ShaderID, std::unique_ptr<SimpleFragmentShader>> &shadersFrag, 
-			std::map<ShaderID, std::unique_ptr<SimpleVertexShader>> &shadersVert,
+			std::map<RENDER_TYPE, std::unique_ptr<SimpleFragmentShader>> &shadersFrag,
+			std::map<RENDER_TYPE, std::unique_ptr<SimpleVertexShader>> &shadersVert,
 			ShaderInformation data[],  int dataSize);
+		bool initTextures(ID3D11Device* device, ID3D11DeviceContext *context, int width, int height);
 		bool initShaders(ID3D11Device* device, ID3D11DeviceContext *context);
 	protected:
 		//glm::mat4 matProjection, matView, matModel;
@@ -37,13 +40,14 @@ namespace Graphic {
 		void endRendering();// = 0;
 		void getScreenWidth(int &w, int &h);// = 0;
 	public:
-		std::map<ShaderID, std::unique_ptr<SimpleFragmentShader*>> shadersFrag;
-		std::map<ShaderID, std::unique_ptr<SimpleVertexShader*>> shadersVert;
+		std::map<RENDER_TYPE, RenderTexture> textures;
+		std::map<RENDER_TYPE, std::unique_ptr<SimpleFragmentShader*>> shadersFrag;
+		std::map<RENDER_TYPE, std::unique_ptr<SimpleVertexShader*>> shadersVert;
 
-		float width, height;
 		std::map<int, Model*> models;
 		std::map<int, Shader*> shaders;
-		bool init(ID3D11Device *device, ID3D11DeviceContext *context);
-		void render(Scene scene);
+		// Width and hieght is for the resolution in wihich this graphic main will adjust to render things onto
+		bool init(ID3D11Device *device, ID3D11DeviceContext *context, int width, int height);
+		void render(ID3D11DepthStencilView *depth, Scene scene);
 	};
 }

@@ -15,6 +15,15 @@
 
 //TODO Draw triangle with different backgrounds onto three different framebuffers
 namespace DirectX {
+	/*
+	Each GraphicMain should be assinged one scene and one scene only
+	*/
+	struct RenderContext{
+		std::string name; // id to describe the scene
+		std::string description; // describe what this scene is
+		Graphic::GraphicMain main;
+		Graphic::Scene scene;
+	};
 
 	class KContext
 		: public DXCore
@@ -22,6 +31,7 @@ namespace DirectX {
 
 	private:
 		World::WorldMain world;
+		std::list<RenderContext> m_renderContexts;
 
 		// Initialization helper methods - feel free to customize, combine, etc.
 		void LoadShaders();

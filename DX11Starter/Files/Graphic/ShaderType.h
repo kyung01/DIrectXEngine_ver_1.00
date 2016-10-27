@@ -1,5 +1,5 @@
 #pragma once
 
 namespace Graphic {
-	enum ShaderType { VERTEX_SHADER, FRAGMENT_SHADER };
+	enum SHADER_TYPE { VERTEX_SHADER, FRAGMENT_SHADER };
 }
