@@ -7,6 +7,7 @@
 
 
 
+
 // For the DirectX Math library
 using namespace DirectX;
 
@@ -61,22 +62,24 @@ KContext::~KContext()
 void KContext::Init()
 {
 	//temporary world information 
+	CreateMatrices();
+	CreateBasicGeometry();
 	m_renderContexts.push_back({ "example00","Created for demo purpose.", Graphic::GraphicMain(), Graphic::Scene() });
 	for (auto it = m_renderContexts.begin(); it != m_renderContexts.end(); it++) {
-		it->main.init(this->device, this->context,this->width,this->height);
+		if (!it->main.init(this->device, this->context, this->width, this->height)) {
+			std::cout << "GraphicMain failed to init" << std::endl;
+		}
 		it->scene.loadExample00();
 	}
 
-	vertexShader	= *m_renderContexts.begin()->main.shadersVert[Graphic::RENDER_TYPE::DEFAULT].get();
-	pixelShader		= *m_renderContexts.begin()->main.shadersFrag[Graphic::RENDER_TYPE::DEFAULT].get();
+	vertexShader	= *m_renderContexts.begin()->main.m_shadersVert[Graphic::RENDER_TYPE::DEFAULT].get();
+	pixelShader		= *m_renderContexts.begin()->main.m_shadersFrag[Graphic::RENDER_TYPE::DEFAULT].get();
 	world.objs.push_back(World::Object());
 	world.objs.push_back(World::Object());
 	world.objs.push_back(World::Object());
 	world.objs.push_back(World::Object());
 
 	//LoadShaders();
-	CreateMatrices();
-	CreateBasicGeometry();
 
 	// Tell the input assembler stage of the pipeline what kind of
 	// geometric primitives (points, lines or triangles) we want to draw.  
@@ -85,7 +88,8 @@ void KContext::Init()
 
 
 	renderTexture.Initialize(this->device, width, height);
-	NImGui::UIMain::example_texture = &renderTexture;
+	m_renderContexts.begin()->main.mesh00 = &*triangle; //TODO you should delete this line
+	NImGui::UIMain::example_texture = m_renderContexts.begin()->main.m_textures[Graphic::RENDER_TYPE::DEFFERED_DIFFUSE];
 }
 
 // --------------------------------------------------------
@@ -251,15 +255,44 @@ void KContext::Update(float deltaTime, float totalTime)
 	// Quit if the escape key is pressed
 	if (GetAsyncKeyState(VK_ESCAPE))
 		Quit();
+
+
+	float x, y, speed(.5f* deltaTime), dis_camerMove(1.3f*deltaTime);
+	int count = 0;
+	
+	XMVECTOR dir;
+	if (GetAsyncKeyState('W') & 0x8000) {
+		testingCamera.setPos(testingCamera.m_pos + (Vector3)(Vector3(0, 0, 1* dis_camerMove)* testingCamera.m_rotation));
+		/* Do something useful */
+	}
+
+	if (GetAsyncKeyState('S') & 0x8000) {
+		testingCamera.setPos(testingCamera.m_pos + (Vector3)(Vector3(0, 0, -1 * dis_camerMove)* testingCamera.m_rotation));
+		/* Do something useful */
+	}
+
+	if (GetAsyncKeyState('A') & 0x8000) {
+		testingCamera.setPos(testingCamera.m_pos + (Vector3)(Vector3(-1 * dis_camerMove, 0, 0 )* testingCamera.m_rotation));
+		/* Do something useful */
+	}
+
+	if (GetAsyncKeyState('D') & 0x8000) {
+		testingCamera.setPos(testingCamera.m_pos + (Vector3)(Vector3(1* dis_camerMove, 0, 0 )* testingCamera.m_rotation));
+		/* Do something useful */
+	}
 }
 // --------------------------------------------------------
 // Clear the screen, redraw everything, present to the user
 // --------------------------------------------------------
 void KContext::Draw(float deltaTime, float totalTime)
 {
+	for (auto it = m_renderContexts.begin(); it != m_renderContexts.end(); it++) {
+		it->main.render(this->context, this->depthStencilView, it->scene);
+	}
 	// Background color (Cornflower Blue in this case) for clearing
 	const float color[4] = {0.4f, 0.6f, 0.75f, 0.0f};
 
+	context->OMSetRenderTargets(1, &this->backBufferRTV, depthStencilView);
 	// Clear the render target and depth buffer (erases what's on the screen)
 	//  - Do this ONCE PER FRAME
 	//  - At the beginning of Draw (before drawing *anything*)
@@ -269,9 +302,9 @@ void KContext::Draw(float deltaTime, float totalTime)
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
 		1.0f,
 		0);
-	renderTexture.SetRenderTarget(context, this->depthStencilView);
-	renderTexture.ClearRenderTarget(context, this->depthStencilView, 0, 1, 0, 0);
-
+	//renderTexture.SetRenderTarget(context, this->depthStencilView);
+	//renderTexture.ClearRenderTarget(context, this->depthStencilView, 0, 1, 0, 0);
+	/*
 	XMVECTOR pos = XMVector4Transform(XMVectorSet(0,0,0,1), XMLoadFloat4x4(&world.cam.pos));
 	XMVECTOR dir = XMVector4Transform(XMVectorSet(0, 0, 1, 1) , XMLoadFloat4x4(&world.cam.rotation));
 	XMVECTOR up = XMVectorSet(0, 1, 0, 0);
@@ -279,15 +312,81 @@ void KContext::Draw(float deltaTime, float totalTime)
 		pos,     // The position of the "camera"
 		dir,     // Direction the camera is looking
 		up);     // "Up" direction in 3D space (prevents roll)
+	*/
+
+
+	XMVECTOR pos = XMVectorSet(0, 0, -5, 0);
+	XMVECTOR dir = XMVectorSet(0, 0, 1, 0);
+	XMVECTOR up = XMVectorSet(0, 1, 0, 0);
+	XMMATRIX V = XMMatrixLookToLH(
+		pos,     // The position of the "camera"
+		dir,     // Direction the camera is looking
+		up);     // "Up" direction in 3D space (prevents roll)
+
 	XMStoreFloat4x4(&viewMatrix, XMMatrixTranspose(V)); // Transpose for HLSL!
 	// Send data to shader variables
 	//  - Do this ONCE PER OBJECT you're drawing
 	//  - This is actually a complex process of copying data to a local buffer
 	//    and then copying that entire buffer to the GPU.  
 	//  - The "SimpleShader" class handles all of that for you.
+
+	//testingCamera.getProjectionMatrix(this->width,this->height,0.1,100)
+	
+
+
+	XMStoreFloat4x4(&viewMatrix, XMMatrixTranspose(V));
+	XMFLOAT4X4 dummy;
+	XMMATRIX mat_view = testingCamera.getViewMatrix();
+	XMMATRIX P_new = testingCamera.getProjectionMatrix(
+		width ,height,	// Aspect ratio
+		0.1f,				  	// Near clip plane distance
+		100.0f);			  	// Far clip plane distance
+
+	//XMStoreFloat4x4(&projectionMatrix, P); // Transpose for HLSL!
+
+
+	std::cout << "ViewMatrix\n";
+	//projectionMatrix[2] *= -1;
+	for (int i = 0; i < 4; i++) {
+		std::cout << "[";
+		for (int j = 0; j < 4; j++) {
+			std::cout << viewMatrix.m[i][j];
+			if (j != 3)std::cout << ",";
+		}
+		std::cout << "]\n";
+	}
+	
+	
+	std::cout << "New view\n";
+
+	//mat_view.r[2] *= -1;
+	XMStoreFloat4x4(&dummy, XMMatrixTranspose(mat_view)); // Transpose for HLSL!
+	for (int i = 0; i < 4; i++) {
+		std::cout << "[";
+		for (int j = 0; j < 4; j++) {
+			std::cout << dummy.m[i][j];
+			if (j != 3)std::cout << ",";
+		}
+		std::cout << "]\n";
+	}
+
+	//projectionMatrix[2] *= -1;
+	XMStoreFloat4x4(&projectionMatrix, P_new); // Transpose for HLSL!
+	
+	//XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(P_normal)); // Transpose for HLSL!
+	//XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(P_new)); // Transpose for HLSL!
+
+
+	P_new.r[2] *= -1;
+	XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(P_new)); // Transpose for HLSL!
+	//XMStoreFloat4x4(&viewMatrix, XMMatrixTranspose(mat_view)); // Transpose for HLSL!
+	vertexShader->SetMatrix4x4("projection", projectionMatrix);
+
+
+	//XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(testingCamera.getProjectionMatrix(this->width, this->height, 0.1, 100)));
+	//XMStoreFloat4x4(&projectionMatrix, testingCamera.getProjectionMatrix(this->width, this->height, 0.1, 100));
 	vertexShader->SetMatrix4x4("world", worldMatrix);
 	vertexShader->SetMatrix4x4("view", viewMatrix);
-	vertexShader->SetMatrix4x4("projection", projectionMatrix);
 
 	// Once you've set all of the data you care to change for
 	// the next draw call, you need to actually send it to the GPU
@@ -332,9 +431,6 @@ void KContext::Draw(float deltaTime, float totalTime)
 		}
 	}
 
-	for (auto it = m_renderContexts.begin(); it != m_renderContexts.end(); it++) {
-		it->main.render(this->depthStencilView , it->scene);
-	}
 	context->OMSetRenderTargets(1,&this-> backBufferRTV, depthStencilView);
 	if (myImGui) myImGui->render();
 	swapChain->Present(0, 0);

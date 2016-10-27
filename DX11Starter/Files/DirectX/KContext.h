@@ -12,6 +12,7 @@
 #include "imgui\DirectX\Context.h"
 #include "Graphic\GraphicMain.h"
 #include "Graphic\RenderTexture.h"
+#include "Graphic\Camera.h"
 
 //TODO Draw triangle with different backgrounds onto three different framebuffers
 namespace DirectX {
@@ -61,6 +62,7 @@ namespace DirectX {
 
 		Graphic::RenderTexture renderTexture;
 	public:
+		Graphic::Camera testingCamera;
 		KContext(HINSTANCE hInstance);
 		~KContext();
 

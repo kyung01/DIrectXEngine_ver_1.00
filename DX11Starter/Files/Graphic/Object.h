@@ -11,11 +11,11 @@ namespace Graphic {
 	private:
 		bool isDirty;
 	protected:
+	public:
 		Vector3 m_scale;
 		Vector3 m_pos;
 		Quaternion m_rotation;
 		Matrix m_matModel;
-	public:
 
 		Object();
 		virtual void setScale(Vector3 scale);

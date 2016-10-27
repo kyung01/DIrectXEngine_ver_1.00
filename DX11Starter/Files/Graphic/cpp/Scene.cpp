@@ -6,7 +6,7 @@ Graphic::Scene::Scene()
 
 void Graphic::Scene::loadExample00()
 {
-	for (int i = 0; i < 10; i++) for(int j = 0 ; j < 10; j++)for(int k = 0; k < 10; k++){
+	for (int i = -5; i < 5; i++) for(int j = -5 ; j < 5; j++)for(int k = -5; k < 5; k++){
 		Object obj;
 		obj.setPos(Vector3(i, j, k));
 		this->objects.push_back(obj);

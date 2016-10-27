@@ -27,10 +27,11 @@ void Graphic::Object::setRotation(Quaternion quaternion)
 Matrix Graphic::Object::getModelMatrix()
 {
 	if (isDirty) {
+		isDirty = false;
 		m_matModel =
-			DirectX::SimpleMath::Matrix::CreateScale(m_scale) *
-			DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_rotation)*
-			DirectX::SimpleMath::Matrix::CreateTranslation(m_pos);
+			DirectX::XMMatrixScaling(m_scale.x, m_scale.y, m_scale.z)*
+			DirectX::XMMatrixRotationQuaternion(m_rotation)*
+			DirectX::XMMatrixTranslation(m_pos.x, m_pos.y, m_pos.z);
 	}
 	return m_matModel;
 }

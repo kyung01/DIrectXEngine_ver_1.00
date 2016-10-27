@@ -1,5 +1,6 @@
 #include "GraphicMain.h"
 #include <string>
+
 using namespace Graphic;
 void Graphic::GraphicMain::processObject(Object obj) {
 }
@@ -67,15 +68,15 @@ void Graphic::GraphicMain::rendering( Scene scene)
 }
 bool Graphic::GraphicMain::initTextures(ID3D11Device * device, ID3D11DeviceContext * context,int width, int height)
 {
-	this->textures[RENDER_TYPE::DEFFERED_DIFFUSE]	= RenderTexture();
-	this->textures[RENDER_TYPE::DEFERRED_DEPTH]	= RenderTexture();
-	this->textures[RENDER_TYPE::DEFFERED_NORMAL]	= RenderTexture();
-	this->textures[RENDER_TYPE::DEFFERED_WORLD]	= RenderTexture();
+	this->m_textures[RENDER_TYPE::DEFFERED_DIFFUSE]	= new RenderTexture();
+	this->m_textures[RENDER_TYPE::DEFERRED_DEPTH]	= new RenderTexture();
+	this->m_textures[RENDER_TYPE::DEFFERED_NORMAL]	= new RenderTexture();
+	this->m_textures[RENDER_TYPE::DEFFERED_WORLD]	= new  RenderTexture();
 
-	this->textures[RENDER_TYPE::DEFFERED_DIFFUSE]	.Initialize(device, width, height);
-	this->textures[RENDER_TYPE::DEFERRED_DEPTH]	.Initialize(device, width, height);
-	this->textures[RENDER_TYPE::DEFFERED_NORMAL]	.Initialize(device, width, height);
-	this->textures[RENDER_TYPE::DEFFERED_WORLD]	.Initialize(device, width, height);
+	this->m_textures[RENDER_TYPE::DEFFERED_DIFFUSE]	->Initialize(device, width, height);
+	this->m_textures[RENDER_TYPE::DEFERRED_DEPTH]	->Initialize(device, width, height);
+	this->m_textures[RENDER_TYPE::DEFFERED_NORMAL]	->Initialize(device, width, height);
+	this->m_textures[RENDER_TYPE::DEFFERED_WORLD]	->Initialize(device, width, height);
 
 	return true;
 }
@@ -86,16 +87,21 @@ bool GraphicMain::initShaders(ID3D11Device* device, ID3D11DeviceContext *context
 		!pixelShader->LoadShaderFileHLSL(L"Resource/default_frag.hlsl", "ps_5_0"))
 		return false;
 
-	this->shadersVert[RENDER_TYPE::DEFAULT] = std::make_unique<SimpleVertexShader*>(vertexShader);
-	this->shadersFrag[RENDER_TYPE::DEFAULT] = std::make_unique<SimpleFragmentShader*>(pixelShader);
-	this->shadersVert[RENDER_TYPE::DEFFERED_DIFFUSE] = std::make_unique<SimpleVertexShader*>(vertexShader);
-	this->shadersFrag[RENDER_TYPE::DEFFERED_DIFFUSE] = std::make_unique<SimpleFragmentShader*>(pixelShader);
-	this->shadersVert[RENDER_TYPE::DEFFERED_NORMAL] = std::make_unique<SimpleVertexShader*>(vertexShader);
-	this->shadersFrag[RENDER_TYPE::DEFFERED_NORMAL] = std::make_unique<SimpleFragmentShader*>(pixelShader);
+	this->m_shadersVert[RENDER_TYPE::DEFAULT] = std::make_unique<SimpleVertexShader*>(vertexShader);
+	this->m_shadersFrag[RENDER_TYPE::DEFAULT] = std::make_unique<SimpleFragmentShader*>(pixelShader);
+
+	this->m_shadersVert[RENDER_TYPE::DEFFERED_DIFFUSE] = std::make_unique<SimpleVertexShader*>(vertexShader);
+	this->m_shadersFrag[RENDER_TYPE::DEFFERED_DIFFUSE] = std::make_unique<SimpleFragmentShader*>(pixelShader);
+
+	this->m_shadersVert[RENDER_TYPE::DEFFERED_NORMAL] = std::make_unique<SimpleVertexShader*>(vertexShader);
+	this->m_shadersFrag[RENDER_TYPE::DEFFERED_NORMAL] = std::make_unique<SimpleFragmentShader*>(pixelShader);
 	//this->shadersVert[SHADER_ID::DEFFERED_NORMAL] = std::make_unique<SimpleVertexShader*>(vertexShader);
 	//this->shadersFrag[SHADER_ID::DEFFERED_NORMAL] = std::make_unique<SimpleFragmentShader*>(pixelShader);
 	return true;
 
+}
+Graphic::GraphicMain::GraphicMain()
+{
 }
 bool Graphic::GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *context, int width, int height)
 {
@@ -106,20 +112,66 @@ bool Graphic::GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *conte
 		) return false;
 	return true;
 }
-
-void Graphic::GraphicMain::render(ID3D11DepthStencilView *depth, Graphic::Scene scene)
+float temp_angle = 0;
+void Graphic::GraphicMain::render(ID3D11DeviceContext *context, ID3D11DepthStencilView *depth, Graphic::Scene scene)
 {
+	scene.m_camMain.setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle) );
+	temp_angle += .01f;
 	beginRendering();
-	/*
-	renderTexture.SetRenderTarget(context, depth);
-	renderTexture.ClearRenderTarget(context, depth, 0, 1, 0, 0);
 
-	vertexShader->SetMatrix4x4("world", worldMatrix);
-	vertexShader->SetMatrix4x4("view", viewMatrix);
-	vertexShader->SetMatrix4x4("projection", projectionMatrix);
+	auto renderTexture = m_textures[RENDER_TYPE::DEFFERED_DIFFUSE];
+	auto vertexShader = *m_shadersVert.begin()->second;
+	auto pixelShader = *m_shadersFrag.begin()->second;
+
+
+	DirectX::XMFLOAT4X4 world,view,projection;
+
+	DirectX::XMStoreFloat4x4(&world,		XMMatrixTranspose(scene.m_camMain.getModelMatrix() )); // Transpose for HLSL!
+	DirectX::XMStoreFloat4x4(&view,			XMMatrixTranspose(scene.m_camMain.getViewMatrix())); // Transpose for HLSL!
+	DirectX::XMStoreFloat4x4(&projection,	XMMatrixTranspose(scene.m_camMain.getProjectionMatrix(width, height, 0.1f, 100.0f))); // Transpose for HLSL!
+
+	renderTexture->SetRenderTarget(context, depth);
+	renderTexture->ClearRenderTarget(context, depth, 1 ,.5f, 0, 1);
+	vertexShader->SetMatrix4x4("world", world);
+	vertexShader->SetMatrix4x4("view", view);
+	vertexShader->SetMatrix4x4("projection", projection);
+	//vertexShader->SetMatrix4x4("world", scene.m_camMain.getModelMatrix());
+	//vertexShader->SetMatrix4x4("view", scene.m_camMain.getViewMatrix());
+	//vertexShader->SetMatrix4x4("projection", scene.m_camMain.getProjectionMatrix(width,height,0.1f,100.0f));
 	vertexShader->CopyAllBufferData();
 	vertexShader->SetShader();
 	pixelShader->SetShader();
+	int count = 0;
+	
+	for (auto it = scene.objects.begin(); it != scene.objects.end(); it++, count++) {
+		//XMStoreFloat4x4(&worldMatrix_temp, XMMatrixTranspose(XMLoadFloat4x4(&it->pos))); // Transpose for HLSL!
+
+		DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose(it->getModelMatrix())); // Transpose for HLSL!
+
+		vertexShader->SetMatrix4x4("world", world);
+		vertexShader->CopyAllBufferData();
+
+
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+		context->IASetVertexBuffers(0, 1, &mesh00->getBufferVertexRef(), &stride, &offset);
+		context->IASetIndexBuffer(mesh00->getBufferIndex(), DXGI_FORMAT_R32_UINT, 0);
+
+		// Finally do the actual drawing
+		//  - Do this ONCE PER OBJECT you intend to draw
+		//  - This will use all of the currently set DirectX "stuff" (shaders, buffers, etc)
+		//  - DrawIndexed() uses the currently set INDEX BUFFER to look up corresponding
+		//     vertices in the currently set VERTEX BUFFER
+		context->DrawIndexed(
+			mesh00->getBufferIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
+			0,     // Offset to the first index we want to use
+			0);    // Offset to add to each index when looking up vertices
+
+
+	}
+	// std::cout << "H\n" << count;
+	/*
+
 	for (auto cam = scene.cams.begin(); cam != scene.cams.end(); cam++) {
 		//processCamera(*cam);
 		for (auto it = scene.objects.begin(); it != scene.objects.end(); it++) {
