@@ -128,8 +128,8 @@
     <ClCompile Include="Files\DirectX\DXCore.cpp" />
     <ClCompile Include="Files\DirectX\KContext.cpp" />
     <ClCompile Include="Files\Graphic\Mesh.cpp" />
-    <ClCompile Include="Files\Graphic\RenderTexture.cpp" />
-    <ClCompile Include="Files\Graphic\cpp\Scene.cpp" />
+    <ClCompile Include="Files\Graphic\cpp\RenderTexture.cpp" />
+    <ClCompile Include="Files\Graphic\cpp\Graphic_Scene.cpp" />
     <ClCompile Include="Files\imgui\DirectX\cpp_imgui_DirectX_Context.cpp" />
     <ClCompile Include="Files\imgui\DirectX\cpp_imgui_DirectX_UIMain.cpp" />
     <ClCompile Include="Files\imgui\DirectX\cpp_imgui_impl_dx11.cpp" />
@@ -138,11 +138,10 @@
     <ClCompile Include="Files\imgui\imgui_demo.cpp" />
     <ClCompile Include="Files\imgui\imgui_draw.cpp" />
     <ClCompile Include="Files\Graphic\cpp\Graphic_Camera.cpp" />
-    <ClCompile Include="Files\Graphic\GraphicMain.cpp" />
+    <ClCompile Include="Files\Graphic\cpp\GraphicMain.cpp" />
     <ClCompile Include="Files\Graphic\cpp\Graphic_Object.cpp" />
-    <ClCompile Include="Files\Graphic\Shader.cpp" />
     <ClCompile Include="Files\Object.cpp" />
-    <ClCompile Include="Files\Graphic\SimpleShader.cpp" />
+    <ClCompile Include="Files\Graphic\cpp\SimpleShader.cpp" />
     <ClCompile Include="Files\WorldCamera.cpp" />
     <ClCompile Include="Files\WorldMain.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -181,6 +180,7 @@
     <ClInclude Include="Files\Graphic\RenderType.h" />
     <ClInclude Include="Files\Graphic\ShaderInformation.h" />
     <ClInclude Include="Files\Graphic\ShaderType.h" />
+    <ClInclude Include="Files\Graphic\TextureID.h" />
     <ClInclude Include="Files\imgui\DirectX\Context.h" />
     <ClInclude Include="Files\imgui\DirectX\imgui_impl_dx11.h" />
     <ClInclude Include="Files\imgui\DirectX\KContext.h" />

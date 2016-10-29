@@ -5,7 +5,7 @@ using namespace DirectX::SimpleMath;
 //using namespace glm;
 namespace Graphic {
 	enum CAMERA_TYPE { PERSPECTIVE, ORTHOGONAL };
-	class Camera : public Object{
+	class Camera : public NScene::Object{
 	private:
 		float 
 			m_screenWidth, m_screenHeight,

@@ -35,11 +35,17 @@ void NImGui::UIMain::render()
 		ImGui::EndMenu();
 	}
 	ImGui::EndMainMenuBar();
-	ImTextureID tex_id = UIMain::example_texture->m_shaderResourceView;
-	//ImTextureID tex_id = ImGui::GetIO().Fonts->TexID;
-	ImGui::Text("%.0fx%.0f", 500, 500);
-	ImGui::Image(tex_id, ImVec2(500, 500), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
 
+	std::cout << graphicMain->m_renderTextures.size();
+	for (auto it = graphicMain->m_renderTextures.begin(); it != graphicMain->m_renderTextures.end(); it++) {
+		ImGui::Text("hello World", 500, 500);
+		std::cout << "E";
+		ImTextureID tex_id = it->second->m_shaderResourceView;
+		//ImTextureID tex_id = ImGui::GetIO().Fonts->TexID;
+		ImGui::Text("%.0fx%.0f", 500, 500);
+		ImGui::Image(tex_id, ImVec2(500, 500), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
+
+	}
 	if (ImGui::TreeNode("Images"))
 	{
 		ImGui::TextWrapped("Below we are displaying the font texture (which is the only texture we have access to in this demo). Use the 'ImTextureID' type as storage to pass pointers or identifier to your own texture data. Hover the texture for a zoomed view!");

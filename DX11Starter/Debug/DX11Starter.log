@@ -1,0 +1,11 @@
+﻿  Main.cpp
+  Generating Code...
+  Compiling...
+  KContext.cpp
+c:\users\kyunghwan chang\documents\github\directxengine\dx11starter\files\directx\kcontext.cpp(290): warning C4101: 'dir': unreferenced local variable
+c:\users\kyunghwan chang\documents\github\directxengine\dx11starter\files\directx\kcontext.cpp(287): warning C4101: 'y': unreferenced local variable
+c:\users\kyunghwan chang\documents\github\directxengine\dx11starter\files\directx\kcontext.cpp(287): warning C4101: 'x': unreferenced local variable
+c:\users\kyunghwan chang\documents\github\directxengine\dx11starter\files\directx\kcontext.cpp(504): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
+  Generating Code...
+  DX11Starter.vcxproj -> C:\Users\kyunghwan chang\Documents\GitHub\DIrectXEngine\DX11Starter\Debug\DX11Starter.exe
+  DX11Starter.vcxproj -> C:\Users\kyunghwan chang\Documents\GitHub\DIrectXEngine\DX11Starter\Debug\DX11Starter.pdb (Full PDB)

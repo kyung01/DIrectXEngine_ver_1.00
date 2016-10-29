@@ -45,15 +45,6 @@
     <ClCompile Include="Files\DirectX\KContext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Files\Graphic\GraphicMain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Files\Graphic\Shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Files\Graphic\SimpleShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Files\imgui\DirectX\cpp_imgui_DirectX_Context.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -66,19 +57,25 @@
     <ClCompile Include="Files\imgui\DirectX\cpp_imgui_impl_dx11.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Files\Graphic\RenderTexture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Files\Graphic\cpp\Graphic_Object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Files\Graphic\cpp\Graphic_Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Files\Graphic\cpp\Scene.cpp">
+    <ClCompile Include="Files\Graphic\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Files\Graphic\Mesh.cpp">
+    <ClCompile Include="Files\Graphic\cpp\Graphic_Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Files\Graphic\cpp\RenderTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Files\Graphic\cpp\SimpleShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Files\Graphic\cpp\GraphicMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -188,6 +185,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Files\Graphic\MeshID.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Files\Graphic\TextureID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

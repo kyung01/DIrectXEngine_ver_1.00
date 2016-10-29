@@ -1,7 +1,6 @@
 #pragma once
 #include "KContext.h"
 #include "Vertex.h"
-#include "imgui\DirectX\UIMain.h" //TODO delete this line
 #include <iostream>
 
 
@@ -9,7 +8,9 @@
 
 
 // For the DirectX Math library
-using namespace DirectX;
+using namespace NDirectX;
+using namespace Graphic;
+using namespace Graphic::NScene;
 
 // --------------------------------------------------------
 // Constructor
@@ -64,7 +65,8 @@ void KContext::Init()
 	//temporary world information 
 	CreateMatrices();
 	CreateBasicGeometry();
-	m_renderContexts.push_back({ "example00","Created for demo purpose.", Graphic::GraphicMain(), Graphic::Scene() });
+	
+	m_renderContexts.push_back({ "example00","Created for demo purpose.", Graphic::GraphicMain(), Scene() });
 	for (auto it = m_renderContexts.begin(); it != m_renderContexts.end(); it++) {
 		if (!it->main.init(this->device, this->context, this->width, this->height)) {
 			std::cout << "GraphicMain failed to init" << std::endl;
@@ -88,8 +90,9 @@ void KContext::Init()
 
 
 	renderTexture.Initialize(this->device, width, height);
-	m_renderContexts.begin()->main.mesh00 = &*triangle; //TODO you should delete this line
-	NImGui::UIMain::example_texture = m_renderContexts.begin()->main.m_textures[Graphic::RENDER_TYPE::DEFFERED_DIFFUSE];
+	//m_renderContexts.begin()->main.mesh00 = &*triangle; //TODO you should delete this line
+	
+	//NImGui::UIMain::example_texture = m_renderContexts.begin()->main.m_renderTextures[Graphic::RENDER_TYPE::DEFFERED_DIFFUSE];
 }
 
 // --------------------------------------------------------
@@ -449,7 +452,7 @@ void KContext::Draw(float deltaTime, float totalTime)
 	}
 
 	context->OMSetRenderTargets(1,&this-> backBufferRTV, depthStencilView);
-	if (myImGui) myImGui->render();
+	if (m_ui) m_ui->render();
 	swapChain->Present(0, 0);
 }
 

@@ -133,7 +133,7 @@ int WINAPI WinMain(
 
 	// Create the Game object using
 	// the app handle we got from WinMain
-	DirectX::KContext dxContext(hInstance);
+	NDirectX::KContext dxContext(hInstance);
 
 	// Result variable for function calls below
 	HRESULT hr = S_OK;
@@ -156,7 +156,7 @@ int WINAPI WinMain(
 	//main_example(hInstance, dxContext.hWnd);
 	guiContext.init(hInstance, dxContext.hWnd, dxContext.device, dxContext.context, dxContext.swapChain, dxContext.backBufferRTV,
 		&dxContext.m_graphicMain);
-	dxContext.myImGui = &guiContext;
+	dxContext.m_ui = &guiContext;
 	
 	// Begin the message and game loop, and then return
 	// whatever we get back once the game loop is over

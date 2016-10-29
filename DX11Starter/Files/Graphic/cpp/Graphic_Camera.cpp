@@ -1,13 +1,15 @@
 #include "Graphic\Camera.h"
 #include <iostream>
-Graphic::Camera::Camera()	
+using namespace Graphic;
+using namespace Graphic::NScene;
+Camera::Camera()	
 {
 	m_pos = Vector3(0, 0, 0);
 	m_isDirty_matView = true;
 	m_isDirty_matProjection = true;
 }
 
-Matrix Graphic::Camera::getProjectionMatrix(float screen_width, float screen_height,float clipNear,float clipFar)
+Matrix Camera::getProjectionMatrix(float screen_width, float screen_height,float clipNear,float clipFar)
 {
 	if (m_screenWidth != screen_width || m_screenHeight != screen_height||m_clipNear != clipNear || m_clipFar != clipFar) {
 		m_isDirty_matProjection = true;
@@ -27,7 +29,7 @@ Matrix Graphic::Camera::getProjectionMatrix(float screen_width, float screen_hei
 	return m_matProjection;
 }
 
-Matrix Graphic::Camera::getViewMatrix()
+Matrix Camera::getViewMatrix()
 {
 	if (m_isDirty_matView) {
 		m_isDirty_matView = false;
@@ -37,15 +39,15 @@ Matrix Graphic::Camera::getViewMatrix()
 	return m_matView;
 }
 
-void Graphic::Camera::setPos(Vector3 pos) 
+void Camera::setPos(Vector3 pos) 
 {
-	Graphic::Object::setPos(pos);
+	Object::setPos(pos);
 	m_isDirty_matView = true;
 }
 
 
 void Graphic::Camera::setRotation(Quaternion quaternion)
 {
-	Graphic::Object::setRotation(quaternion);
+	Object::setRotation(quaternion);
 	m_isDirty_matView = true;
 }

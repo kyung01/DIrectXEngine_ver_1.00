@@ -15,7 +15,7 @@
 #include "Graphic\Mesh.h"
 
 //TODO Draw triangle with different backgrounds onto three different framebuffers
-namespace DirectX {
+namespace NDirectX {
 	/*
 	Each GraphicMain should be assinged one scene and one scene only
 	*/
@@ -23,7 +23,7 @@ namespace DirectX {
 		std::string name; // id to describe the scene
 		std::string description; // describe what this scene is
 		Graphic::GraphicMain main;
-		Graphic::Scene scene;
+		Graphic::NScene::Scene scene;
 	};
 
 	class KContext
@@ -63,12 +63,12 @@ namespace DirectX {
 		Graphic::RenderTexture renderTexture;
 	public:
 		Graphic::Camera testingCamera;
-		KContext(HINSTANCE hInstance);
 		~KContext();
 
-		NImGui::Context *myImGui;
+		NImGui::Context *m_ui;
 		Graphic::GraphicMain m_graphicMain;
 
+		KContext(HINSTANCE hInstance);
 		// Overridden setup and game loop methods, which
 		// will be called automatically
 		void Init();
