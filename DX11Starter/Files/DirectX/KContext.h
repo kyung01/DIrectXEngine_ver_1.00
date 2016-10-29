@@ -3,7 +3,6 @@
 #include "DXCore.h"
 #include "Graphic\SimpleShader.h"
 #include <DirectXMath.h>
-#include "Mesh.h"
 #include <memory>
 #include <list>
 #include "WorldMain.h"
@@ -13,6 +12,7 @@
 #include "Graphic\GraphicMain.h"
 #include "Graphic\RenderTexture.h"
 #include "Graphic\Camera.h"
+#include "Graphic\Mesh.h"
 
 //TODO Draw triangle with different backgrounds onto three different framebuffers
 namespace DirectX {

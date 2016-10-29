@@ -9,6 +9,8 @@
 #include "RenderType.h"
 #include "SimpleShader.h"
 #include "RenderTexture.h"
+#include "MeshID.h"
+#include <list>
 #include <map>
 #include <memory>
 #include <d3d11.h>
@@ -17,10 +19,18 @@
 
 
 
-#include "DirectX/Mesh.h" // TODO delete this
+#include "Graphic/Mesh.h" // TODO delete this
 
 namespace Graphic {
 	//TODO hlsl files are stroed in debug folder once they are built with extention .cso You need grasp them
+	struct MeshLoadInformation {
+		MESH_TYPE type;
+		char* path;
+	};
+	struct ShaderLoadInformation {
+		RENDER_TYPE type;
+		LPCWSTR path;
+	};
 
 	class GraphicMain {
 	private:
@@ -28,7 +38,10 @@ namespace Graphic {
 		
 		void rendering(Scene scene);
 		void processObject(Object obj);
-		
+
+		std::list<MeshLoadInformation>		getLoadListMesh();
+		std::list<ShaderLoadInformation>	getLoadListShaderVert();
+		std::list<ShaderLoadInformation>	getLoadListShaderFrag();
 
 		bool loadShaders(
 			ID3D11Device* device, ID3D11DeviceContext *context,
@@ -48,6 +61,7 @@ namespace Graphic {
 		std::map<RENDER_TYPE, RenderTexture*> m_textures;
 		std::map<RENDER_TYPE, std::unique_ptr<SimpleFragmentShader*>> m_shadersFrag;
 		std::map<RENDER_TYPE, std::unique_ptr<SimpleVertexShader*>> m_shadersVert;
+		std::map<MESH_TYPE, std::unique_ptr<Mesh*>> m_meshes;
 
 		std::map<int, Model*> models;
 		std::map<int, Shader*> shaders;

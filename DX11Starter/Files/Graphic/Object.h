@@ -2,6 +2,7 @@
 #include <memory>
 #include <d3d11.h>
 #include <SimpleMath.h>
+#include "MeshID.h"
 //#include "glm\glm.hpp"
 //#include "Shader.h"
 using namespace DirectX::SimpleMath;
@@ -12,6 +13,7 @@ namespace Graphic {
 		bool isDirty;
 	protected:
 	public:
+		MESH_TYPE m_meshType;
 		Vector3 m_scale;
 		Vector3 m_pos;
 		Quaternion m_rotation;

@@ -175,6 +175,8 @@ void KContext::CreateBasicGeometry()
 	XMFLOAT4 red	= XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 	XMFLOAT4 green	= XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 	XMFLOAT4 blue	= XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+	/*
+	
 	Vertex vertices[] =
 	{
 		{ XMFLOAT3(+0.0f, +.5f, +0.0f), red },
@@ -194,6 +196,28 @@ void KContext::CreateBasicGeometry()
 		{ XMFLOAT3(+0.0f, +0.5f, +0.0f), blue },
 		{ XMFLOAT3(+0.2f, 0.0f, +0.0f), green },
 		{ XMFLOAT3(-0.0f, -.5f, +0.0f), green },
+	};
+	*/
+
+	Vertex vertices[] =
+	{
+		{ XMFLOAT3(+0.0f, +.5f, +0.0f) },
+		{ XMFLOAT3(+.5f, -.50f, +0.0f) },
+		{ XMFLOAT3(-.5f, -.50f, +0.0f) },
+	};
+	Vertex verticesSquare[] =
+	{
+		{ XMFLOAT3(-0.5f, +0.5f, +0.0f) },
+		{ XMFLOAT3(+0.5f, +0.5f, +0.0f) },
+		{ XMFLOAT3(+0.5f, -.5f, +0.0f) },
+		{ XMFLOAT3(-0.5f, -.5f, +0.0f) },
+	};
+	Vertex verticesDiamond[] =
+	{
+		{ XMFLOAT3(-0.2f, +0.0f, +0.0f) },
+		{ XMFLOAT3(+0.0f, +0.5f, +0.0f) },
+		{ XMFLOAT3(+0.2f, 0.0f, +0.0f) },
+		{ XMFLOAT3(-0.0f, -.5f, +0.0f) },
 	};
 	int indices[] = { 0, 1, 2 };
 	int indicesSquare[] = { 0, 1, 2 ,2,3,0};
@@ -315,15 +339,7 @@ void KContext::Draw(float deltaTime, float totalTime)
 	*/
 
 
-	XMVECTOR pos = XMVectorSet(0, 0, -5, 0);
-	XMVECTOR dir = XMVectorSet(0, 0, 1, 0);
-	XMVECTOR up = XMVectorSet(0, 1, 0, 0);
-	XMMATRIX V = XMMatrixLookToLH(
-		pos,     // The position of the "camera"
-		dir,     // Direction the camera is looking
-		up);     // "Up" direction in 3D space (prevents roll)
-
-	XMStoreFloat4x4(&viewMatrix, XMMatrixTranspose(V)); // Transpose for HLSL!
+	
 	// Send data to shader variables
 	//  - Do this ONCE PER OBJECT you're drawing
 	//  - This is actually a complex process of copying data to a local buffer
@@ -333,7 +349,7 @@ void KContext::Draw(float deltaTime, float totalTime)
 	//testingCamera.getProjectionMatrix(this->width,this->height,0.1,100)
 	
 
-
+	/*
 	XMStoreFloat4x4(&viewMatrix, XMMatrixTranspose(V));
 	XMFLOAT4X4 dummy;
 	XMMATRIX mat_view = testingCamera.getViewMatrix();
@@ -344,7 +360,7 @@ void KContext::Draw(float deltaTime, float totalTime)
 
 	//XMStoreFloat4x4(&projectionMatrix, P); // Transpose for HLSL!
 
-
+	
 	std::cout << "ViewMatrix\n";
 	//projectionMatrix[2] *= -1;
 	for (int i = 0; i < 4; i++) {
@@ -378,7 +394,8 @@ void KContext::Draw(float deltaTime, float totalTime)
 
 
 	P_new.r[2] *= -1;
-	XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(P_new)); // Transpose for HLSL!
+	*/
+	//XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(P_new)); // Transpose for HLSL!
 	//XMStoreFloat4x4(&viewMatrix, XMMatrixTranspose(mat_view)); // Transpose for HLSL!
 	vertexShader->SetMatrix4x4("projection", projectionMatrix);
 

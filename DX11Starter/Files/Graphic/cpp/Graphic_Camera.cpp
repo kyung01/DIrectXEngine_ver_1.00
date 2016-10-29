@@ -2,7 +2,7 @@
 #include <iostream>
 Graphic::Camera::Camera()	
 {
-	m_pos = Vector3(0, 0, -5);
+	m_pos = Vector3(0, 0, 0);
 	m_isDirty_matView = true;
 	m_isDirty_matProjection = true;
 }
@@ -32,7 +32,6 @@ Matrix Graphic::Camera::getViewMatrix()
 	if (m_isDirty_matView) {
 		m_isDirty_matView = false;
 		Vector3 target = XMQuaternionMultiply(m_rotation, Vector3(0, 0, 1));// , 0.0f);
-		std::cout <<"HEY"<< target.x << " " << target.y << " " << target.z << "\n";
 		m_matView = DirectX::XMMatrixLookToLH(m_pos, target, Vector3::Up);
 	}
 	return m_matView;

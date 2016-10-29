@@ -5,6 +5,44 @@ using namespace Graphic;
 void Graphic::GraphicMain::processObject(Object obj) {
 }
 
+std::list<MeshLoadInformation> Graphic::GraphicMain::getLoadListMesh()
+{
+	std::list<MeshLoadInformation> lst({
+		{ MESH_TYPE::CONE, "Resource/Mesh/cone.obj" },
+		{ MESH_TYPE::CUBE, "Resource/Mesh/cube.obj" },
+		{ MESH_TYPE::CYLINDER, "Resource/Mesh/cylinder.obj" },
+		{ MESH_TYPE::HELIX, "Resource/Mesh/helix.obj" },
+		{ MESH_TYPE::SPHERE, "Resource/Mesh/sphere.obj" },
+		{ MESH_TYPE::TORUS, "Resource/Mesh/torus.obj" }
+	});
+	return lst;
+}
+
+std::list<ShaderLoadInformation> Graphic::GraphicMain::getLoadListShaderVert()
+{
+	std::list<ShaderLoadInformation> lst(
+	{	{ RENDER_TYPE::DEFAULT,			L"Resource/default_vert.hlsl" },
+		{ RENDER_TYPE::DEFFERED_DIFFUSE,L"Resource/default_vert.hlsl" } ,
+		{ RENDER_TYPE::DEFFERED_NORMAL,	L"Resource/default_vert.hlsl" } ,
+		{ RENDER_TYPE::DEFFERED_WORLD,	L"Resource/default_vert.hlsl" },
+		{ RENDER_TYPE::DEFERRED_DEPTH,	L"Resource/default_vert.hlsl" },
+		{ RENDER_TYPE::OTHER,			L"Resource/default_vert.hlsl" }
+	});
+	return lst;
+}
+
+std::list<ShaderLoadInformation> Graphic::GraphicMain::getLoadListShaderFrag()
+{
+	std::list<ShaderLoadInformation> lst(
+	{ { RENDER_TYPE::DEFAULT,			L"Resource/default_frag.hlsl" },
+	{ RENDER_TYPE::DEFFERED_DIFFUSE,	L"Resource/default_frag.hlsl" } ,
+	{ RENDER_TYPE::DEFFERED_NORMAL,		L"Resource/default_frag.hlsl" } ,
+	{ RENDER_TYPE::DEFFERED_WORLD,		L"Resource/default_frag.hlsl" },
+	{ RENDER_TYPE::DEFERRED_DEPTH,		L"Resource/default_frag.hlsl" },
+	{ RENDER_TYPE::OTHER,				L"Resource/default_frag.hlsl" }
+	});
+	return lst;
+}
 
 bool Graphic::GraphicMain::loadShaders(
 	ID3D11Device* device, ID3D11DeviceContext *context,
@@ -81,22 +119,25 @@ bool Graphic::GraphicMain::initTextures(ID3D11Device * device, ID3D11DeviceConte
 	return true;
 }
 bool GraphicMain::initShaders(ID3D11Device* device, ID3D11DeviceContext *context) {
-	auto vertexShader = new Graphic::SimpleVertexShader(device, context);
-	auto pixelShader = new Graphic::SimpleFragmentShader(device, context);
-	if (!vertexShader->LoadShaderFileHLSL(L"Resource/default_vert.hlsl", "vs_5_0") ||
-		!pixelShader->LoadShaderFileHLSL(L"Resource/default_frag.hlsl", "ps_5_0"))
-		return false;
+	auto vertData = getLoadListShaderVert();
+	auto fragData = getLoadListShaderFrag();
+	auto meshData = getLoadListMesh();
 
-	this->m_shadersVert[RENDER_TYPE::DEFAULT] = std::make_unique<SimpleVertexShader*>(vertexShader);
-	this->m_shadersFrag[RENDER_TYPE::DEFAULT] = std::make_unique<SimpleFragmentShader*>(pixelShader);
+	for (auto it = vertData.begin(); it != vertData.end(); it++) {
+		auto shader = new Graphic::SimpleVertexShader(device, context);
+		if(!shader->LoadShaderFileHLSL(it->path, "vs_5_0")) return false;
+		m_shadersVert[it->type] = std::make_unique<SimpleVertexShader*>(shader);
+	}
 
-	this->m_shadersVert[RENDER_TYPE::DEFFERED_DIFFUSE] = std::make_unique<SimpleVertexShader*>(vertexShader);
-	this->m_shadersFrag[RENDER_TYPE::DEFFERED_DIFFUSE] = std::make_unique<SimpleFragmentShader*>(pixelShader);
-
-	this->m_shadersVert[RENDER_TYPE::DEFFERED_NORMAL] = std::make_unique<SimpleVertexShader*>(vertexShader);
-	this->m_shadersFrag[RENDER_TYPE::DEFFERED_NORMAL] = std::make_unique<SimpleFragmentShader*>(pixelShader);
-	//this->shadersVert[SHADER_ID::DEFFERED_NORMAL] = std::make_unique<SimpleVertexShader*>(vertexShader);
-	//this->shadersFrag[SHADER_ID::DEFFERED_NORMAL] = std::make_unique<SimpleFragmentShader*>(pixelShader);
+	for (auto it = fragData.begin(); it != fragData.end(); it++) {
+		auto shader = new Graphic::SimpleFragmentShader(device, context);
+		if (!shader->LoadShaderFileHLSL(it->path, "ps_5_0")) return false;
+		m_shadersFrag[it->type] = std::make_unique<SimpleFragmentShader*>(shader);
+	}
+	for (auto it = meshData.begin(); it != meshData.end(); it++) {
+		auto mesh = new Mesh(device, it->path);
+		m_meshes[it->type] = std::make_unique<Mesh*>(mesh);
+	}
 	return true;
 
 }
@@ -131,7 +172,7 @@ void Graphic::GraphicMain::render(ID3D11DeviceContext *context, ID3D11DepthStenc
 	DirectX::XMStoreFloat4x4(&projection,	XMMatrixTranspose(scene.m_camMain.getProjectionMatrix(width, height, 0.1f, 100.0f))); // Transpose for HLSL!
 
 	renderTexture->SetRenderTarget(context, depth);
-	renderTexture->ClearRenderTarget(context, depth, 1 ,.5f, 0, 1);
+	renderTexture->ClearRenderTarget(context, depth, 0 ,0.0, 0, 1);
 	vertexShader->SetMatrix4x4("world", world);
 	vertexShader->SetMatrix4x4("view", view);
 	vertexShader->SetMatrix4x4("projection", projection);
@@ -145,7 +186,7 @@ void Graphic::GraphicMain::render(ID3D11DeviceContext *context, ID3D11DepthStenc
 	
 	for (auto it = scene.objects.begin(); it != scene.objects.end(); it++, count++) {
 		//XMStoreFloat4x4(&worldMatrix_temp, XMMatrixTranspose(XMLoadFloat4x4(&it->pos))); // Transpose for HLSL!
-
+		auto mesh = *m_meshes[it->m_meshType];
 		DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose(it->getModelMatrix())); // Transpose for HLSL!
 
 		vertexShader->SetMatrix4x4("world", world);
@@ -154,8 +195,8 @@ void Graphic::GraphicMain::render(ID3D11DeviceContext *context, ID3D11DepthStenc
 
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
-		context->IASetVertexBuffers(0, 1, &mesh00->getBufferVertexRef(), &stride, &offset);
-		context->IASetIndexBuffer(mesh00->getBufferIndex(), DXGI_FORMAT_R32_UINT, 0);
+		context->IASetVertexBuffers(0, 1, &mesh->getBufferVertexRef(), &stride, &offset);
+		context->IASetIndexBuffer(mesh->getBufferIndex(), DXGI_FORMAT_R32_UINT, 0);
 
 		// Finally do the actual drawing
 		//  - Do this ONCE PER OBJECT you intend to draw
@@ -163,7 +204,7 @@ void Graphic::GraphicMain::render(ID3D11DeviceContext *context, ID3D11DepthStenc
 		//  - DrawIndexed() uses the currently set INDEX BUFFER to look up corresponding
 		//     vertices in the currently set VERTEX BUFFER
 		context->DrawIndexed(
-			mesh00->getBufferIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
+			mesh->getBufferIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
 			0,     // Offset to the first index we want to use
 			0);    // Offset to add to each index when looking up vertices
 
