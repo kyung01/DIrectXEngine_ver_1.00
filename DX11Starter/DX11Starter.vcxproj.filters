@@ -45,16 +45,7 @@
     <ClCompile Include="Files\DirectX\KContext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Files\Graphic\cpp\Graphic_Object.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Files\Graphic\cpp\Graphic_Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Files\Graphic\Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Files\Graphic\cpp\Graphic_Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Files\Graphic\cpp\RenderTexture.cpp">
@@ -76,6 +67,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Files\imgui\cpp\dx11_imgui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Files\Graphic\cpp\Scene Graphic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Files\Graphic\cpp\Object Graphic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Files\Graphic\cpp\Camera Graphic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

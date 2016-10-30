@@ -56,41 +56,6 @@ std::list<TextureLoadInformation> Graphic::GraphicMain::getLoadListTexture()
 	return lst;
 }
 
-bool Graphic::GraphicMain::loadShaders(
-	ID3D11Device* device, ID3D11DeviceContext *context,
-	std::map<RENDER_TYPE, std::unique_ptr<SimpleFragmentShader>>& shadersFrag,
-	std::map<RENDER_TYPE, std::unique_ptr<SimpleVertexShader>>& shadersVert,
-	ShaderInformation data[],int dataSize)
-{
-	/*
-	for (int i =0; i < dataSize;i++){
-		//std::string alternatePath = "Debug/";
-		//alternatePath += data[i].path;
-		std::string s = data[i].path;
-		std::wstring stemp = std::wstring(s.begin(), s.end());
-		LPCWSTR path = stemp.c_str();
-
-		if (data[i].type == SHADER_TYPE::FRAGMENT_SHADER) {
-			SimpleFragmentShader shader(device, context);
-			
-			if (!shader.LoadShaderFile(path))
-				//&& !shader.LoadShaderFile((LPCWSTR)alternatePath.c_str()))
-				return false;
-			shadersFrag[data[i].id] = std::make_unique<SimpleFragmentShader>(shader);
-		}
-		else {
-			SimpleVertexShader shader(device, context);
-			if (!shader.LoadShaderFile(path) )
-				//&&!shader.LoadShaderFile((LPCWSTR)alternatePath.c_str()))
-				return false;
-			shadersVert[data[i].id] = std::make_unique<SimpleVertexShader>(shader);
-		}
-		
-	}
-	*/
-	return true;
-	
-}
 
 
 
@@ -214,9 +179,9 @@ void Graphic::GraphicMain::render(ID3D11DeviceContext *context, ID3D11DepthStenc
 	renderTarget_diffuse->SetRenderTarget(context, depth);
 	context->OMSetRenderTargets(3, renderTargets, depth);
 	//deviceContext->OMSetRenderTargets(1, &m_renderTargetView, depthStencilView);
-	renderTarget_diffuse->ClearRenderTarget(context, depth, 0, 0.0, 0, 1);
-	renderTarget_normal->ClearRenderTarget(context, depth, 0, 0.0, 0, 1);
-	renderTarget_world->ClearRenderTarget(context, depth, 0, 0.0, 0, 1);
+	renderTarget_diffuse->ClearRenderTarget(context, depth, 255, 0.0, 0, 1);
+	renderTarget_normal->ClearRenderTarget(context, depth, 0, 255, 0, 1);
+	renderTarget_world->ClearRenderTarget(context, depth, 0, 0.0,255, 1);
 
 	vertexShader->SetMatrix4x4("world", world);
 	vertexShader->SetMatrix4x4("view", view);

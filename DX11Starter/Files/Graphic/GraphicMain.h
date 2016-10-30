@@ -50,11 +50,6 @@ namespace Graphic {
 		std::list<ShaderLoadInformation>	getLoadListShaderFrag();
 		std::list<TextureLoadInformation>	getLoadListTexture();
 
-		bool loadShaders(
-			ID3D11Device* device, ID3D11DeviceContext *context,
-			std::map<RENDER_TYPE, std::unique_ptr<SimpleFragmentShader>> &shadersFrag,
-			std::map<RENDER_TYPE, std::unique_ptr<SimpleVertexShader>> &shadersVert,
-			ShaderInformation data[],  int dataSize);
 		bool initTextures(ID3D11Device* device, ID3D11DeviceContext *context, int width, int height);
 		bool initShaders(ID3D11Device* device, ID3D11DeviceContext *context);
 		void render(ID3D11DeviceContext* context, ID3D11DepthStencilView *depth, NScene::Object object);

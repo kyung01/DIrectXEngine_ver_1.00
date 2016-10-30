@@ -1,19 +1,54 @@
 
-// Struct representing the data we expect to receive from earlier pipeline stages
+cbuffer lightData : register(b0)
+{
+	float4 DirLightColor;
+	float3 DirLightDirection;
+
+	float4 PointLightColor;
+	float3 PointLightPosition;
+
+	float3 CameraPosition;
+};
+
+// External texture-related data
+Texture2D Texture		: register(t0);
+Texture2D Rust			: register(t1);
+Texture2D Spec			: register(t2);
+SamplerState Sampler	: register(s0);
+
+// Defines the input to this pixel shader
 // - Should match the output of our corresponding vertex shader
-// - The name of the struct itself is unimportant
-// - The variable names don't have to match other shaders (just the semantics)
-// - Each variable must have a semantic, which defines its usage
 struct VertexToPixel
 {
-	// Data type
-	//  |
-	//  |   Name          Semantic
-	//  |    |                |
-	//  v    v                v
 	float4 position		: SV_POSITION;
-	float4 color		: COLOR;
+	float3 normal		: NORMAL;
+	float3 worldPos		: POSITION;
+	float2 uv			: TEXCOORD;
 };
+
+
+struct PS_OUTPUT
+{
+	float4 normal: SV_Target0;
+	float4 worldPos: SV_Target1;
+};
+
+// Entry point for this pixel shader
+PS_OUTPUT main(VertexToPixel input) : SV_TARGET
+{
+	input.normal = normalize(input.normal);
+
+
+	PS_OUTPUT output;
+	output.normal = float4((input.normal +1 ) *.5,1);
+	output.worldPos = float4(input.worldPos,1);
+	// Just return the input color
+	// - This color (like most values passing through the rasterizer) is 
+	//   interpolated for each pixel between the corresponding vertices 
+	//   of the triangle we're rendering
+	return output;
+}
+
 
 // --------------------------------------------------------
 // The entry point (main method) for our pixel shader
@@ -24,11 +59,3 @@ struct VertexToPixel
 //    "put the output of this into the current render target"
 // - Named "main" because that's the default the shader compiler looks for
 // --------------------------------------------------------
-float4 main(VertexToPixel input) : SV_TARGET
-{
-	// Just return the input color
-	// - This color (like most values passing through the rasterizer) is 
-	//   interpolated for each pixel between the corresponding vertices 
-	//   of the triangle we're rendering
-	return input.color;
-}
