@@ -130,10 +130,10 @@
     <ClCompile Include="Files\Graphic\Mesh.cpp" />
     <ClCompile Include="Files\Graphic\cpp\RenderTexture.cpp" />
     <ClCompile Include="Files\Graphic\cpp\Graphic_Scene.cpp" />
-    <ClCompile Include="Files\imgui\DirectX\cpp_imgui_DirectX_Context.cpp" />
-    <ClCompile Include="Files\imgui\DirectX\cpp_imgui_DirectX_UIMain.cpp" />
-    <ClCompile Include="Files\imgui\DirectX\cpp_imgui_impl_dx11.cpp" />
-    <ClCompile Include="Files\imgui\DirectX\cpp_imgui_DirectX_KContext.cpp" />
+    <ClCompile Include="Files\imgui\cpp\Context_imgui.cpp" />
+    <ClCompile Include="Files\imgui\cpp\UIMain_imgui.cpp" />
+    <ClCompile Include="Files\imgui\cpp\dx11_imgui.cpp" />
+    <ClCompile Include="Files\imgui\cpp\KContext_imgui.cpp" />
     <ClCompile Include="Files\imgui\imgui.cpp" />
     <ClCompile Include="Files\imgui\imgui_demo.cpp" />
     <ClCompile Include="Files\imgui\imgui_draw.cpp" />

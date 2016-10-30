@@ -8,6 +8,7 @@ Context class for this project
 namespace NImGui{
 	class KContext : public Context {
 	private:
+	public:
 		UIMain m_uiMain;
 	public:
 		void init(
@@ -15,8 +16,7 @@ namespace NImGui{
 			ID3D11Device* g_pd3dDevice,
 			ID3D11DeviceContext*     g_pd3dDeviceContext,
 			IDXGISwapChain*          g_pSwapChain,
-			ID3D11RenderTargetView*  g_mainRenderTargetView,
-			Graphic::GraphicMain *graphicMain);
+			ID3D11RenderTargetView*  g_mainRenderTargetView);
 		void renderSub() override;
 		
 	};

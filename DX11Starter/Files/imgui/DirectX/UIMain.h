@@ -9,7 +9,6 @@ namespace NImGui {
 
 	protected:
 	public:
-		static Graphic:: RenderTexture *example_texture;
 		void init(Graphic::GraphicMain * graphicMain);
 		void render();
 	};

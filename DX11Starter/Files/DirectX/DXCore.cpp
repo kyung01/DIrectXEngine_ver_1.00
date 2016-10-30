@@ -65,6 +65,7 @@ DXCore::DXCore(
 	__int64 perfFreq;
 	QueryPerformanceFrequency((LARGE_INTEGER*)&perfFreq);
 	perfCounterSeconds = 1.0 / (double)perfFreq;
+
 }
 
 // --------------------------------------------------------
@@ -354,8 +355,6 @@ HRESULT DXCore::Run()
 	currentTime = now;
 	previousTime = now;
 
-	// Give subclass a chance to initialize
-	Init();
 
 	// Our overall game and message loop
 	MSG msg = {};

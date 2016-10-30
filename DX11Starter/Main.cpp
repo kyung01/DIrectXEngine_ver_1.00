@@ -149,14 +149,15 @@ int WINAPI WinMain(
 	if(FAILED(hr)) return hr;
 	NImGui::KContext guiContext;
 
-	g_pd3dDevice = dxContext.device;
-	g_pd3dDeviceContext = dxContext.context;
-	g_pSwapChain = dxContext.swapChain;
-	g_mainRenderTargetView = dxContext.backBufferRTV;
-	//main_example(hInstance, dxContext.hWnd);
-	guiContext.init(hInstance, dxContext.hWnd, dxContext.device, dxContext.context, dxContext.swapChain, dxContext.backBufferRTV,
-		&dxContext.m_graphicMain);
+
+
+
+
+	dxContext.Init();
+	guiContext.init(hInstance, dxContext.hWnd, dxContext.device, dxContext.context, dxContext.swapChain, dxContext.backBufferRTV);
 	dxContext.m_ui = &guiContext;
+	
+	guiContext.m_uiMain.init(&dxContext.m_renderContexts.begin()->main);//TODO delete this line
 	
 	// Begin the message and game loop, and then return
 	// whatever we get back once the game loop is over
