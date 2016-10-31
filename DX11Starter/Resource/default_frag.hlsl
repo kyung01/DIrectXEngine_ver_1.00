@@ -53,8 +53,8 @@ PS_OUTPUT main(VertexToPixel input) : SV_TARGET
 	normal = normal.x * input.tangent +normal.y * input.biTangent + normal.z * input.normal;
 
 	output.diffuse = texture_diffuse.Sample(sampler_default, input.uv);
-	output.normal = float4((input.normal + 1) *.5, 1);
-	output.worldPos = float4((normal + 1) *.5, 1);
+	output.normal = float4((normal + 1) *.5, 1);
+	output.worldPos = float4(input.worldPos.xyz, 1);
 	output.depth = float4(input.worldPos.w, input.worldPos.w, input.worldPos.w, 1);
 	return output;
 }

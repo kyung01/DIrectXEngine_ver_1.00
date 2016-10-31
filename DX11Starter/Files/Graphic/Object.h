@@ -4,6 +4,7 @@
 #include <vector> //TODO delete
 #include <d3d11.h>
 #include <SimpleMath.h>
+#include "ObjectType.h"
 #include "MeshID.h"
 #include "TextureID.h"
 #include "TextureType.h"
@@ -16,19 +17,22 @@ namespace Graphic {
 	namespace NScene {
 		class Object {
 		private:
+			static int OBJECT_UNIQUE_ID;
 			bool m_isDirty;
 		protected:
 		public:
+			int m_id;
 			Vector3 m_scale;
 			Vector3 m_pos;
 			Quaternion m_rotation;
 			Matrix m_matModel;
 			
 			//Information required for rendering process
+			OBJECT_TYPE				m_ObjectType;
 			RENDER_TYPE				m_renderType;
 			MESH_TYPE				m_meshType;
 			std::map<TEXTURE_TYPE, TEXTURE_ID> m_textures;
-			std::vector<TEXTURE_ID>	m_textures02; // textures in order in which the shader processes the textures
+
 			Object();
 			virtual void setScale(Vector3 scale);
 			virtual void setPos(Vector3 pos);

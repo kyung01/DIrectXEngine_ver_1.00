@@ -10,6 +10,7 @@
 #include "RenderType.h"
 #include "SimpleShader.h"
 #include "RenderTexture.h"
+#include "DepthTexture.h"
 #include "MeshID.h"
 #include <list>
 #include <map>
@@ -53,6 +54,7 @@ namespace Graphic {
 		bool initTextures(ID3D11Device* device, ID3D11DeviceContext *context, int width, int height);
 		bool initShaders(ID3D11Device* device, ID3D11DeviceContext *context);
 		void render(ID3D11DeviceContext* context, ID3D11DepthStencilView *depth, NScene::Object object);
+		void renderPreDeffered(ID3D11DeviceContext* context, NScene::Scene scene);
 	protected:
 		//glm::mat4 matProjection, matView, matModel;
 		void processCamera(Camera cam);// = 0;
@@ -62,8 +64,10 @@ namespace Graphic {
 	public:
 		Graphic::Mesh * mesh00;
 
+		DepthTexture m_depth; // universal depth texture used for most renderers;
 		std::map<TEXTURE_ID, ID3D11ShaderResourceView*> m_textures;
 		std::map<RENDER_TYPE, RenderTexture*> m_renderTextures;
+		std::map<int, DepthTexture*> m_lightDepthTextures;
 		std::map<RENDER_TYPE, std::unique_ptr<SimpleFragmentShader*>> m_shadersFrag;
 		std::map<RENDER_TYPE, std::unique_ptr<SimpleVertexShader*>> m_shadersVert;
 		std::map<MESH_TYPE, std::unique_ptr<Mesh*>> m_meshes;
@@ -74,6 +78,6 @@ namespace Graphic {
 		// Width and hieght is for the resolution in wihich this graphic main will adjust to render things onto
 		GraphicMain();
 		bool init(ID3D11Device *device, ID3D11DeviceContext *context, int width, int height);
-		void render(ID3D11DeviceContext* context, ID3D11DepthStencilView *depth, NScene::Scene scene);
+		void render(ID3D11DeviceContext* context, NScene::Scene scene);
 	};
 }

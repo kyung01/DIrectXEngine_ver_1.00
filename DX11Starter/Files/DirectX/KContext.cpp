@@ -145,7 +145,7 @@ void KContext::Update(float deltaTime, float totalTime)
 void KContext::Draw(float deltaTime, float totalTime)
 {
 	for (auto it = m_renderContexts.begin(); it != m_renderContexts.end(); it++) {
-		it->main.render(this->context, this->depthStencilView, it->scene);
+		it->main.render(this->context, it->scene);
 	}
 	// Background color (Cornflower Blue in this case) for clearing
 	const float color[4] = {0.4f, 0.6f, 0.75f, 0.0f};

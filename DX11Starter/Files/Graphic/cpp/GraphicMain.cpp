@@ -23,37 +23,38 @@ std::list<MeshLoadInformation> Graphic::GraphicMain::getLoadListMesh()
 std::list<ShaderLoadInformation> Graphic::GraphicMain::getLoadListShaderVert()
 {
 	std::list<ShaderLoadInformation> lst(
-	{	{ RENDER_TYPE::DEFAULT,			L"Resource/default_vert.hlsl" },
-		{ RENDER_TYPE::DEFFERED_DIFFUSE,L"Resource/default_vert.hlsl" } ,
-		{ RENDER_TYPE::DEFFERED_NORMAL,	L"Resource/default_vert.hlsl" } ,
-		{ RENDER_TYPE::DEFFERED_WORLD,	L"Resource/default_vert.hlsl" },
-		{ RENDER_TYPE::DEFERRED_DEPTH,	L"Resource/default_vert.hlsl" },
-		{ RENDER_TYPE::OTHER,			L"Resource/default_vert.hlsl" }
+	{	{RENDER_TYPE::DEFAULT,			L"Resource/default_vert.hlsl" },
+		{RENDER_TYPE::DEFFERED,		L"Resource/deffered_vert.hlsl" } 
 	});
 	return lst;
 }
 
 std::list<ShaderLoadInformation> Graphic::GraphicMain::getLoadListShaderFrag()
 {
-	std::list<ShaderLoadInformation> lst(
-	{ { RENDER_TYPE::DEFAULT,			L"Resource/default_frag.hlsl" },
-	{ RENDER_TYPE::DEFFERED_DIFFUSE,	L"Resource/default_frag.hlsl" } ,
-	{ RENDER_TYPE::DEFFERED_NORMAL,		L"Resource/default_frag.hlsl" } ,
-	{ RENDER_TYPE::DEFFERED_WORLD,		L"Resource/default_frag.hlsl" },
-	{ RENDER_TYPE::DEFERRED_DEPTH,		L"Resource/default_frag.hlsl" },
-	{ RENDER_TYPE::OTHER,				L"Resource/default_frag.hlsl" }
+	std::list<ShaderLoadInformation> lst({
+		{RENDER_TYPE::DEFAULT,			L"Resource/default_frag.hlsl" },
+		{RENDER_TYPE::DEFFERED,			L"Resource/deffered_frag.hlsl" }
 	});
 	return lst;
 }
 
 std::list<TextureLoadInformation> Graphic::GraphicMain::getLoadListTexture()
 {
-	std::list<TextureLoadInformation> lst({ 
+	std::list<TextureLoadInformation> lst({
 		{ TEXTURE_ID::TEXTURE_DEFAULT,		L"Resource/Texture/textureTest00.jpg" },
-		{ TEXTURE_ID::TEXTURE_A,			L"Resource/Texture/normalTexture00.png" } ,
-		{ TEXTURE_ID::TEXTURE_B,			L"Resource/Texture/normalTexture00.png" } ,
-		{ TEXTURE_ID::TEXTURE_C,			L"Resource/Texture/textureTest00.jpg" },
-		{ TEXTURE_ID::TEXTURE_D,			L"Resource/Texture/textureTest00.jpg" }
+		{ TEXTURE_ID::TEXTURE_NORMAL_DEFAULT,	L"Resource/Texture/normal_default.jpg" },
+		{ TEXTURE_ID::TEXTURE_NORMAL_DIRT,		L"Resource/Texture/normal_dirt.jpg" },
+		{ TEXTURE_ID::TEXTURE_NORMAL_WOOD,		L"Resource/Texture/normal_wood.jpg" },
+		{ TEXTURE_ID::TEXTURE_NORMAL_BRICK,		L"Resource/Texture/normal_brick.jpg" },
+		{ TEXTURE_ID::TEXTURE_NORMAL_ROCK,		L"Resource/Texture/normal_rock.jpg" },//normal_couch.bmp
+		{ TEXTURE_ID::TEXTURE_NORMAL_COUCH,		L"Resource/Texture/normal_couch.bmp" },//normal_couch.bmp
+		{ TEXTURE_ID::TEXTURE_TEST_00,			L"Resource/Texture/texture_test_00.jpg" } ,
+		{ TEXTURE_ID::TEXTURE_TEST_01,			L"Resource/Texture/texture_test_01.jpg" } ,
+		{ TEXTURE_ID::TEXTURE_TEST_02,			L"Resource/Texture/texture_test_02.jpg" },
+		{ TEXTURE_ID::TEXTURE_TEST_03,			L"Resource/Texture/texture_test_03.jpg" },
+		{ TEXTURE_ID::TEXTURE_TEST_04,			L"Resource/Texture/texture_test_04.jpg" },
+		{ TEXTURE_ID::TEXTURE_TEST_05,			L"Resource/Texture/texture_test_05.jpg" },
+		{ TEXTURE_ID::TEXTURE_TEST_06,			L"Resource/Texture/texture_test_06.jpg" }
 	});
 	return lst;
 }
@@ -155,48 +156,42 @@ bool Graphic::GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *conte
 	this->m_width = width;
 	this->m_height = height;
 	if (!initShaders(device, context)||
-		!initTextures(device,context,width,height)
+		!initTextures(device,context,width,height)||
+		!m_depth.init(device,width,height)
 		) return false;
+
 	return true;
 }
 float temp_angle = 0;
-void Graphic::GraphicMain::render(ID3D11DeviceContext *context, ID3D11DepthStencilView *depth, NScene::Scene scene)
-{
-	temp_angle += .01f;
-	UINT viewportNum = 1;
-	D3D11_VIEWPORT viewport;
-	context->RSGetViewports(&viewportNum, &viewport);
-	scene.m_camMain.setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle) );
-	beginRendering();
-
-	auto renderTarget_diffuse	= m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE];
-	auto renderTarget_normal	= m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL];
-	auto renderTarget_world		= m_renderTextures[RENDER_TYPE::DEFFERED_WORLD];
+void Graphic::GraphicMain::renderPreDeffered(ID3D11DeviceContext *context, NScene::Scene scene) {
+	ID3D11DepthStencilView *depth = m_depth.m_depthView;
+	auto renderTarget_diffuse = m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE];
+	auto renderTarget_normal = m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL];
+	auto renderTarget_world = m_renderTextures[RENDER_TYPE::DEFFERED_WORLD];
 	auto renderTarget_depth = m_renderTextures[RENDER_TYPE::DEFERRED_DEPTH];
-	ID3D11RenderTargetView *renderTargets[]{ 
+	ID3D11RenderTargetView *renderTargets[]{
 		renderTarget_diffuse->m_renderTargetView,
 		renderTarget_normal->m_renderTargetView ,
 		renderTarget_world->m_renderTargetView,
 		renderTarget_depth->m_renderTargetView
 	};
 
-	auto vertexShader = *m_shadersVert.begin()->second;
-	auto pixelShader = *m_shadersFrag.begin()->second;
+	auto vertexShader	= *m_shadersVert[RENDER_TYPE::DEFFERED];
+	auto pixelShader	= *m_shadersFrag[RENDER_TYPE::DEFFERED];
 
+	DirectX::XMFLOAT4X4 world, view, projection;
 
-	DirectX::XMFLOAT4X4 world,view,projection;
-
-	DirectX::XMStoreFloat4x4(&world,		XMMatrixTranspose(scene.m_camMain.getModelMatrix() )); // Transpose for HLSL!
-	DirectX::XMStoreFloat4x4(&view,			XMMatrixTranspose(scene.m_camMain.getViewMatrix())); // Transpose for HLSL!
-	DirectX::XMStoreFloat4x4(&projection,	XMMatrixTranspose(scene.m_camMain.getProjectionMatrix(m_width, m_height, 0.1f, 100.0f))); // Transpose for HLSL!
+	DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose(scene.m_camMain.getModelMatrix())); // Transpose for HLSL!
+	DirectX::XMStoreFloat4x4(&view, XMMatrixTranspose(scene.m_camMain.getViewMatrix())); // Transpose for HLSL!
+	DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(scene.m_camMain.getProjectionMatrix(m_width, m_height, 0.1f, 100.0f))); // Transpose for HLSL!
 
 	renderTarget_diffuse->SetRenderTarget(context, depth);
 	context->OMSetRenderTargets(4, renderTargets, depth);
 	//deviceContext->OMSetRenderTargets(1, &m_renderTargetView, depthStencilView);
-	renderTarget_diffuse->ClearRenderTarget(context, depth, 255, 0.0, 0, 1);
-	renderTarget_normal->ClearRenderTarget(context, depth, 0, 255, 0, 1);
-	renderTarget_world->ClearRenderTarget(context, depth, 0, 0.0, 255, 1);
-	renderTarget_depth->ClearRenderTarget(context, depth, 0, 0.0, 0, 255);
+	renderTarget_diffuse->ClearRenderTarget(context, depth, 0, 0.0, 0, 1);
+	renderTarget_normal->ClearRenderTarget(context, depth, 0, 0, 0, 1);
+	renderTarget_world->ClearRenderTarget(context, depth, 0, 0.0, 0, 1);
+	renderTarget_depth->ClearRenderTarget(context, depth, 0, 0.0, 0, 1);
 
 	vertexShader->SetFloat3("worldSize", scene.size);
 	vertexShader->SetMatrix4x4("world", world);
@@ -209,10 +204,10 @@ void Graphic::GraphicMain::render(ID3D11DeviceContext *context, ID3D11DepthStenc
 	vertexShader->SetShader();
 	pixelShader->SetShader();
 	int count = 0;
-	
+
 	for (auto it = scene.objects.begin(); it != scene.objects.end(); it++, count++) {
-		render(context,depth,*it);
-		//XMStoreFloat4x4(&worldMatrix_temp, XMMatrixTranspose(XMLoadFloat4x4(&it->pos))); // Transpose for HLSL!
+		if (it->m_ObjectType != NScene::OBJECT_TYPE::SOLID)
+			continue;
 		auto mesh = *m_meshes[it->m_meshType];
 		DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose(it->getModelMatrix())); // Transpose for HLSL!
 
@@ -229,42 +224,29 @@ void Graphic::GraphicMain::render(ID3D11DeviceContext *context, ID3D11DepthStenc
 		context->IASetVertexBuffers(0, 1, &mesh->getBufferVertexRef(), &stride, &offset);
 		context->IASetIndexBuffer(mesh->getBufferIndex(), DXGI_FORMAT_R32_UINT, 0);
 
-		// Finally do the actual drawing
-		//  - Do this ONCE PER OBJECT you intend to draw
-		//  - This will use all of the currently set DirectX "stuff" (shaders, buffers, etc)
-		//  - DrawIndexed() uses the currently set INDEX BUFFER to look up corresponding
-		//     vertices in the currently set VERTEX BUFFER
 		context->DrawIndexed(
 			mesh->getBufferIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
 			0,     // Offset to the first index we want to use
 			0);    // Offset to add to each index when looking up vertices
+	}
+	for (auto it = scene.objects.begin(); it != scene.objects.end(); it++, count++) {
+		if (it->m_ObjectType != NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL)
+			continue;
+
 
 
 	}
-	// std::cout << "H\n" << count;
-	/*
+}
+void Graphic::GraphicMain::render(ID3D11DeviceContext *context, NScene::Scene scene)
+{
+	temp_angle += .0051f;
+	UINT viewportNum = 1;
+	D3D11_VIEWPORT viewport;
+	context->RSGetViewports(&viewportNum, &viewport);
+	scene.m_camMain.setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle) );
+	beginRendering();
+	renderPreDeffered(context, scene);
 
-	for (auto cam = scene.cams.begin(); cam != scene.cams.end(); cam++) {
-		//processCamera(*cam);
-		for (auto it = scene.objects.begin(); it != scene.objects.end(); it++) {
-			//processShader(it->shader);
-			//processObject(*it);
-			//draw the object
-			XMStoreFloat4x4(&worldMatrix_temp, XMMatrixTranspose(XMLoadFloat4x4(&it->pos))); // Transpose for HLSL!
-			vertexShader->SetMatrix4x4("world", worldMatrix_temp);
-			vertexShader->CopyAllBufferData();
-			switch (count++) {
-			default:
-			case 0:
-				renderMesh(square.get()); break;
-			case 1:
-				renderMesh(diamond.get()); break;
-			case 2:
-				renderMesh(triangle.get()); break;
-			}
-		}
-	}
-	*/
 	endRendering();
 	context->RSSetViewports(1, &viewport);
 }
