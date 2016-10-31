@@ -55,9 +55,10 @@ namespace Graphic {
 		bool initShaders(ID3D11Device* device, ID3D11DeviceContext *context);
 		void render(ID3D11DeviceContext* context, ID3D11DepthStencilView *depth, NScene::Object object);
 		void renderPreDeffered(ID3D11DeviceContext* context, NScene::Scene scene);
+		void renderLightDepth(ID3D11Device * device, ID3D11DeviceContext* context, NScene::Scene scene);
 	protected:
 		//glm::mat4 matProjection, matView, matModel;
-		void processCamera(Camera cam);// = 0;
+		void processCamera(Graphic::NScene::Camera cam);// = 0;
 		void beginRendering();// = 0;
 		void endRendering();// = 0;
 		void getScreenWidth(int &w, int &h);// = 0;
@@ -78,6 +79,6 @@ namespace Graphic {
 		// Width and hieght is for the resolution in wihich this graphic main will adjust to render things onto
 		GraphicMain();
 		bool init(ID3D11Device *device, ID3D11DeviceContext *context, int width, int height);
-		void render(ID3D11DeviceContext* context, NScene::Scene scene);
+		void render(ID3D11Device * device , ID3D11DeviceContext* context, NScene::Scene scene);
 	};
 }

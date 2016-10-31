@@ -9,6 +9,7 @@ namespace Graphic {
 		float getWidth();
 		float getHeight();
 		ID3D11DepthStencilView *m_depthView = 0;
+		ID3D11ShaderResourceView *m_shaderResourceView = 0;
 		bool init(ID3D11Device* device, int textureWidth, int textureHeight);
 	};
 }

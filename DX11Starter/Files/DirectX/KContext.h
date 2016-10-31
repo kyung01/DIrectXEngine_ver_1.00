@@ -37,7 +37,7 @@ namespace NDirectX {
 		NImGui::Context *m_ui;
 		Graphic::GraphicMain m_graphicMain;
 		std::list<RenderContext> m_renderContexts;
-		Graphic::Camera testingCamera;
+		Graphic::NScene::Camera testingCamera; //TODO delete this?
 		~KContext();
 
 

@@ -20,20 +20,22 @@ std::list<MeshLoadInformation> Graphic::GraphicMain::getLoadListMesh()
 	return lst;
 }
 
-std::list<ShaderLoadInformation> Graphic::GraphicMain::getLoadListShaderVert()
+std::list<ShaderLoadInformation> Graphic::GraphicMain::getLoadListShaderFrag()
 {
-	std::list<ShaderLoadInformation> lst(
-	{	{RENDER_TYPE::DEFAULT,			L"Resource/default_vert.hlsl" },
-		{RENDER_TYPE::DEFFERED,		L"Resource/deffered_vert.hlsl" } 
+	std::list<ShaderLoadInformation> lst({
+		{ RENDER_TYPE::DEFAULT,			L"Resource/Shader/default_frag.hlsl" },
+		{ RENDER_TYPE::DEFFERED,		L"Resource/Shader/deffered_frag.hlsl" },
+		{ RENDER_TYPE::DEPTH,			L"Resource/Shader/depth_frag.hlsl" }
 	});
 	return lst;
 }
 
-std::list<ShaderLoadInformation> Graphic::GraphicMain::getLoadListShaderFrag()
+std::list<ShaderLoadInformation> Graphic::GraphicMain::getLoadListShaderVert()
 {
-	std::list<ShaderLoadInformation> lst({
-		{RENDER_TYPE::DEFAULT,			L"Resource/default_frag.hlsl" },
-		{RENDER_TYPE::DEFFERED,			L"Resource/deffered_frag.hlsl" }
+	std::list<ShaderLoadInformation> lst({	
+		{RENDER_TYPE::DEFAULT,			L"Resource/Shader/default_vert.hlsl" },
+		{RENDER_TYPE::DEFFERED,			L"Resource/Shader/deffered_vert.hlsl" },
+		{RENDER_TYPE::DEPTH,			L"Resource/Shader/depth_vert.hlsl" }
 	});
 	return lst;
 }
@@ -62,7 +64,7 @@ std::list<TextureLoadInformation> Graphic::GraphicMain::getLoadListTexture()
 
 
 
-void Graphic::GraphicMain::processCamera(Camera cam)
+void Graphic::GraphicMain::processCamera(Graphic::NScene::Camera cam)
 {
 }
 
@@ -164,6 +166,8 @@ bool Graphic::GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *conte
 }
 float temp_angle = 0;
 void Graphic::GraphicMain::renderPreDeffered(ID3D11DeviceContext *context, NScene::Scene scene) {
+	auto vertexShader	= *m_shadersVert[RENDER_TYPE::DEFFERED];
+	auto pixelShader	= *m_shadersFrag[RENDER_TYPE::DEFFERED];
 	ID3D11DepthStencilView *depth = m_depth.m_depthView;
 	auto renderTarget_diffuse = m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE];
 	auto renderTarget_normal = m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL];
@@ -176,8 +180,6 @@ void Graphic::GraphicMain::renderPreDeffered(ID3D11DeviceContext *context, NScen
 		renderTarget_depth->m_renderTargetView
 	};
 
-	auto vertexShader	= *m_shadersVert[RENDER_TYPE::DEFFERED];
-	auto pixelShader	= *m_shadersFrag[RENDER_TYPE::DEFFERED];
 
 	DirectX::XMFLOAT4X4 world, view, projection;
 
@@ -203,7 +205,7 @@ void Graphic::GraphicMain::renderPreDeffered(ID3D11DeviceContext *context, NScen
 	pixelShader->CopyAllBufferData();
 	vertexShader->SetShader();
 	pixelShader->SetShader();
-	int count = 0;
+	int count = 0; //TODO why am I using this?
 
 	for (auto it = scene.objects.begin(); it != scene.objects.end(); it++, count++) {
 		if (it->m_ObjectType != NScene::OBJECT_TYPE::SOLID)
@@ -229,23 +231,77 @@ void Graphic::GraphicMain::renderPreDeffered(ID3D11DeviceContext *context, NScen
 			0,     // Offset to the first index we want to use
 			0);    // Offset to add to each index when looking up vertices
 	}
-	for (auto it = scene.objects.begin(); it != scene.objects.end(); it++, count++) {
+}
+void Graphic::GraphicMain::renderLightDepth(ID3D11Device * device, ID3D11DeviceContext * context, NScene::Scene scene)
+{
+	auto vertexShader	= *m_shadersVert[RENDER_TYPE::DEPTH];
+	vertexShader->SetShader();
+	context->PSSetShader(NULL, NULL, 0); //set pixel writing stage to none
+	DirectX::XMFLOAT4X4 world, view, projection;
+	for (auto it = scene.objects.begin(); it != scene.objects.end(); it++) {
 		if (it->m_ObjectType != NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL)
 			continue;
+
+		it->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle));
+
+		auto depth = m_lightDepthTextures[it->m_id];
+		if (depth == 0){//TODO meh...it is going to take less than one second to check this it is dirty though. Think of better ways of doing it if you can.
+			m_lightDepthTextures[it->m_id] = new DepthTexture();
+			m_lightDepthTextures[it->m_id]->init(device, 512, 512);
+			depth = m_lightDepthTextures[it->m_id];
+		}
+		context->OMSetRenderTargets(0, 0, depth->m_depthView);
+		context->ClearDepthStencilView(depth->m_depthView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+		Vector3 target = it->m_pos + (Vector3)XMVector3Rotate(Vector3::Forward,it->m_rotation);// , 0.0f);
+		
+		DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose(it->getModelMatrix())); // Transpose for HLSL!
+		//auto wtf = cam->getViewMatrix();
+		//DirectX::XMStoreFloat4x4(&view, XMMatrixTranspose(cam->getViewMatrix()));
+		DirectX::XMStoreFloat4x4(&view, XMMatrixTranspose(
+			DirectX::XMMatrixLookAtLH(it->m_pos, target, Vector3::Up))); // Transpose for HLSL!
+		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(
+			DirectX::XMMatrixOrthographicLH(12,12,0.1,100))); // Transpose for HLSL!
+
+		vertexShader->SetMatrix4x4("world", world);
+		vertexShader->SetMatrix4x4("view", view);
+		vertexShader->SetMatrix4x4("projection", projection);
+		vertexShader->CopyAllBufferData();
+
+
+		for (auto obj = scene.objects.begin(); obj != scene.objects.end(); obj++) {
+			if (obj->m_ObjectType != NScene::OBJECT_TYPE::SOLID) continue;
+			auto mesh = *m_meshes[obj->m_meshType];
+			DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose(obj->getModelMatrix())); // Transpose for HLSL!
+
+			vertexShader->SetMatrix4x4("world", world);
+			vertexShader->CopyAllBufferData();
+			UINT stride = sizeof(Vertex);
+			UINT offset = 0;
+			context->IASetVertexBuffers(0, 1, &mesh->getBufferVertexRef(), &stride, &offset);
+			context->IASetIndexBuffer(mesh->getBufferIndex(), DXGI_FORMAT_R32_UINT, 0);
+
+			context->DrawIndexed(
+				mesh->getBufferIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
+				0,     // Offset to the first index we want to use
+				0);    // Offset to add to each index when looking up vertices
+		}
+
 
 
 
 	}
 }
-void Graphic::GraphicMain::render(ID3D11DeviceContext *context, NScene::Scene scene)
+void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *context, NScene::Scene scene)
 {
-	temp_angle += .0051f;
+	temp_angle += .051f;
 	UINT viewportNum = 1;
 	D3D11_VIEWPORT viewport;
 	context->RSGetViewports(&viewportNum, &viewport);
 	scene.m_camMain.setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle) );
 	beginRendering();
 	renderPreDeffered(context, scene);
+	renderLightDepth(device, context, scene);
 
 	endRendering();
 	context->RSSetViewports(1, &viewport);

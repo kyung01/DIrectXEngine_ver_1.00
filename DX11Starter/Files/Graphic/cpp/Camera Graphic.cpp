@@ -33,7 +33,10 @@ Matrix Camera::getViewMatrix()
 {
 	if (m_isDirty_matView) {
 		m_isDirty_matView = false;
-		Vector3 target = XMQuaternionMultiply(m_rotation, Vector3(0, 0, 1));// , 0.0f);
+		auto rotatedFOrward = (Vector3)DirectX::XMVector3Rotate(Vector3::Forward, m_rotation);
+		std::cout << "DEBUG " << m_pos.x << " " << m_pos.y << " " << m_pos.z << "\n";
+		std::cout << "rotatedFOrward " << rotatedFOrward.x << " " << rotatedFOrward.y << " " << rotatedFOrward.z << "\n";
+		Vector3 target = m_pos + (Vector3)DirectX::XMVector3Rotate(Vector3::Forward, m_rotation);// , 0.0f);
 		m_matView = DirectX::XMMatrixLookToLH(m_pos, target, Vector3::Up);
 	}
 	return m_matView;
@@ -46,7 +49,7 @@ void Camera::setPos(Vector3 pos)
 }
 
 
-void Graphic::Camera::setRotation(Quaternion quaternion)
+void Camera::setRotation(Quaternion quaternion)
 {
 	Object::setRotation(quaternion);
 	m_isDirty_matView = true;
