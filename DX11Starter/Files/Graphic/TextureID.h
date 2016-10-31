@@ -1,6 +1,6 @@
 #pragma once
 namespace Graphic {
-	enum TextureID {
-		TEXTURE_DEFAULT, TEXTURE_A,TEXTURE_B,TEXTURE_C
+	enum TEXTURE_ID {
+		TEXTURE_DEFAULT, TEXTURE_A,TEXTURE_B, TEXTURE_C, TEXTURE_D
 	};
 }

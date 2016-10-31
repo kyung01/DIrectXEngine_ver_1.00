@@ -142,6 +142,7 @@
     <ClCompile Include="Files\Graphic\cpp\Object Graphic.cpp" />
     <ClCompile Include="Files\Object.cpp" />
     <ClCompile Include="Files\Graphic\cpp\SimpleShader.cpp" />
+    <ClCompile Include="Files\Vertex.cpp" />
     <ClCompile Include="Files\WorldCamera.cpp" />
     <ClCompile Include="Files\WorldMain.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -152,12 +153,6 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="Resource\default_frag.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile Include="Resource\default_vert.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="Resource\New folder\default_frag.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
@@ -181,6 +176,7 @@
     <ClInclude Include="Files\Graphic\ShaderInformation.h" />
     <ClInclude Include="Files\Graphic\ShaderType.h" />
     <ClInclude Include="Files\Graphic\TextureID.h" />
+    <ClInclude Include="Files\Graphic\TextureType.h" />
     <ClInclude Include="Files\imgui\DirectX\Context.h" />
     <ClInclude Include="Files\imgui\DirectX\imgui_impl_dx11.h" />
     <ClInclude Include="Files\imgui\DirectX\KContext.h" />

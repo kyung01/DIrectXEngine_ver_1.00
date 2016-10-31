@@ -45,6 +45,14 @@ bool RenderTexture::Initialize(ID3D11Device* device, int textureWidth, int textu
 	textureDesc.CPUAccessFlags			= 0;
 	textureDesc.MiscFlags				= 0;
 
+	
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	viewport.Width = (float)textureWidth;
+	viewport.Height = (float)textureHeight;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+
 	// Create the render target texture.
 	result = device->CreateTexture2D(&textureDesc, NULL, &m_renderTargetTexture);
 	if (FAILED(result))
@@ -109,6 +117,7 @@ void RenderTexture::SetRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11De
 {
 	// Bind the render target view and depth stencil buffer to the output render pipeline.
 	deviceContext->OMSetRenderTargets(1, &m_renderTargetView, depthStencilView);
+	deviceContext->RSSetViewports(1, &viewport);
 
 	return;
 }

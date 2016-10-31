@@ -1,5 +1,5 @@
 
-cbuffer lightData : register(b0)
+cbuffer global : register(b0)
 {
 	float4 DirLightColor;
 	float3 DirLightDirection;
@@ -11,51 +11,51 @@ cbuffer lightData : register(b0)
 };
 
 // External texture-related data
-Texture2D Texture		: register(t0);
-Texture2D Rust			: register(t1);
-Texture2D Spec			: register(t2);
-SamplerState Sampler	: register(s0);
+Texture2D texture_diffuse		: register(t0);
+Texture2D texture_normal		: register(t1);
+Texture2D texture_specular		: register(t2);
+Texture2D texture_displacement	: register(t3);
+
+SamplerState sampler_default	: register(s0);
 
 // Defines the input to this pixel shader
 // - Should match the output of our corresponding vertex shader
 struct VertexToPixel
 {
 	float4 position		: SV_POSITION;
-	float3 normal		: NORMAL;
-	float3 worldPos		: POSITION;
+	float3 normal		: NORMAL0;
+	float3 tangent		: NORMAL1;
+	float3 biTangent	: NORMAL2;
+	float4 worldPos		: POSITION;
 	float2 uv			: TEXCOORD;
 };
 
 
 struct PS_OUTPUT
 {
-	float4 normal: SV_Target0;
-	float4 worldPos: SV_Target1;
+	float4 diffuse: SV_Target0;
+	float4 normal: SV_Target1;
+	float4 worldPos: SV_Target2;
+	float4 depth: SV_Target3;
+	//float4 texture_specular: SV_Target4; At some point...
 };
 
 // Entry point for this pixel shader
 PS_OUTPUT main(VertexToPixel input) : SV_TARGET
 {
 	input.normal = normalize(input.normal);
+	input.tangent = normalize(input.tangent);
+	input.biTangent = normalize(input.biTangent);
 
 
 	PS_OUTPUT output;
-	output.normal = float4((input.normal +1 ) *.5,1);
-	output.worldPos = float4(input.worldPos,1);
-	// Just return the input color
-	// - This color (like most values passing through the rasterizer) is 
-	//   interpolated for each pixel between the corresponding vertices 
-	//   of the triangle we're rendering
+	float3 normal = texture_normal.Sample(sampler_default, input.uv).xyz * 2 - 1;
+	normal = normal.x * input.tangent +normal.y * input.biTangent + normal.z * input.normal;
+
+	output.diffuse = texture_diffuse.Sample(sampler_default, input.uv);
+	output.normal = float4((input.normal + 1) *.5, 1);
+	output.worldPos = float4((normal + 1) *.5, 1);
+	output.depth = float4(input.worldPos.w, input.worldPos.w, input.worldPos.w, 1);
 	return output;
 }
 
-
-// --------------------------------------------------------
-// The entry point (main method) for our pixel shader
-// 
-// - Input is the data coming down the pipeline (defined by the struct)
-// - Output is a single color (float4)
-// - Has a special semantic (SV_TARGET), which means 
-//    "put the output of this into the current render target"
-// - Named "main" because that's the default the shader compiler looks for
-// --------------------------------------------------------

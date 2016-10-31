@@ -1,6 +1,52 @@
 #include "Mesh.h"
+#include <iostream>
+void Graphic::Mesh::getTangent(
+	Vertex & vert,
+	DirectX::SimpleMath::Vector3 v0, DirectX::SimpleMath::Vector2 uv0,
+	DirectX::SimpleMath::Vector3 v1, DirectX::SimpleMath::Vector2 uv1,
+	DirectX::SimpleMath::Vector3 v2, DirectX::SimpleMath::Vector2 uv2)
+{
+	auto posDelta00 = v1 - v0;
+	auto posDelta01 = v2 - v0;
+	auto uvDelta00 = (uv1 - uv0);
+	auto uvDelta01 = (uv2 - uv0);
+	float f = 0.000001+(uvDelta01.y*uvDelta00.x - uvDelta00.y*uvDelta01.x);
+	
+	DirectX::SimpleMath::Vector3 A = (DirectX::SimpleMath::Vector3(0.000001) + (uvDelta01.y * posDelta00 - uvDelta00.y*posDelta01)) / f;
+	DirectX::SimpleMath::Vector3 B = (DirectX::SimpleMath::Vector3(0.000001) + (uvDelta00.x * posDelta01 - uvDelta01.x * posDelta00)) / f;
+	A.Normalize();
+	B.Normalize();
+	vert.tangent = A;
+	vert.biTangent = B;
+
+	//posDelta00 = uvDelta00.x * A + uvDelta00.y * B
+	//posDelta01 = uvDelta01.x * A + uvDelta01.y * B
+	//solve for A
+	//(posDelta00 - uvDelta00.y * B ) / uvDelta00.x = A
+	//(posDelta01 - uvDelta01.y * B ) / uvDelta01.x = A
+	//(posDelta00 - uvDelta00.y * B ) / uvDelta00.x = (posDelta01 - uvDelta01.y * B ) / uvDelta01.x
+	//uvDelta01.x *(posDelta00 - uvDelta00.y * B ) = uvDelta00.x * (posDelta01 - uvDelta01.y * B )
+	
+	//uvDelta01.x * posDelta00 - uvDelta01.x * uvDelta00.y * B
+	// = uvDelta00.x * posDelta01 - uvDelta00.x *uvDelta01.y * B
+
+	// B
+	// =( + uvDelta00.x * posDelta01-uvDelta01.x * posDelta00 )
+	// / (uvDelta00.x *uvDelta01.y - uvDelta01.x * uvDelta00.y )
 
 
+	//posDelta00 = uvDelta00.x * A + uvDelta00.y * B
+	//posDelta01 = uvDelta01.x * A + uvDelta01.y * B
+	//solve for B
+	//(posDelta00 - uvDelta00.x * A)/uvDelta00.y = B
+	//(posDelta01 - uvDelta01.x * A)/ uvDelta01.y = B
+	//uvDelta01.y * (posDelta00 - uvDelta00.x * A) = uvDelta00.y *(posDelta01 - uvDelta01.x * A)
+
+	//uvDelta01.y * posDelta00 - uvDelta01.y*uvDelta00.x * A
+	//uvDelta00.y*posDelta01 - uvDelta00.y*uvDelta01.x*A
+	//A = (-uvDelta01.y * posDelta00 + uvDelta00.y*posDelta01) / (- uvDelta01.y*uvDelta00.x + uvDelta00.y*uvDelta01.x)
+	//
+}
 Graphic::Mesh::Mesh(ID3D11Device * device, char* objFile) {
 	using namespace DirectX;
 	// File input object
@@ -98,6 +144,10 @@ Graphic::Mesh::Mesh(ID3D11Device * device, char* objFile) {
 			v2.UV.y = 1.0f - v2.UV.y;
 			v3.UV.y = 1.0f - v3.UV.y;
 
+			getTangent(v1, v1.Position, v1.UV, v2.Position, v2.UV, v3.Position, v3.UV);
+			getTangent(v2, v2.Position, v2.UV, v1.Position, v1.UV, v3.Position, v3.UV);
+			getTangent(v3, v3.Position, v3.UV, v1.Position, v1.UV, v2.Position, v2.UV);
+
 			// Add the verts to the vector
 			verts.push_back(v1);
 			verts.push_back(v2);
@@ -177,6 +227,8 @@ void Graphic::Mesh::construct(ID3D11Device * device, Vertex * verticies_data, in
 	device->CreateBuffer(&vbd, &initialVertexData, &this->bufferVertices);
 	device->CreateBuffer(&ibd, &initialIndexData, &this->bufferIndicies);
 }
+
+
 
 Graphic::Mesh::Mesh(ID3D11Device * device, Vertex * verticies_data, int vertices_offsetEnd, int * indicies_data, int indicies_offsetEnd)
 {

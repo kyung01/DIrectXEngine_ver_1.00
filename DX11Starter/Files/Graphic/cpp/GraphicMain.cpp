@@ -1,5 +1,6 @@
 #include "Graphic\GraphicMain.h"
 #include <string>
+#include "Graphic\TextureType.h"
 
 using namespace Graphic;
 
@@ -48,10 +49,11 @@ std::list<ShaderLoadInformation> Graphic::GraphicMain::getLoadListShaderFrag()
 std::list<TextureLoadInformation> Graphic::GraphicMain::getLoadListTexture()
 {
 	std::list<TextureLoadInformation> lst({ 
-		{ TextureID::TEXTURE_DEFAULT,	L"Resource/Texture/normalTexture00.png" },
-		{ TextureID::TEXTURE_A,			L"Resource/Texture/textureTest00.jpg" } ,
-		{ TextureID::TEXTURE_B,			L"Resource/Texture/textureTest00.jpg" } ,
-		{ TextureID::TEXTURE_C,			L"Resource/Texture/textureTest00.jpg" }
+		{ TEXTURE_ID::TEXTURE_DEFAULT,		L"Resource/Texture/textureTest00.jpg" },
+		{ TEXTURE_ID::TEXTURE_A,			L"Resource/Texture/normalTexture00.png" } ,
+		{ TEXTURE_ID::TEXTURE_B,			L"Resource/Texture/normalTexture00.png" } ,
+		{ TEXTURE_ID::TEXTURE_C,			L"Resource/Texture/textureTest00.jpg" },
+		{ TEXTURE_ID::TEXTURE_D,			L"Resource/Texture/textureTest00.jpg" }
 	});
 	return lst;
 }
@@ -118,17 +120,24 @@ bool GraphicMain::initShaders(ID3D11Device* device, ID3D11DeviceContext *context
 	}
 	for (auto it = dataTexture.begin(); it != dataTexture.end(); it++) {
 		ID3D11ShaderResourceView *texture;
+		//DirectX::CreateWICTextureFromFileEx(device,)
+		
 		DirectX::CreateWICTextureFromFile(device, context,it->path, 0, &texture);
 		m_textures[it->id] = texture;
 	}
 
 	D3D11_SAMPLER_DESC samplerDesc = {};
+	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	//samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 	samplerDesc.MaxAnisotropy = 16;
+	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+
+	//samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	// Ask the device to create a state
 	device->CreateSamplerState(&samplerDesc, &m_sampler);
 
@@ -143,8 +152,8 @@ Graphic::GraphicMain::GraphicMain()
 }
 bool Graphic::GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *context, int width, int height)
 {
-	this->width = width;
-	this->height = height;
+	this->m_width = width;
+	this->m_height = height;
 	if (!initShaders(device, context)||
 		!initTextures(device,context,width,height)
 		) return false;
@@ -153,17 +162,22 @@ bool Graphic::GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *conte
 float temp_angle = 0;
 void Graphic::GraphicMain::render(ID3D11DeviceContext *context, ID3D11DepthStencilView *depth, NScene::Scene scene)
 {
-	scene.m_camMain.setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle) );
 	temp_angle += .01f;
+	UINT viewportNum = 1;
+	D3D11_VIEWPORT viewport;
+	context->RSGetViewports(&viewportNum, &viewport);
+	scene.m_camMain.setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle) );
 	beginRendering();
 
 	auto renderTarget_diffuse	= m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE];
 	auto renderTarget_normal	= m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL];
 	auto renderTarget_world		= m_renderTextures[RENDER_TYPE::DEFFERED_WORLD];
+	auto renderTarget_depth = m_renderTextures[RENDER_TYPE::DEFERRED_DEPTH];
 	ID3D11RenderTargetView *renderTargets[]{ 
 		renderTarget_diffuse->m_renderTargetView,
 		renderTarget_normal->m_renderTargetView ,
-		renderTarget_world->m_renderTargetView
+		renderTarget_world->m_renderTargetView,
+		renderTarget_depth->m_renderTargetView
 	};
 
 	auto vertexShader = *m_shadersVert.begin()->second;
@@ -174,22 +188,24 @@ void Graphic::GraphicMain::render(ID3D11DeviceContext *context, ID3D11DepthStenc
 
 	DirectX::XMStoreFloat4x4(&world,		XMMatrixTranspose(scene.m_camMain.getModelMatrix() )); // Transpose for HLSL!
 	DirectX::XMStoreFloat4x4(&view,			XMMatrixTranspose(scene.m_camMain.getViewMatrix())); // Transpose for HLSL!
-	DirectX::XMStoreFloat4x4(&projection,	XMMatrixTranspose(scene.m_camMain.getProjectionMatrix(width, height, 0.1f, 100.0f))); // Transpose for HLSL!
+	DirectX::XMStoreFloat4x4(&projection,	XMMatrixTranspose(scene.m_camMain.getProjectionMatrix(m_width, m_height, 0.1f, 100.0f))); // Transpose for HLSL!
 
 	renderTarget_diffuse->SetRenderTarget(context, depth);
-	context->OMSetRenderTargets(3, renderTargets, depth);
+	context->OMSetRenderTargets(4, renderTargets, depth);
 	//deviceContext->OMSetRenderTargets(1, &m_renderTargetView, depthStencilView);
 	renderTarget_diffuse->ClearRenderTarget(context, depth, 255, 0.0, 0, 1);
 	renderTarget_normal->ClearRenderTarget(context, depth, 0, 255, 0, 1);
-	renderTarget_world->ClearRenderTarget(context, depth, 0, 0.0,255, 1);
+	renderTarget_world->ClearRenderTarget(context, depth, 0, 0.0, 255, 1);
+	renderTarget_depth->ClearRenderTarget(context, depth, 0, 0.0, 0, 255);
 
+	vertexShader->SetFloat3("worldSize", scene.size);
 	vertexShader->SetMatrix4x4("world", world);
 	vertexShader->SetMatrix4x4("view", view);
 	vertexShader->SetMatrix4x4("projection", projection);
-	//vertexShader->SetMatrix4x4("world", scene.m_camMain.getModelMatrix());
-	//vertexShader->SetMatrix4x4("view", scene.m_camMain.getViewMatrix());
-	//vertexShader->SetMatrix4x4("projection", scene.m_camMain.getProjectionMatrix(width,height,0.1f,100.0f));
+	pixelShader->SetSamplerState("sampler_default", m_sampler);
+
 	vertexShader->CopyAllBufferData();
+	pixelShader->CopyAllBufferData();
 	vertexShader->SetShader();
 	pixelShader->SetShader();
 	int count = 0;
@@ -201,8 +217,13 @@ void Graphic::GraphicMain::render(ID3D11DeviceContext *context, ID3D11DepthStenc
 		DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose(it->getModelMatrix())); // Transpose for HLSL!
 
 		vertexShader->SetMatrix4x4("world", world);
+		pixelShader->SetShaderResourceView("texture_diffuse", m_textures[it->m_textures[TEXTURE_TYPE::TEXTURE_DIFFUSE]]);
+		pixelShader->SetShaderResourceView("texture_normal", m_textures[it->m_textures[TEXTURE_TYPE::TEXTURE_NORMAL]]);
+		pixelShader->SetShaderResourceView("texture_specular", m_textures[it->m_textures[TEXTURE_TYPE::TEXTURE_SPECULAR]]);
+		pixelShader->SetShaderResourceView("texture_displacement", m_textures[it->m_textures[TEXTURE_TYPE::TEXTURE_DISPLACEMENT]]);
+		//pixelShader->SetShaderResourceView("texture_diffuse", m_textures[it->m_textures[0]]);
 		vertexShader->CopyAllBufferData();
-		
+		pixelShader->CopyAllBufferData();
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
 		context->IASetVertexBuffers(0, 1, &mesh->getBufferVertexRef(), &stride, &offset);
@@ -245,4 +266,5 @@ void Graphic::GraphicMain::render(ID3D11DeviceContext *context, ID3D11DepthStenc
 	}
 	*/
 	endRendering();
+	context->RSSetViewports(1, &viewport);
 }

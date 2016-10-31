@@ -34,13 +34,13 @@ namespace Graphic {
 		LPCWSTR path;
 	};
 	struct TextureLoadInformation {
-		TextureID id;
+		TEXTURE_ID id;
 		LPCWSTR path;
 	};
 
 	class GraphicMain {
 	private:
-		int width, height;
+		int m_width, m_height;
 		
 		void rendering(NScene::Scene scene);
 		void processObject(NScene::Object obj);
@@ -62,7 +62,7 @@ namespace Graphic {
 	public:
 		Graphic::Mesh * mesh00;
 
-		std::map<TextureID, ID3D11ShaderResourceView*> m_textures;
+		std::map<TEXTURE_ID, ID3D11ShaderResourceView*> m_textures;
 		std::map<RENDER_TYPE, RenderTexture*> m_renderTextures;
 		std::map<RENDER_TYPE, std::unique_ptr<SimpleFragmentShader*>> m_shadersFrag;
 		std::map<RENDER_TYPE, std::unique_ptr<SimpleVertexShader*>> m_shadersVert;

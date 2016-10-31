@@ -78,6 +78,9 @@
     <ClCompile Include="Files\Graphic\cpp\Camera Graphic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Files\Vertex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">
@@ -86,8 +89,6 @@
     <FxCompile Include="VertexShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Resource\default_vert.hlsl" />
-    <FxCompile Include="Resource\default_frag.hlsl" />
     <FxCompile Include="Resource\New folder\default_frag.hlsl" />
   </ItemGroup>
   <ItemGroup>
@@ -188,6 +189,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Files\Graphic\TextureID.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Files\Graphic\TextureType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

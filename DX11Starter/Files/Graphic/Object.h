@@ -1,10 +1,12 @@
 #pragma once
 #include <memory>
-#include <list>
+#include <map> //TODO delete
+#include <vector> //TODO delete
 #include <d3d11.h>
 #include <SimpleMath.h>
 #include "MeshID.h"
 #include "TextureID.h"
+#include "TextureType.h"
 #include "RenderType.h"
 //#include "glm\glm.hpp"
 //#include "Shader.h"
@@ -25,8 +27,8 @@ namespace Graphic {
 			//Information required for rendering process
 			RENDER_TYPE				m_renderType;
 			MESH_TYPE				m_meshType;
-			std::list<TextureID>	m_textures; // textures in order in which the shader processes the textures
-
+			std::map<TEXTURE_TYPE, TEXTURE_ID> m_textures;
+			std::vector<TEXTURE_ID>	m_textures02; // textures in order in which the shader processes the textures
 			Object();
 			virtual void setScale(Vector3 scale);
 			virtual void setPos(Vector3 pos);
