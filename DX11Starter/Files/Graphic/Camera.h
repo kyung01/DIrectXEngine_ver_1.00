@@ -12,12 +12,12 @@ namespace Graphic {
 			float
 				m_screenWidth, m_screenHeight,
 				m_clipNear, m_clipFar;
-		protected:
-			bool	m_isDirty_matProjection,
-				m_isDirty_matView;
 			Matrix	m_matProjection,
 				m_matView;
+		protected:
 		public:
+			bool	m_isDirty_matProjection,
+				m_isDirty_matView;
 			CAMERA_TYPE viewType;
 			//mat4 position, rotation;
 			//vec3 up;
@@ -29,7 +29,8 @@ namespace Graphic {
 			Matrix getProjectionMatrix(float screen_width, float screen_height, float cam_near, float cam_far);
 			Matrix getViewMatrix();
 			void setPos(Vector3 pos) override;
-			void setRotation(Quaternion quaternion) override;
+			void setRotation(Quaternion quaternion) override ;
+			
 			//mat4 getProjViewMatrix();
 		};
 	}

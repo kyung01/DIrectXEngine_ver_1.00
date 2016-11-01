@@ -19,6 +19,9 @@ namespace Graphic {
 	class RenderTexture
 	{
 	private:
+		ID3D11Texture2D* m_renderTargetTexture;
+		ID3D11RenderTargetView* m_renderTargetView;
+		ID3D11ShaderResourceView* m_shaderResourceView;
 	public:
 		RenderTexture();
 		RenderTexture(const RenderTexture&);
@@ -28,12 +31,9 @@ namespace Graphic {
 		void Shutdown();
 
 		void SetRenderTarget(ID3D11DeviceContext*, ID3D11DepthStencilView*);
-		void ClearRenderTarget(ID3D11DeviceContext*, ID3D11DepthStencilView*, float, float, float, float);
+		void ClearRenderTarget(ID3D11DeviceContext*, float, float, float, float);
 		ID3D11ShaderResourceView* GetShaderResourceView();
-
-		ID3D11Texture2D* m_renderTargetTexture;
-		ID3D11RenderTargetView* m_renderTargetView;
-		ID3D11ShaderResourceView* m_shaderResourceView;
+		ID3D11RenderTargetView * getRenderTargetView();
 
 		D3D11_VIEWPORT viewport;
 	};

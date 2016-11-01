@@ -1,16 +1,20 @@
-#include "DepthTexture.h"
+#include "Graphic/DepthTexture.h"
+using namespace Graphic;
 
-float Graphic::DepthTexture::getWidth()
+float DepthTexture::getWidth()
 {
 	return m_width;
 }
 
-float Graphic::DepthTexture::getHeight()
+float DepthTexture::getHeight()
 {
 	return m_height;
 }
+void DepthTexture::clear(ID3D11DeviceContext* deviceContext )  {
 
-bool Graphic::DepthTexture::init(ID3D11Device * device, int width, int height)
+	deviceContext->ClearDepthStencilView(m_depthView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+}
+bool DepthTexture::init(ID3D11Device * device, int width, int height)
 {
 	m_width = width;
 	m_height = height;
@@ -81,4 +85,12 @@ bool Graphic::DepthTexture::init(ID3D11Device * device, int width, int height)
 
 
 	return true;
+}
+
+ID3D11DepthStencilView * DepthTexture::getDepthStencilView() {
+	return m_depthView;
+}
+ID3D11ShaderResourceView* DepthTexture::getShaderResourceView() {
+	return m_shaderResourceView;
+
 }

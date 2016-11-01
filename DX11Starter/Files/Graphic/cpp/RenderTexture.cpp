@@ -123,7 +123,7 @@ void RenderTexture::SetRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11De
 }
 
 
-void RenderTexture::ClearRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView,
+void RenderTexture::ClearRenderTarget(ID3D11DeviceContext* deviceContext,
 	float red, float green, float blue, float alpha)
 {
 	float color[4];
@@ -139,11 +139,13 @@ void RenderTexture::ClearRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11
 	deviceContext->ClearRenderTargetView(m_renderTargetView, color);
 
 	// Clear the depth buffer.
-	deviceContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	return;
 }
 
+ID3D11RenderTargetView * RenderTexture::getRenderTargetView() {
+	return m_renderTargetView;
+}
 
 ID3D11ShaderResourceView* RenderTexture::GetShaderResourceView()
 {

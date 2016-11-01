@@ -26,6 +26,7 @@
 
 namespace Graphic {
 	//TODO hlsl files are stroed in debug folder once they are built with extention .cso You need grasp them
+	
 	struct MeshLoadInformation {
 		MESH_TYPE type;
 		char* path;
@@ -51,11 +52,19 @@ namespace Graphic {
 		std::list<ShaderLoadInformation>	getLoadListShaderFrag();
 		std::list<TextureLoadInformation>	getLoadListTexture();
 
-		bool initTextures(ID3D11Device* device, ID3D11DeviceContext *context, int width, int height);
-		bool initShaders(ID3D11Device* device, ID3D11DeviceContext *context);
-		void render(ID3D11DeviceContext* context, ID3D11DepthStencilView *depth, NScene::Object object);
-		void renderPreDeffered(ID3D11DeviceContext* context, NScene::Scene scene);
-		void renderLightDepth(ID3D11Device * device, ID3D11DeviceContext* context, NScene::Scene scene);
+		bool initTextures		(ID3D11Device* device, ID3D11DeviceContext *context, int width, int height);
+		bool initShaders		(ID3D11Device* device, ID3D11DeviceContext *context);
+		void render				(ID3D11DeviceContext* context, ID3D11DepthStencilView *depth, NScene::Object object);
+		
+		void renderPreDeffered(	ID3D11DeviceContext* context, NScene::Scene scene,
+								SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
+								RenderTexture& texture_diffuse, RenderTexture& texture_normal, DepthTexture& textureDepth
+			);
+		void renderLightDepth	(ID3D11Device* device,	ID3D11DeviceContext* context, NScene::Scene scene);
+		void renderDirectionalLight
+				(ID3D11Device* device, ID3D11DeviceContext* context,
+				RenderTexture& textureDiffuse, RenderTexture& textureNormal, RenderTexture& textureWorld,
+				RenderTexture& textureCameraDepth, RenderTexture& textureFinalScene);
 	protected:
 		//glm::mat4 matProjection, matView, matModel;
 		void processCamera(Graphic::NScene::Camera cam);// = 0;
@@ -65,12 +74,13 @@ namespace Graphic {
 	public:
 		Graphic::Mesh * mesh00;
 
-		DepthTexture m_depth; // universal depth texture used for most renderers;
 		std::map<TEXTURE_ID, ID3D11ShaderResourceView*> m_textures;
-		std::map<RENDER_TYPE, RenderTexture*> m_renderTextures;
+
+		std::map<RENDER_TYPE, std::shared_ptr<RenderTexture>>	m_renderTextures;
+		std::map<RENDER_TYPE, std::shared_ptr<DepthTexture>>	m_depthTextures;
 		std::map<int, DepthTexture*> m_lightDepthTextures;
-		std::map<RENDER_TYPE, std::unique_ptr<SimpleFragmentShader*>> m_shadersFrag;
-		std::map<RENDER_TYPE, std::unique_ptr<SimpleVertexShader*>> m_shadersVert;
+		std::map<RENDER_TYPE, std::shared_ptr<SimpleFragmentShader>> m_shadersFrag;
+		std::map<RENDER_TYPE, std::shared_ptr<SimpleVertexShader>> m_shadersVert;
 		std::map<MESH_TYPE, std::unique_ptr<Mesh*>> m_meshes;
 		ID3D11SamplerState *m_sampler;
 

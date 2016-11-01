@@ -8,13 +8,13 @@ void NImGui::UIMain::init(Graphic::GraphicMain * graphicMain)
 {
 	this->graphicMain = graphicMain;
 }
-void NImGui::UIMain::render(std::map<Graphic::RENDER_TYPE, Graphic::RenderTexture*> renderTexutres)
+void NImGui::UIMain::render(std::map<Graphic::RENDER_TYPE, std::shared_ptr<Graphic::RenderTexture>> renderTexutres)
 {
 	ImGui::Begin("RenderTextures Demo", 0, ImGuiWindowFlags_ShowBorders);
 
 	for (auto it = renderTexutres.begin(); it != renderTexutres.end(); it++) {
 		ImGui::Text("RenderTextures", 500, 500);
-		ImTextureID tex_id = it->second->m_shaderResourceView;
+		ImTextureID tex_id = it->second->GetShaderResourceView();
 		//ImTextureID tex_id = ImGui::GetIO().Fonts->TexID;
 		ImGui::Text("%.0fx%.0f", 500, 500);
 		ImGui::Image(tex_id, ImVec2(500, 500), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
@@ -24,11 +24,25 @@ void NImGui::UIMain::render(std::map<Graphic::RENDER_TYPE, Graphic::RenderTextur
 }
 void NImGui::UIMain::render(std::map<int, Graphic::DepthTexture*> textures)
 {
+	ImGui::Begin("LightSource DepthTextures Demo", 0, ImGuiWindowFlags_ShowBorders);
+
+	for (auto it = textures.begin(); it != textures.end(); it++) {
+		ImGui::Text("" + it->first, 500, 500);
+		ImTextureID tex_id = it->second->getShaderResourceView();
+		//ImTextureID tex_id = ImGui::GetIO().Fonts->TexID;
+		//ImGui::Text("%.0fx%.0f", 500, 500);
+		ImGui::Image(tex_id, ImVec2(500, 500), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
+
+	}
+	ImGui::End();
+}
+void NImGui::UIMain::render(std::map<Graphic::RENDER_TYPE, std::shared_ptr<Graphic::DepthTexture>> textures)
+{
 	ImGui::Begin("DepthTextures Demo", 0, ImGuiWindowFlags_ShowBorders);
 
 	for (auto it = textures.begin(); it != textures.end(); it++) {
-		ImGui::Text(""+it->first, 500, 500);
-		ImTextureID tex_id = it->second->m_shaderResourceView;
+		ImGui::Text("" + it->first, 500, 500);
+		ImTextureID tex_id = it->second->getShaderResourceView();
 		//ImTextureID tex_id = ImGui::GetIO().Fonts->TexID;
 		//ImGui::Text("%.0fx%.0f", 500, 500);
 		ImGui::Image(tex_id, ImVec2(500, 500), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
@@ -57,17 +71,9 @@ void NImGui::UIMain::render()
 		ImGui::EndMenu();
 	}
 	ImGui::EndMainMenuBar();
-	{
-		ImGui::Begin("JESUS I HATE THIS Demo", 0, ImGuiWindowFlags_ShowBorders);
-		ImTextureID tex_id = graphicMain->m_depth.m_shaderResourceView;
-		//ImTextureID tex_id = ImGui::GetIO().Fonts->TexID;
-		ImGui::Text("%.0fx%.0f", 500, 500);
-		ImGui::Image(tex_id, ImVec2(500, 500), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
-
-		ImGui::End();
-	}
 
 	render(graphicMain->m_renderTextures);
+	render(graphicMain->m_depthTextures);
 	render(graphicMain->m_lightDepthTextures);
 
 	ImGui::Begin("Other window", 0, ImGuiWindowFlags_ShowBorders);
@@ -78,7 +84,7 @@ void NImGui::UIMain::render()
 		ImVec2 tex_screen_pos = ImGui::GetCursorScreenPos();
 		float tex_w = 100;
 		float tex_h = 100;
-		ImTextureID tex_id = graphicMain->m_renderTextures.begin()->second->m_shaderResourceView;
+		ImTextureID tex_id = graphicMain->m_renderTextures.begin()->second->GetShaderResourceView();
 		//ImTextureID tex_id = ImGui::GetIO().Fonts->TexID;
 		ImGui::Text("%.0fx%.0f", tex_w, tex_h);
 		ImGui::Image(tex_id, ImVec2(tex_w, tex_h), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));

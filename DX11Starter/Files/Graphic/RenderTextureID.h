@@ -1,6 +1,0 @@
-#pragma once
-namespace Graphic {
-	enum RENDERTEXTURE_ID{
-		DEFFERED_DIFFUSE, DEFERRED_WORLD, DEFERRED_NORMAL, DEFERRED_DEPTH
-	};
-}

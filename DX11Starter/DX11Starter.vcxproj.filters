@@ -81,7 +81,7 @@
     <ClCompile Include="Files\Vertex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Files\Graphic\DepthTexture.cpp">
+    <ClCompile Include="Files\Graphic\cpp\DepthTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -177,9 +177,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Files\Graphic\RenderTexture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Files\Graphic\RenderTextureID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Files\Graphic\RenderType.h">

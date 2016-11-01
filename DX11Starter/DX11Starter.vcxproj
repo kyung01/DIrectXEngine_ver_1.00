@@ -127,7 +127,7 @@
   <ItemGroup>
     <ClCompile Include="Files\DirectX\DXCore.cpp" />
     <ClCompile Include="Files\DirectX\KContext.cpp" />
-    <ClCompile Include="Files\Graphic\DepthTexture.cpp" />
+    <ClCompile Include="Files\Graphic\cpp\DepthTexture.cpp" />
     <ClCompile Include="Files\Graphic\Mesh.cpp" />
     <ClCompile Include="Files\Graphic\cpp\RenderTexture.cpp" />
     <ClCompile Include="Files\Graphic\cpp\Scene Graphic.cpp" />
@@ -174,7 +174,6 @@
     <ClInclude Include="Files\Graphic\Mesh.h" />
     <ClInclude Include="Files\Graphic\MeshID.h" />
     <ClInclude Include="Files\Graphic\ObjectType.h" />
-    <ClInclude Include="Files\Graphic\RenderTextureID.h" />
     <ClInclude Include="Files\Graphic\RenderType.h" />
     <ClInclude Include="Files\Graphic\ShaderInformation.h" />
     <ClInclude Include="Files\Graphic\ShaderType.h" />
