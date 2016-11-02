@@ -169,7 +169,16 @@ bool Graphic::GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *conte
 		!initTextures(device,context,width,height)
 		
 		) return false;
-
+	D3D11_BLEND_DESC noBlack = { };
+	noBlack.RenderTarget[0].BlendEnable = true;
+	noBlack.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	noBlack.RenderTarget[0].DestBlend = D3D11_BLEND_DEST_ALPHA;
+	noBlack.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	noBlack.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;//D3D11_BLEND_ZERO
+	noBlack.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;//D3D11_BLEND_ZERO
+	noBlack.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	noBlack.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	device->CreateBlendState(&noBlack, &m_blendStateNoBlack);
 	return true;
 }
 float temp_angle = 0;
@@ -238,31 +247,39 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 	SimpleVertexShader & shaderVert, SimpleFragmentShader & shaderFrag, RenderTexture& target, DepthTexture& targetDepth,
 	RenderTexture & textureDiffuse, RenderTexture & textureNormal, DepthTexture & textureDepth)
 {
-
-	shaderVertDepthOnly.SetShader();
-	context->PSSetShader(NULL, NULL, 0); //set pixel writing stage to none
+	int count = 0;
 	DirectX::XMFLOAT4X4 world, view, projection;
 	auto sceneReverseProjectionView = DirectX::XMMatrixInverse(0, DirectX::XMMatrixMultiply(scene.m_camMain.getViewMatrix(), scene.m_camMain.getProjectionMatrix()));
-	auto lightProjectionOrtho = DirectX::XMMatrixOrthographicLH(15, 15, 0.1, 15);
+	auto lightProjectionOrtho = DirectX::XMMatrixOrthographicLH(25, 25, 0.0, 50);
 	auto defferedOrtho = DirectX::XMMatrixOrthographicLH(1, 1, 0.1, 100);
-	D3D11_VIEWPORT viewport;
-	viewport.TopLeftX = 0;
-	viewport.TopLeftY = 0;
-	viewport.Width = (float)512;
-	viewport.Height = (float)512;
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-	context->RSSetViewports(1, &viewport);
-
+	target.ClearRenderTarget(context, 0, 0, 0, 1);
 	for (auto it = scene.objects.begin(); it != scene.objects.end(); it++) {
 		if ((*it)->m_ObjectType != NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL)
 			continue;
+		shaderVertDepthOnly.SetShader();
+		context->OMSetBlendState(m_blendStateNoBlack, 0, 0xffffffff);//::NoBlack, blendFactor, 0xffffffff);
+		context->PSSetShader(NULL, NULL, 0); //set pixel writing stage to none
+
 		auto &p = **it;
-		auto lightCamera = dynamic_cast<NScene::Camera*>(&(p));
+		auto lightCamera = dynamic_cast<NScene::Light*>(&(p));
 		float angle = temp_angle*0.1;
-		lightCamera->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), angle*10));
+		if (count++ == 0) {
+			lightCamera->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), angle * .0010));
+		}
+		else {
+			lightCamera->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), -angle * 3.510));
+		}
 		//lightCamera->setPos(Vector3( sin(angle) * 10, 0, cos(angle)*-10 ));
 		auto lightViewProjection = DirectX::XMMatrixMultiply(lightCamera->getViewMatrix(), lightProjectionOrtho);
+		D3D11_VIEWPORT viewport;
+		viewport.TopLeftX = 0;
+		viewport.TopLeftY = 0;
+		viewport.Width = (float)SIZE_LIGHT_TEXTURE;
+		viewport.Height = (float)SIZE_LIGHT_TEXTURE;
+		viewport.MinDepth = 0.0f;
+		viewport.MaxDepth = 1.0f;
+		context->RSSetViewports(1, &viewport);
+		
 
 		auto depth = m_lightDepthTextures[(*it)->m_id];
 		if (depth == 0) {//TODO meh...it is going to take less than one second to check this it is dirty though. Think of better ways of doing it if you can.
@@ -307,10 +324,11 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 				0);    // Offset to add to each index when looking up vertices
 		}
 
-		target.ClearRenderTarget(context, 0, 0, 0, 1);
-		targetDepth.clear(context);
+		//orthogonal display here
 		target.SetRenderTarget(context, targetDepth.getDepthStencilView());
+		targetDepth.clear(context);
 
+		//orthogonal render
 		auto pos = Vector3(0, 0, -10);
 		auto dir = Vector3(0, 0, 1);
 		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(DirectX::XMMatrixMultiply(
@@ -321,10 +339,13 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 		shaderFrag.SetMatrix4x4("matProjInverse", projection);
 		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(lightViewProjection)); // Transpose for HLSL!
 		shaderFrag.SetMatrix4x4("matLightViewProj", projection);
-		shaderFrag.SetFloat3("lightPos", it->get()->m_pos);
 		DirectX::XMFLOAT3 storeVector3;
 		DirectX::XMStoreFloat3(&storeVector3, DirectX::XMVector3Rotate(Vector3(0, 0, 1), it->get()->m_rotation));
+		DirectX::XMFLOAT4 storeVector4;
+		DirectX::XMStoreFloat4(&storeVector4, lightCamera->m_lightColor);
+		shaderFrag.SetFloat3("lightPos", it->get()->m_pos);
 		shaderFrag.SetFloat3("lightDir", storeVector3);//	t()->m_pos * Vector3(0, 0, 1));
+		shaderFrag.SetFloat4("lightColor", storeVector4);//	t()->m_pos * Vector3(0, 0, 1));
 
 		//matProjInverse
 		
@@ -355,15 +376,9 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 				0,     // Offset to the first index we want to use
 				0);    // Offset to add to each index when looking up vertices
 		}
-
-
-
-
-
-
-
-
 	}
+
+	context->OMSetBlendState(0, 0, 0xffffffff);//::NoBlack, blendFactor, 0xffffffff);
 }
 void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *context, NScene::Scene scene)
 {
@@ -372,7 +387,7 @@ void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *co
 	D3D11_VIEWPORT viewport;
 	context->RSGetViewports(&viewportNum, &viewport);
 	//scene.m_camMain.setPos(Vector3(0,0, temp_angle*.1));
-	scene.m_camMain.setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle*0.1f));
+	scene.m_camMain.setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle*0.01f));
 	beginRendering();
 
 

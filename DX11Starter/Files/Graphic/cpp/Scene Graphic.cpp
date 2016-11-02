@@ -1,4 +1,5 @@
-#include "Graphic/Scene.h"
+#include "Graphic\Scene.h"
+#include "Graphic\Light.h"
 using namespace Graphic::NScene;
 Scene::Scene():
 	size(10,10,10)
@@ -41,11 +42,15 @@ void Scene::loadExample00()
 		obj->m_textures[TEXTURE_TYPE::TEXTURE_NORMAL] = normalTexture[(count * 73) % 5];
 		this->objects.push_back(obj);
 	}
-	Vector3 lightPositions[]{ Vector3(0,0,-10) };//, Vector3(0, 0, 5), Vector3(5, 0, 0), Vector3(-5, 0, 0)};
-	for (int i = 0; i < 1; i++)  {
-		auto obj = std::shared_ptr<Object>(new Camera());
+	Vector3 lightPositions[]{ Vector3(0,0,0),Vector3(0.0,0.0,-1.0) };//, Vector3(0, 0, 5), Vector3(5, 0, 0), Vector3(-5, 0, 0)};
+	Vector3 lightRotation[]{ Vector3(0,3.14,0) ,Vector3(0,-3.14,0) };
+	Vector4 lightColors[]{ Vector4(1,1,1,5.5) ,Vector4(1.0,0.0,0.0,150.5f) };
+	for (int i = 0; i < 2; i++)  {
+		auto obj = std::shared_ptr<Object>(new Light());
 		obj->m_ObjectType = NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL;
 		obj->setPos(lightPositions[i]);
+		obj->setRotation(Quaternion(lightRotation[i]));
+		dynamic_cast<Light*>(obj.get())->m_lightColor = lightColors[i];
 		this->objects.push_back(obj);
 
 	}

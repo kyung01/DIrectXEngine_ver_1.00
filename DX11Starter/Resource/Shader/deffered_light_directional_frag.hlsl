@@ -5,6 +5,7 @@ cbuffer global00 :register(b0)
 	//float3 worldSize;
 	float3 lightPos;
 	float3 lightDir;
+	float4 lightColor;
 	matrix matProjInverse; //used to unwrap depth to world
 	matrix matLightViewProj; //used to wrap world to screen relative projected position
 };
@@ -42,18 +43,25 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 
 	float4 posFromLightSource = mul(posWorld, matLightViewProj);
+	float3 posFromLightSourceWorld = posWorld.xyz - lightPos;
 	float2 uvNew = (posFromLightSource.xy*0.5 + 0.5)/ posFromLightSource.w ;
 	float4 lightDepthRaw = textureLightDepth.Sample(samplerDefault, uvNew);// .x;
 	float lightDepth = textureLightDepth.Sample(samplerDefault, uvNew).x;
 	float ratio = posFromLightSource.z*lightDepth*0.00001;
-	
+	float lightPower =
+		(lightColor.w) /
+		(lightColor.w + 
+			posFromLightSourceWorld.x *posFromLightSourceWorld.x +
+			posFromLightSourceWorld.y*posFromLightSourceWorld.y +
+			posFromLightSourceWorld.z*posFromLightSourceWorld.z);
 	//return float4(, 1 + ratio);
 	float4 normal = textureNormal.Sample(samplerDefault, input.uv);
 	float4 diffuseColor = textureDiffuse.Sample(samplerDefault, input.uv);
 	float intensity = max(0, dot(-lightDir, normal.xyz*2 -1));
 	float shadow = min(1, max(0, (lightDepth - (posFromLightSource.z - 0.08))) * 100 );
-	output = diffuseColor*intensity * shadow;
-	output.w = 1;
+	//output = diffuseColor.xyz*intensity * shadow;
+	output.xyz = (diffuseColor.xyz*intensity  * lightColor.xyz* lightPower);// *shadow;
+	output.w = shadow;
 
 
 	//else output = float4(0, 0, 1, 1+ ratio)*diffuseColor;

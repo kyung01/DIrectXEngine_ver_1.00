@@ -171,6 +171,7 @@
     <ClInclude Include="Files\DirectX\DXCore.h" />
     <ClInclude Include="Files\DirectX\KContext.h" />
     <ClInclude Include="Files\Graphic\DepthTexture.h" />
+    <ClInclude Include="Files\Graphic\Light.h" />
     <ClInclude Include="Files\Graphic\Mesh.h" />
     <ClInclude Include="Files\Graphic\MeshID.h" />
     <ClInclude Include="Files\Graphic\ObjectType.h" />

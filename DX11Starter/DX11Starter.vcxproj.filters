@@ -200,6 +200,9 @@
     <ClInclude Include="Files\Graphic\ObjectType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Files\Graphic\Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -12,6 +12,7 @@
 #include "RenderTexture.h"
 #include "DepthTexture.h"
 #include "MeshID.h"
+#include "Graphic\Light.h"
 #include <list>
 #include <map>
 #include <memory>
@@ -66,6 +67,7 @@ namespace Graphic {
 			);
 		
 	protected:
+		ID3D11BlendState *m_blendStateNoBlack;
 		//glm::mat4 matProjection, matView, matModel;
 		void processCamera(Graphic::NScene::Camera cam);// = 0;
 		void beginRendering();// = 0;

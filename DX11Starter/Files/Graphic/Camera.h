@@ -17,7 +17,7 @@ namespace Graphic {
 		protected:
 		public:
 			bool	m_isDirty_matProjection,
-				m_isDirty_matView;
+					m_isDirty_matView;
 			CAMERA_TYPE viewType;
 			//mat4 position, rotation;
 			//vec3 up;
