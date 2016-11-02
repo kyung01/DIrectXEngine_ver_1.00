@@ -35,8 +35,6 @@ struct PS_OUTPUT
 {
 	float4 diffuse: SV_Target0;
 	float4 normal: SV_Target1;
-	float4 worldPos: SV_Target2;
-	float4 depth: SV_Target3;
 	//float4 texture_specular: SV_Target4; At some point...
 };
 
@@ -53,9 +51,10 @@ PS_OUTPUT main(VertexToPixel input) : SV_TARGET
 	normal = normal.x * input.tangent +normal.y * input.biTangent + normal.z * input.normal;
 
 	output.diffuse = texture_diffuse.Sample(sampler_default, input.uv);
-	output.normal = float4((normal + 1) *.5, 1);
-	output.worldPos = float4(input.worldPos.xyz, 1);
-	output.depth = float4(input.worldPos.w, input.worldPos.w, input.worldPos.w, 1);
+	output.normal = float4(input.uv,0,1);
+	// output.normal = float4((normal + 1) *.5, 1);
+	//output.worldPos = float4(input.worldPos.xyz, 1);
+	//output.depth = float4(input.worldPos.w, input.worldPos.w, input.worldPos.w, 1);
 	return output;
 }
 

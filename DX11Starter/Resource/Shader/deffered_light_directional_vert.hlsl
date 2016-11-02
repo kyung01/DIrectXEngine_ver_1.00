@@ -34,5 +34,6 @@ VertexToPixel main(VertexShaderInput input)
 	output.position = mul(float4(input.position, 1.0f), matViewProjection);
 	output.uv = input.uv;
 
+
 	return output;
 }

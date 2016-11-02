@@ -247,7 +247,7 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 	context->PSSetShader(NULL, NULL, 0); //set pixel writing stage to none
 	DirectX::XMFLOAT4X4 world, view, projection;
 	auto sceneReverseProjectionView = DirectX::XMMatrixInverse(0, DirectX::XMMatrixMultiply(scene.m_camMain.getViewMatrix(), scene.m_camMain.getProjectionMatrix()));
-	auto lightProjectionOrtho = DirectX::XMMatrixOrthographicLH(10, 10, 0.1, 15);
+	auto lightProjectionOrtho = DirectX::XMMatrixOrthographicLH(15, 15, 0.1, 15);
 	auto defferedOrtho = DirectX::XMMatrixOrthographicLH(1, 1, 0.1, 100);
 	D3D11_VIEWPORT viewport;
 	viewport.TopLeftX = 0;
@@ -325,6 +325,10 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 		shaderFrag.SetMatrix4x4("matProjInverse", projection);
 		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(lightViewProjection)); // Transpose for HLSL!
 		shaderFrag.SetMatrix4x4("matLightViewProj", projection);
+		shaderFrag.SetFloat3("lightPos", it->get()->m_pos);
+		DirectX::XMFLOAT3 storeVector3;
+		DirectX::XMStoreFloat3(&storeVector3, DirectX::XMVector3Rotate(Vector3(0, 0, 1), it->get()->m_rotation));
+		shaderFrag.SetFloat3("lightDir", storeVector3);//	t()->m_pos * Vector3(0, 0, 1));
 
 		//matProjInverse
 		
@@ -372,7 +376,7 @@ void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *co
 	D3D11_VIEWPORT viewport;
 	context->RSGetViewports(&viewportNum, &viewport);
 	//scene.m_camMain.setPos(Vector3(0,0, temp_angle*.1));
-	//scene.m_camMain.setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle));
+	scene.m_camMain.setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle));
 	beginRendering();
 
 
@@ -384,14 +388,15 @@ void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *co
 		*m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL],*m_depthTextures[RENDER_TYPE::DEFFERED]
 
 		);
+	/*
 	renderLights(device,context, scene,
 		*m_shadersVert[RENDER_TYPE::DEPTH],
 		*m_shadersVert[RENDER_TYPE::DEFFERED_LIGHT_DIRECTIONAL], *m_shadersFrag[RENDER_TYPE::DEFFERED_LIGHT_DIRECTIONAL],
 
 		*m_renderTextures[RENDER_TYPE::DEFFERED_FINAL],* m_depthTextures[RENDER_TYPE::DEFFERED_FINAL],
 		*m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL], *m_depthTextures[RENDER_TYPE::DEFFERED]
-
 		);
+	*/
 	
 	//renderLightDepth(device, context, scene);
 

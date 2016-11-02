@@ -3,8 +3,10 @@
 cbuffer global00 :register(b0)
 {
 	//float3 worldSize;
-	matrix matProjInverse;
-	matrix matLightViewProj;
+	float3 lightPos;
+	float3 lightDir;
+	matrix matProjInverse; //used to unwrap depth to world
+	matrix matLightViewProj; //used to wrap world to screen relative projected position
 };
 
 // External texture-related data
@@ -15,38 +17,44 @@ Texture2D textureLightDepth		: register(t3);
 
 SamplerState samplerDefault	: register(s0);
 // Struct representing a single vertex worth of data
-struct VertexShaderInput
+
+struct VertexToPixel
 {
 	float4 position		: SV_POSITION;
 	float2 uv			: TEXCOORD;
 };
-
 // Out of the vertex shader (and eventually input to the PS)
 
 
 
-float4 main(VertexShaderInput input) : SV_TARGET
+float4 main(VertexToPixel input) : SV_TARGET
 {
 	float4 output;
 	float4 diffuseColor = textureDiffuse.Sample(samplerDefault, input.uv);
 	float4 posProjected = float4(
 		input.uv.x * 2 - 1, ( input.uv.y) * 2 - 1,
 		textureDepth.Sample(samplerDefault, input.uv).x, 1);
-	float4 p = mul(posProjected,matProjInverse);
-	p /= p.w;
-	float4 posFromLightSource = mul(p, matLightViewProj);
+	float4 posWorld = mul(posProjected,matProjInverse);
+	posWorld /= posWorld.w;
+
+	//float4 lightPos = mul(float4(0, 0, 0, 1) ,matProjInverse);
+	//float3 lightDir = normalize(mul(float4(0, 0, 1, 1), matProjInverse).xyz - lightPos.xyz);
+	//float3 lightDirToMe = normalize(posWorld.xyz - lightPos.xyz);
+
+	float power = dot(lightDir, normalize(posWorld.xyz- lightPos) );
+
+	float4 posFromLightSource = mul(posWorld, matLightViewProj);
 	float2 uvNew = (posFromLightSource.xy*0.5 + 0.5)/ posFromLightSource.w ;
 	float4 lightDepthRaw = textureLightDepth.Sample(samplerDefault, uvNew);// .x;
 	float lightDepth = textureLightDepth.Sample(samplerDefault, uvNew).x;
 	float ratio = posFromLightSource.z*lightDepth*0.00001;
 	
-//	return float4(lightDepthRaw.xyz, 1 + ratio);
+	//return float4(, 1 + ratio);
 
 	if (posFromLightSource.z - 0.08< lightDepth)
-
 		output = float4(1, 1, 1, 1+ ratio)*diffuseColor;
 	else output = float4(0, .1, .1, 1+ ratio)*diffuseColor;
-
+	output.xyz *= min(max(0,power*1000 ),1);
 
 	//else output = float4(0, 0, 1, 1+ ratio)*diffuseColor;
 	//output = float4(0, posFromLightSource.z +0.5, ratio, 1);
