@@ -155,9 +155,6 @@ bool GraphicMain::initShaders(ID3D11Device* device, ID3D11DeviceContext *context
 	return true;
 
 }
-void Graphic::GraphicMain::render(ID3D11DeviceContext * context, ID3D11DepthStencilView * depth, NScene::Object object)
-{
-}
 Graphic::GraphicMain::GraphicMain()
 {
 }
@@ -233,10 +230,11 @@ void Graphic::GraphicMain::renderPreDeffered(
 			0);    // Offset to add to each index when looking up vertices
 	}
 }
-void Graphic::GraphicMain::renderLightDepth(ID3D11Device * device, ID3D11DeviceContext * context, NScene::Scene scene)
+void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceContext * context,
+	NScene::Scene scene, SimpleVertexShader & shaderVertDepthOnly, SimpleVertexShader & shaderVert, SimpleFragmentShader & shaderFrag, RenderTexture & textureDiffuse, RenderTexture & textureNormal, DepthTexture & textureDepth)
 {
-	auto vertexShader	= *m_shadersVert[RENDER_TYPE::DEPTH];
-	vertexShader.SetShader();
+
+	shaderVertDepthOnly.SetShader();
 	context->PSSetShader(NULL, NULL, 0); //set pixel writing stage to none
 	DirectX::XMFLOAT4X4 world, view, projection;
 
@@ -257,41 +255,31 @@ void Graphic::GraphicMain::renderLightDepth(ID3D11Device * device, ID3D11DeviceC
 		cam->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle));
 
 		auto depth = m_lightDepthTextures[(*it)->m_id];
-		if (depth == 0){//TODO meh...it is going to take less than one second to check this it is dirty though. Think of better ways of doing it if you can.
+		if (depth == 0) {//TODO meh...it is going to take less than one second to check this it is dirty though. Think of better ways of doing it if you can.
 			m_lightDepthTextures[(*it)->m_id] = new DepthTexture();
 			m_lightDepthTextures[(*it)->m_id]->init(device, SIZE_LIGHT_TEXTURE, SIZE_LIGHT_TEXTURE);
 			depth = m_lightDepthTextures[(*it)->m_id];
 		}
 		context->OMSetRenderTargets(0, 0, depth->getDepthStencilView());
 		depth->clear(context);
-
-		Vector3 target = (cam)->m_pos + (Vector3)XMVector3Rotate(Vector3::Forward, (cam)->m_rotation);// , 0.0f);
-		
-		//DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose((*it)->getModelMatrix())); // Transpose for HLSL!
-		//auto wtf = cam->getViewMatrix();
+												  //DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose((*it)->getModelMatrix())); // Transpose for HLSL!
+																									  //auto wtf = cam->getViewMatrix();
 		if (temp_angle > 1) {
 			int e = 3;
 		}
-		//std::cout << "VIEW MATRIX HERE \n" << cam->m_pos.x << " " << cam->m_pos.y << cam->m_pos.z << " and " << cam->m_rotation.x << " " << cam->m_rotation.y << "  " << cam->m_rotation.z << " " << cam->m_rotation.w << "\n";
-		//std::cout << "CAM VIEW MATRIX DIRTY" << cam->m_isDirty_matView << "\n";
-		/*
-		DirectX::XMStoreFloat4x4(&view, XMMatrixTranspose(cam->getViewMatrix()));
-		DirectX::XMStoreFloat4x4(&view, XMMatrixTranspose(
-			DirectX::XMMatrixLookAtLH((*it)->m_pos, target, Vector3::Up))); // Transpose for HLSL!
-		*/
-		float viewSize = 1+temp_angle;
+		float viewSize = 1 + temp_angle;
 		DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose(cam->getModelMatrix())); // Transpose for HLSL!
-		DirectX::XMStoreFloat4x4(&view,  XMMatrixTranspose(cam->getViewMatrix())); // Transpose for HLSL!
+		DirectX::XMStoreFloat4x4(&view, XMMatrixTranspose(cam->getViewMatrix())); // Transpose for HLSL!
 		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(
-			DirectX::XMMatrixOrthographicLH(viewSize,viewSize,0.1,100))); // Transpose for HLSL!
-		
-		//DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(cam->getProjectionMatrix(512,512, 0.1f, 100.0f))); // Transpose for HLSL!
+			DirectX::XMMatrixOrthographicLH(viewSize, viewSize, 0.1, 100))); // Transpose for HLSL!
+
+																			 //DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(cam->getProjectionMatrix(512,512, 0.1f, 100.0f))); // Transpose for HLSL!
 
 
-		vertexShader.SetMatrix4x4("world", world);
-		vertexShader.SetMatrix4x4("view", view);
-		vertexShader.SetMatrix4x4("projection", projection);
-		vertexShader.CopyAllBufferData();
+		shaderVertDepthOnly.SetMatrix4x4("world", world);
+		shaderVertDepthOnly.SetMatrix4x4("view", view);
+		shaderVertDepthOnly.SetMatrix4x4("projection", projection);
+		shaderVertDepthOnly.CopyAllBufferData();
 
 
 		for (auto obj = scene.objects.begin(); obj != scene.objects.end(); obj++) {
@@ -299,8 +287,8 @@ void Graphic::GraphicMain::renderLightDepth(ID3D11Device * device, ID3D11DeviceC
 			auto mesh = *m_meshes[(*obj)->m_meshType];
 			DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose((*obj)->getModelMatrix())); // Transpose for HLSL!
 
-			vertexShader.SetMatrix4x4("world", world);
-			vertexShader.CopyAllBufferData();
+			shaderVertDepthOnly.SetMatrix4x4("world", world);
+			shaderVertDepthOnly.CopyAllBufferData();
 			UINT stride = sizeof(Vertex);
 			UINT offset = 0;
 			context->IASetVertexBuffers(0, 1, &mesh->getBufferVertexRef(), &stride, &offset);
@@ -316,20 +304,6 @@ void Graphic::GraphicMain::renderLightDepth(ID3D11Device * device, ID3D11DeviceC
 
 
 	}
-}
-void Graphic::GraphicMain::renderDirectionalLight(
-	ID3D11Device * device, ID3D11DeviceContext * context, 
-	RenderTexture& textureDiffuse, RenderTexture& textureNormal,
-	RenderTexture& textureWorld, RenderTexture& textureCameraDepth, RenderTexture& textureFinalScene)
-{
-	auto shaderVert = *m_shadersVert[RENDER_TYPE::DEFFERED_LIGHT_DIRECTIONAL];
-	auto shaderfrag = *m_shadersFrag[RENDER_TYPE::DEFFERED_LIGHT_DIRECTIONAL];
-
-
-	shaderfrag.SetShaderResourceView("texture_diffuse",	textureDiffuse		.GetShaderResourceView());
-	shaderfrag.SetShaderResourceView("texture_normal",		textureNormal		.GetShaderResourceView());
-	shaderfrag.SetShaderResourceView("texture_world",		textureWorld		.GetShaderResourceView());
-	shaderfrag.SetShaderResourceView("texture_camera",		textureCameraDepth	.GetShaderResourceView());
 }
 void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *context, NScene::Scene scene)
 {
@@ -348,6 +322,12 @@ void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *co
 	renderPreDeffered(context, scene,
 		*m_shadersVert[RENDER_TYPE::DEFFERED], *m_shadersFrag[RENDER_TYPE::DEFFERED],
 		*m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL],*m_depthTextures[RENDER_TYPE::DEFFERED]
+
+		);
+	renderLights(device,context, scene,
+		*m_shadersVert[RENDER_TYPE::DEPTH],
+		*m_shadersVert[RENDER_TYPE::DEFFERED_LIGHT_DIRECTIONAL], *m_shadersFrag[RENDER_TYPE::DEFFERED_LIGHT_DIRECTIONAL],
+		*m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL], *m_depthTextures[RENDER_TYPE::DEFFERED]
 
 		);
 	

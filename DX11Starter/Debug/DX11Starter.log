@@ -1,0 +1,6 @@
+﻿  GraphicMain.cpp
+c:\users\kyunghwan chang\documents\github\directxengine\dx11starter\files\graphic\cpp\graphicmain.cpp(188): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\kyunghwan chang\documents\github\directxengine\dx11starter\files\graphic\cpp\graphicmain.cpp(274): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\kyunghwan chang\documents\github\directxengine\dx11starter\files\graphic\cpp\graphicmain.cpp(314): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  DX11Starter.vcxproj -> C:\Users\kyunghwan chang\Documents\GitHub\DIrectXEngine\DX11Starter\Debug\DX11Starter.exe
+  DX11Starter.vcxproj -> C:\Users\kyunghwan chang\Documents\GitHub\DIrectXEngine\DX11Starter\Debug\DX11Starter.pdb (Full PDB)

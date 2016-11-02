@@ -37,15 +37,15 @@ void Scene::loadExample00()
 		(*obj).setPos(Vector3(i, j, k) * 2);
 		(*obj).m_textures[TEXTURE_TYPE::TEXTURE_DIFFUSE] = diffuseTextures[(count * 77) % 5];
 		(*obj).m_textures[TEXTURE_TYPE::TEXTURE_NORMAL] = normalTexture[(count * 73) % 5];
-		this->objects.push_back(obj);
+		this->objects.push_back(std::shared_ptr<Object>(obj));
 	}
-	Vector3 lightPositions[]{ Vector3(0,0,-2) };//, Vector3(0, 0, 5), Vector3(5, 0, 0), Vector3(-5, 0, 0)};
+	Vector3 lightPositions[]{ Vector3(0,0,-10) };//, Vector3(0, 0, 5), Vector3(5, 0, 0), Vector3(-5, 0, 0)};
 	for (int i = 0; i < 1; i++)  {
 		Object* obj = new Camera();
 		(*obj).m_ObjectType = NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL;
 		(*obj).setPos(lightPositions[i]);
 
-		this->objects.push_back(obj);
+		this->objects.push_back(std::shared_ptr<Object>(obj));
 	}
 	//this->m_camMain.
 }

@@ -54,17 +54,17 @@ namespace Graphic {
 
 		bool initTextures		(ID3D11Device* device, ID3D11DeviceContext *context, int width, int height);
 		bool initShaders		(ID3D11Device* device, ID3D11DeviceContext *context);
-		void render				(ID3D11DeviceContext* context, ID3D11DepthStencilView *depth, NScene::Object object);
 		
 		void renderPreDeffered(	ID3D11DeviceContext* context, NScene::Scene scene,
 								SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
 								RenderTexture& texture_diffuse, RenderTexture& texture_normal, DepthTexture& textureDepth
 			);
-		void renderLightDepth	(ID3D11Device* device,	ID3D11DeviceContext* context, NScene::Scene scene);
-		void renderDirectionalLight
-				(ID3D11Device* device, ID3D11DeviceContext* context,
-				RenderTexture& textureDiffuse, RenderTexture& textureNormal, RenderTexture& textureWorld,
-				RenderTexture& textureCameraDepth, RenderTexture& textureFinalScene);
+		void renderLights(ID3D11Device* device,	ID3D11DeviceContext* context, NScene::Scene scene,
+						SimpleVertexShader& shaderVertDepthOnly,
+						SimpleVertexShader& shaderVert, SimpleFragmentShader& shaderFrag,
+						RenderTexture& textureDiffuse, RenderTexture& textureNormal, DepthTexture& textureDepth
+			);
+		
 	protected:
 		//glm::mat4 matProjection, matView, matModel;
 		void processCamera(Graphic::NScene::Camera cam);// = 0;
