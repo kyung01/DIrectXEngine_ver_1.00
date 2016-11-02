@@ -200,13 +200,13 @@ void Game::Init()
 // --------------------------------------------------------
 void Game::LoadShaders()
 {
+	XMFLOAT4X4 f;
+	XMStoreFloat4x4(&f, DirectX::XMMatrixTranslation(0, 0, 0));
 	vertexShader = new SimpleVertexShader(device, context);
 	if (!vertexShader->LoadShaderFile(L"Debug/VertexShader.cso"))
 		vertexShader->LoadShaderFile(L"VertexShader.cso");		
 
-	pixelShader = new SimplePixelShader(device, context);
-	if(!pixelShader->LoadShaderFile(L"Debug/PixelShader.cso"))	
-		pixelShader->LoadShaderFile(L"PixelShader.cso");
+
 
 	skyVS = new SimpleVertexShader(device, context);
 	if (!skyVS->LoadShaderFile(L"Debug/SkyVS.cso"))
@@ -220,18 +220,6 @@ void Game::LoadShaders()
 	if (!shadowVS->LoadShaderFile(L"Debug/ShadowVS.cso"))
 		shadowVS->LoadShaderFile(L"ShadowVS.cso");
 
-	pixelShader = new SimplePixelShader(device, context);
-	if (!pixelShader->LoadShaderFile(L"Debug/deffered_light_directional_frag.cso"))
-		pixelShader->LoadShaderFile(L"deffered_light_directional_frag.cso");
-	pixelShader->SetShader();
-	XMFLOAT4X4 f;
-	XMStoreFloat4x4( &f,DirectX::XMMatrixTranslation(0, 0, 0));
-	if (pixelShader->SetMatrix4x4("matProjInverse", f)) {
-		//YES
-		int wewewqeqew = 2;
-	}
-	else
-		int qweewqwqeqew = 2;
 
 	pixelShader->SetMatrix4x4("matLightViewProj", f);
 	// You'll notice that the code above attempts to load each

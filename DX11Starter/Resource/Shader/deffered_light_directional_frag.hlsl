@@ -22,27 +22,42 @@ struct VertexShaderInput
 };
 
 // Out of the vertex shader (and eventually input to the PS)
-struct VertexToPixel
-{
-	float4 position		: SV_POSITION;
-	float2 uv			: TEXCOORD;
-};
 
 
-float4 main(VertexToPixel input) : SV_TARGET
+
+float4 main(VertexShaderInput input) : SV_TARGET
 {
+	float4 output;
 	float4 diffuseColor = textureDiffuse.Sample(samplerDefault, input.uv);
 	float4 posProjected = float4(
-		input.uv.x * 2 - 1, (1 - input.uv.y) * 2 - 1, 
-		textureDepth.Sample(samplerDefault, input.uv).x ,1);
+		input.uv.x * 2 - 1, ( input.uv.y) * 2 - 1,
+		textureDepth.Sample(samplerDefault, input.uv).x, 1);
 	float4 p = mul(posProjected,matProjInverse);
-	p.xyz /= p.w;
-	p.w = 1;
-	//return p;
+	p /= p.w;
 	float4 posFromLightSource = mul(p, matLightViewProj);
-	float lightDepth = textureLightDepth.Sample(samplerDefault, input.uv).x;
-	return float4(lightDepth,0,0,1);
+	float2 uvNew = (posFromLightSource.xy*0.5 + 0.5)/ posFromLightSource.w ;
+	float4 lightDepthRaw = textureLightDepth.Sample(samplerDefault, uvNew);// .x;
+	float lightDepth = textureLightDepth.Sample(samplerDefault, uvNew).x;
+	float ratio = posFromLightSource.z*lightDepth*0.00001;
 	
+//	return float4(lightDepthRaw.xyz, 1 + ratio);
+
+	if (posFromLightSource.z - 0.08< lightDepth)
+
+		output = float4(1, 1, 1, 1+ ratio)*diffuseColor;
+	else output = float4(0, .1, .1, 1+ ratio)*diffuseColor;
+
+
+	//else output = float4(0, 0, 1, 1+ ratio)*diffuseColor;
+	//output = float4(0, posFromLightSource.z +0.5, ratio, 1);
+	//output = float4(uvNew, -lightDepth *100+ posFromLightSource.z*lightDepth*0.00001, 1);
+	//utput = lightDepthRaw;
+	//if (posFromLightSource.z  < lightDepth)
+	//	output = float4(1, 0, 0, 1+ ratio)*diffuseColor;
+	//else output = float4(0, 0, 1, 1+ ratio)*diffuseColor;
+	return output;
+	
+	/*
 	//return textureLightDepth.Sample(samplerDefault, input.uv);
 	if (lightDepth == 0)
 		return float4(1, 1, 1, 1);
@@ -65,5 +80,6 @@ float4 main(VertexToPixel input) : SV_TARGET
 	return float4(.2, .2, .2, 1)*diffuseColor;
 	return float4(input.uv*100,1,1);
 	return textureDiffuse.Sample(samplerDefault, input.uv);
+	*/
 	
 }

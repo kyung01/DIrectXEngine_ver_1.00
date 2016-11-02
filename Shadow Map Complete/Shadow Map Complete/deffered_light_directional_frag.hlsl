@@ -1,46 +1,44 @@
 
-// Constant Buffer for external (C++) data
-cbuffer global00 :register(b0)
+cbuffer lightData : register(b0)
 {
-	//float3 worldSize;
-	matrix matProjInverse;
-	matrix matLightViewProj;
+	matrix mat;
+	matrix mat2;
+	float4 AmbientLightColor;
+
+	float4 DirLightColor;
+	float3 DirLightDirection;
+
+	float4 PointLightColor;
+	float3 PointLightPosition;
+
+	float3 CameraPosition;
 };
 
 // External texture-related data
-Texture2D textureDiffuse		: register(t0);
-Texture2D textureNormal		: register(t1);
-Texture2D textureDepth		: register(t2);
-Texture2D textureLightDepth		: register(t3);
-
-SamplerState samplerDefault	: register(s0);
-// Struct representing a single vertex worth of data
-struct VertexShaderInput
-{
-	float4 position		: SV_POSITION;
-	float2 uv			: TEXCOORD;
-};
-
-// Out of the vertex shader (and eventually input to the PS)
+Texture2D Texture		: register(t0);
+Texture2D NormalMap		: register(t1);
+Texture2D ShadowMap		: register(t2);
+TextureCube Sky			: register(t3);
+SamplerState Sampler	: register(s0);
+SamplerComparisonState ShadowSampler : register(s1);
+// Defines the input to this pixel shader
+// - Should match the output of our corresponding vertex shader
 struct VertexToPixel
 {
 	float4 position		: SV_POSITION;
+	float3 normal		: NORMAL;
+	float3 tangent		: TANGENT;
+	float3 worldPos		: POSITION;
 	float2 uv			: TEXCOORD;
+	float4 posForShadow : TEXCOORD1;
+};
+struct VertOut {
+	float4 position;
 };
 
-
-float4 main(VertexToPixel input) : SV_TARGET
+VertOut main(VertexToPixel input) : SV_TARGET
 {
-	float4 diffuseColor = textureDiffuse.Sample(samplerDefault, input.uv);
-	float4 posProjected = float4(
-		input.uv.x * 2 - 1, (1 - input.uv.y) * 2 - 1,
-		textureDepth.Sample(samplerDefault, input.uv).x ,1);
-	float4 p = mul(posProjected,matProjInverse);
-	p.xyz /= p.w;
-	p.w = 1;
-	//return p;
-	float4 posFromLightSource = mul(p, matLightViewProj);
-	float lightDepth = textureLightDepth.Sample(samplerDefault, input.uv).x;
-	return float4(lightDepth,0,0,1);
-
+	VertOut output;
+	output.position = mul(float4(input.position.xyz, 1.0f), mat);
+	return output;
 }

@@ -40,6 +40,26 @@ void Scene::loadExample00()
 		obj->m_textures[TEXTURE_TYPE::TEXTURE_NORMAL] = normalTexture[(count * 73) % 5];
 		this->objects.push_back(obj);
 	}
+	{
+		auto obj = std::shared_ptr<Object>(new Object());
+		obj->m_meshType = MESH_ID::CUBE;
+		obj->m_ObjectType = NScene::OBJECT_TYPE::SOLID;
+		obj->setPos(Vector3(0, 0, 0));
+		obj->setScale(Vector3(3, 3, 3));
+		obj->m_textures[TEXTURE_TYPE::TEXTURE_DIFFUSE] = diffuseTextures[(count * 77) % 5];
+		obj->m_textures[TEXTURE_TYPE::TEXTURE_NORMAL] = normalTexture[(count * 73) % 5];
+		this->objects.push_back(obj);
+	}
+
+	{
+		auto obj = std::shared_ptr<Object>(new Object());
+		obj->m_meshType = MESH_ID::HELIX;
+		obj->m_ObjectType = NScene::OBJECT_TYPE::SOLID;
+		obj->setPos(Vector3(0, 0, -4));
+		obj->m_textures[TEXTURE_TYPE::TEXTURE_DIFFUSE] = diffuseTextures[(count * 77) % 5];
+		obj->m_textures[TEXTURE_TYPE::TEXTURE_NORMAL] = normalTexture[(count * 73) % 5];
+		this->objects.push_back(obj);
+	}
 	Vector3 lightPositions[]{ Vector3(0,0,-10) };//, Vector3(0, 0, 5), Vector3(5, 0, 0), Vector3(-5, 0, 0)};
 	for (int i = 0; i < 1; i++)  {
 		auto obj = std::shared_ptr<Object>(new Camera());

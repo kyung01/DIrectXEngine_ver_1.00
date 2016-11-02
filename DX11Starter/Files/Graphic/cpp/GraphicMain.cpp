@@ -143,12 +143,16 @@ bool GraphicMain::initShaders(ID3D11Device* device, ID3D11DeviceContext *context
 	D3D11_SAMPLER_DESC samplerDesc = {};
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 	//samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.MaxAnisotropy = 16;
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	samplerDesc.BorderColor[0] = 0;
+	samplerDesc.BorderColor[1] = 0;
+	samplerDesc.BorderColor[2] = 0;
+	samplerDesc.BorderColor[3] = 0;
 
 
 	//samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
@@ -243,7 +247,7 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 	context->PSSetShader(NULL, NULL, 0); //set pixel writing stage to none
 	DirectX::XMFLOAT4X4 world, view, projection;
 	auto sceneReverseProjectionView = DirectX::XMMatrixInverse(0, DirectX::XMMatrixMultiply(scene.m_camMain.getViewMatrix(), scene.m_camMain.getProjectionMatrix()));
-	auto lightProjectionOrtho = DirectX::XMMatrixOrthographicLH(15, 15, 0.1, 100);
+	auto lightProjectionOrtho = DirectX::XMMatrixOrthographicLH(10, 10, 0.1, 15);
 	auto defferedOrtho = DirectX::XMMatrixOrthographicLH(1, 1, 0.1, 100);
 	D3D11_VIEWPORT viewport;
 	viewport.TopLeftX = 0;
@@ -259,9 +263,10 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 			continue;
 		auto &p = **it;
 		auto lightCamera = dynamic_cast<NScene::Camera*>(&(p));
+		float angle = temp_angle*0.01;
+		lightCamera->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), angle*10));
+		//lightCamera->setPos(Vector3( sin(angle) * 10, 0, cos(angle)*-10 ));
 		auto lightViewProjection = DirectX::XMMatrixMultiply(lightCamera->getViewMatrix(), lightProjectionOrtho);
-		//lightCamera->setPos(Vector3(temp_angle, 0, -10- temp_angle));
-		lightCamera->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle*0.051));
 
 		auto depth = m_lightDepthTextures[(*it)->m_id];
 		if (depth == 0) {//TODO meh...it is going to take less than one second to check this it is dirty though. Think of better ways of doing it if you can.
@@ -306,10 +311,12 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 				0);    // Offset to add to each index when looking up vertices
 		}
 
+		target.ClearRenderTarget(context, 0, 0, 0, 1);
+		targetDepth.clear(context);
+		target.SetRenderTarget(context, targetDepth.getDepthStencilView());
+
 		auto pos = Vector3(0, 0, -10);
 		auto dir = Vector3(0, 0, 1);
-		shaderVert.SetShader();
-		shaderFrag.SetShader();
 		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(DirectX::XMMatrixMultiply(
 			DirectX::XMMatrixLookToLH(pos, dir, Vector3::Up), defferedOrtho))); // Transpose for HLSL!
 
@@ -318,20 +325,24 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 		shaderFrag.SetMatrix4x4("matProjInverse", projection);
 		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(lightViewProjection)); // Transpose for HLSL!
 		shaderFrag.SetMatrix4x4("matLightViewProj", projection);
-		shaderVert.CopyAllBufferData();
-		shaderFrag.CopyAllBufferData();
 
 		//matProjInverse
 		
 		shaderFrag.SetShaderResourceView("textureDiffuse", textureDiffuse.GetShaderResourceView());
 		shaderFrag.SetShaderResourceView("textureNormal", textureNormal.GetShaderResourceView());
 		shaderFrag.SetShaderResourceView("textureDepth", textureDepth.getShaderResourceView());
-		shaderFrag.SetShaderResourceView("textureLightDepth", depth->getShaderResourceView());//textureLightDepth
+		if (!shaderFrag.SetShaderResourceView("textureLightDepth", depth->getShaderResourceView())) {
+			std::cout << "FAIL";
+			//textureLightDepth
+		}
 		shaderFrag.SetSamplerState("samplerDefault", m_sampler);
 
-		target.ClearRenderTarget(context, 0, 0, 0, 1);
-		targetDepth.clear(context);
-		target.SetRenderTarget(context, targetDepth.getDepthStencilView());
+
+
+		shaderVert.SetShader();
+		shaderFrag.SetShader();
+		shaderVert.CopyAllBufferData();
+		shaderFrag.CopyAllBufferData();
 
 		{
 			auto mesh = *m_meshes[MESH_ID::PLANE];

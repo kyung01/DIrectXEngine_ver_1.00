@@ -1,6 +1,8 @@
 
 cbuffer lightData : register(b0)
 {
+	matrix mat;
+	matrix mat2;
 	float4 AmbientLightColor;
 
 	float4 DirLightColor;
