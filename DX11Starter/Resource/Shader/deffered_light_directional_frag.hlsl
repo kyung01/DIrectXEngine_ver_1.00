@@ -38,11 +38,11 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float4 p = mul(posProjected,matProjInverse);
 	p.xyz /= p.w;
 	p.w = 1;
-	return p;
+	//return p;
 	float4 posFromLightSource = mul(p, matLightViewProj);
 	float lightDepth = textureLightDepth.Sample(samplerDefault, input.uv).x;
 	return float4(lightDepth,0,0,1);
-	/*
+	
 	//return textureLightDepth.Sample(samplerDefault, input.uv);
 	if (lightDepth == 0)
 		return float4(1, 1, 1, 1);
@@ -65,5 +65,5 @@ float4 main(VertexToPixel input) : SV_TARGET
 	return float4(.2, .2, .2, 1)*diffuseColor;
 	return float4(input.uv*100,1,1);
 	return textureDiffuse.Sample(samplerDefault, input.uv);
-	*/
+	
 }

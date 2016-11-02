@@ -226,7 +226,7 @@ bool ISimpleShader::LoadShaderFileHLSL(LPCWSTR shaderFile, LPCSTR target)
 		else std::cout << "ERROR BUFFER IS EMPTY" << "\n";
 		return false;
 	}
-	//return LoadShaderFile(shaderBlob);
+	return LoadShaderFile(shaderBlob);
 	
 	// Create the shader - Calls an overloaded version of this abstract
 	// method in the appropriate child class
