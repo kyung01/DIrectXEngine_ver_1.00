@@ -53,6 +53,7 @@ bool DepthTexture::init(ID3D11Device * device, int width, int height)
 	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 	descDSV.Texture2DMS.UnusedField_NothingToDefine = 0;
+	descDSV.Texture2D.MipSlice = 0;
 	descDSV.Flags = 0; // not read only
 
 	ID3D11Texture2D* depthBufferTexture;

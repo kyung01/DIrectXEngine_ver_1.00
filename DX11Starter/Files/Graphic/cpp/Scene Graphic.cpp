@@ -28,7 +28,7 @@ void Scene::loadExample00()
 		TEXTURE_ID::TEXTURE_TEST_05,
 		TEXTURE_ID::TEXTURE_TEST_06 };
 	for (int i = -2; i < 3; i++) for (int j = -2; j < 3; j++)for (int k = -2; k < 3; k++) {
-		if (abs(i) + abs(j) + abs(k) < 2)
+		if (abs(i) + abs(j) + abs(k) < 4)
 			continue;
 		count++;
 		auto obj = std::shared_ptr<Object>(new Object());

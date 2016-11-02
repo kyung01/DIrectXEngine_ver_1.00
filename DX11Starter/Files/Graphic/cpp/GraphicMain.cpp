@@ -27,8 +27,8 @@ std::list<ShaderLoadInformation> Graphic::GraphicMain::getLoadListShaderFrag()
 	std::list<ShaderLoadInformation> lst({
 		{ RENDER_TYPE::DEFAULT,			L"Resource/Shader/default_frag.hlsl" },
 		{ RENDER_TYPE::DEFFERED,		L"Resource/Shader/deffered_frag.hlsl" },
-		{ RENDER_TYPE::DEFFERED_LIGHT_DIRECTIONAL,		L"Resource/Shader/deffered_light_directional_frag.hlsl" },
-		{ RENDER_TYPE::DEPTH,			L"Resource/Shader/depth_frag.hlsl" }
+		{ RENDER_TYPE::DEPTH,			L"Resource/Shader/depth_frag.hlsl" },
+		{ RENDER_TYPE::DEFFERED_LIGHT_DIRECTIONAL,		L"Resource/Shader/deffered_light_directional_frag.hlsl" }
 	});
 	return lst;
 }
@@ -38,8 +38,8 @@ std::list<ShaderLoadInformation> Graphic::GraphicMain::getLoadListShaderVert()
 	std::list<ShaderLoadInformation> lst({	
 		{RENDER_TYPE::DEFAULT,			L"Resource/Shader/default_vert.hlsl" },
 		{RENDER_TYPE::DEFFERED,			L"Resource/Shader/deffered_vert.hlsl" },
-		{ RENDER_TYPE::DEFFERED_LIGHT_DIRECTIONAL,		L"Resource/Shader/deffered_light_directional_vert.hlsl" },
-		{RENDER_TYPE::DEPTH,			L"Resource/Shader/depth_vert.hlsl" }
+		{RENDER_TYPE::DEPTH,			L"Resource/Shader/depth_vert.hlsl" },
+		{ RENDER_TYPE::DEFFERED_LIGHT_DIRECTIONAL,		L"Resource/Shader/deffered_light_directional_vert.hlsl" }
 	});
 	return lst;
 }
@@ -120,13 +120,13 @@ bool GraphicMain::initShaders(ID3D11Device* device, ID3D11DeviceContext *context
 	auto dataMesh = getLoadListMesh();
 	auto dataTexture = getLoadListTexture();
 
-	for (auto it = dataVert.begin(); it != dataVert.end(); it++) {
-		m_shadersVert[it->type] = std::shared_ptr<SimpleVertexShader>(new Graphic::SimpleVertexShader(device, context));
-		if(!m_shadersVert[it->type]->LoadShaderFileHLSL(it->path, "vs_5_0")) return false;
-	}
 	for (auto it = dataFrag.begin(); it != dataFrag.end(); it++) {
 		m_shadersFrag[it->type] = std::shared_ptr<SimpleFragmentShader>(new Graphic::SimpleFragmentShader(device, context));
 		if (!m_shadersFrag[it->type]->LoadShaderFileHLSL(it->path, "ps_5_0")) return false;
+	}
+	for (auto it = dataVert.begin(); it != dataVert.end(); it++) {
+		m_shadersVert[it->type] = std::shared_ptr<SimpleVertexShader>(new Graphic::SimpleVertexShader(device, context));
+		if(!m_shadersVert[it->type]->LoadShaderFileHLSL(it->path, "vs_5_0")) return false;
 	}
 	for (auto it = dataMesh.begin(); it != dataMesh.end(); it++) {
 		auto mesh = new Mesh(device, it->path);
@@ -243,7 +243,7 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 	context->PSSetShader(NULL, NULL, 0); //set pixel writing stage to none
 	DirectX::XMFLOAT4X4 world, view, projection;
 	auto sceneReverseProjectionView = DirectX::XMMatrixInverse(0, DirectX::XMMatrixMultiply(scene.m_camMain.getViewMatrix(), scene.m_camMain.getProjectionMatrix()));
-	auto lightProjectionOrtho = DirectX::XMMatrixOrthographicLH(100, 100, 0.1, 100);
+	auto lightProjectionOrtho = DirectX::XMMatrixOrthographicLH(15, 15, 0.1, 100);
 	auto defferedOrtho = DirectX::XMMatrixOrthographicLH(1, 1, 0.1, 100);
 	D3D11_VIEWPORT viewport;
 	viewport.TopLeftX = 0;
@@ -260,7 +260,8 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 		auto &p = **it;
 		auto lightCamera = dynamic_cast<NScene::Camera*>(&(p));
 		auto lightViewProjection = DirectX::XMMatrixMultiply(lightCamera->getViewMatrix(), lightProjectionOrtho);
-		lightCamera->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle));
+		//lightCamera->setPos(Vector3(temp_angle, 0, -10- temp_angle));
+		lightCamera->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle*0.051));
 
 		auto depth = m_lightDepthTextures[(*it)->m_id];
 		if (depth == 0) {//TODO meh...it is going to take less than one second to check this it is dirty though. Think of better ways of doing it if you can.
@@ -315,13 +316,17 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 		shaderVert.SetMatrix4x4("matViewProjection", projection);
 		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(sceneReverseProjectionView)); // Transpose for HLSL!
 		shaderFrag.SetMatrix4x4("matProjInverse", projection);
+		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(lightViewProjection)); // Transpose for HLSL!
+		shaderFrag.SetMatrix4x4("matLightViewProj", projection);
 		shaderVert.CopyAllBufferData();
 		shaderFrag.CopyAllBufferData();
 
 		//matProjInverse
+		
 		shaderFrag.SetShaderResourceView("textureDiffuse", textureDiffuse.GetShaderResourceView());
 		shaderFrag.SetShaderResourceView("textureNormal", textureNormal.GetShaderResourceView());
 		shaderFrag.SetShaderResourceView("textureDepth", textureDepth.getShaderResourceView());
+		shaderFrag.SetShaderResourceView("textureLightDepth", depth->getShaderResourceView());//textureLightDepth
 		shaderFrag.SetSamplerState("samplerDefault", m_sampler);
 
 		target.ClearRenderTarget(context, 0, 0, 0, 1);

@@ -226,7 +226,8 @@ bool ISimpleShader::LoadShaderFileHLSL(LPCWSTR shaderFile, LPCSTR target)
 		else std::cout << "ERROR BUFFER IS EMPTY" << "\n";
 		return false;
 	}
-
+	//return LoadShaderFile(shaderBlob);
+	
 	// Create the shader - Calls an overloaded version of this abstract
 	// method in the appropriate child class
 	shaderValid = CreateShader(shaderBlob);
@@ -515,8 +516,10 @@ SimpleShaderVariable* ISimpleShader::FindVariable(std::string name, int size)
 	SimpleShaderVariable* var = &(result->second);
 
 	// Is the data size correct ?
-	if (size > 0 && var->Size != size)
+	if (size > 0 && var->Size != size) {
+		//size incorrect;
 		return 0;
+	}
 
 	// Success
 	return var;
@@ -639,8 +642,12 @@ bool ISimpleShader::SetData(std::string name, const void* data, unsigned int siz
 {
 	// Look for the variable and verify
 	SimpleShaderVariable* var = FindVariable(name, size);
-	if (var == 0)
+	if (var == 0){
+		this->cbTable;
+		this->varTable;
+		this->textureTable;
 		return false;
+	}
 
 	// Set the data in the local data buffer
 	memcpy(
