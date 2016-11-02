@@ -143,16 +143,12 @@ bool GraphicMain::initShaders(ID3D11Device* device, ID3D11DeviceContext *context
 	D3D11_SAMPLER_DESC samplerDesc = {};
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 	//samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.MaxAnisotropy = 16;
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	samplerDesc.BorderColor[0] = 0;
-	samplerDesc.BorderColor[1] = 0;
-	samplerDesc.BorderColor[2] = 0;
-	samplerDesc.BorderColor[3] = 0;
 
 
 	//samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
@@ -376,7 +372,7 @@ void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *co
 	D3D11_VIEWPORT viewport;
 	context->RSGetViewports(&viewportNum, &viewport);
 	//scene.m_camMain.setPos(Vector3(0,0, temp_angle*.1));
-	scene.m_camMain.setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle));
+	//scene.m_camMain.setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle));
 	beginRendering();
 
 
@@ -388,7 +384,6 @@ void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *co
 		*m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL],*m_depthTextures[RENDER_TYPE::DEFFERED]
 
 		);
-	/*
 	renderLights(device,context, scene,
 		*m_shadersVert[RENDER_TYPE::DEPTH],
 		*m_shadersVert[RENDER_TYPE::DEFFERED_LIGHT_DIRECTIONAL], *m_shadersFrag[RENDER_TYPE::DEFFERED_LIGHT_DIRECTIONAL],
@@ -396,6 +391,7 @@ void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *co
 		*m_renderTextures[RENDER_TYPE::DEFFERED_FINAL],* m_depthTextures[RENDER_TYPE::DEFFERED_FINAL],
 		*m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL], *m_depthTextures[RENDER_TYPE::DEFFERED]
 		);
+	/*
 	*/
 	
 	//renderLightDepth(device, context, scene);
