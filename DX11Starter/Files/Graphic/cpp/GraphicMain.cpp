@@ -309,11 +309,21 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 		auto dir = Vector3(0, 0, 1);
 		shaderVert.SetShader();
 		shaderFrag.SetShader();
-		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(DirectX::XMMatrixMultiply(defferedOrtho, DirectX::XMMatrixLookToLH(pos, dir, Vector3::Up)))); // Transpose for HLSL!
+		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(DirectX::XMMatrixMultiply(
+			DirectX::XMMatrixLookToLH(pos, dir, Vector3::Up), defferedOrtho))); // Transpose for HLSL!
 
 		shaderVert.SetMatrix4x4("matViewProjection", projection);
+		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(sceneReverseProjectionView)); // Transpose for HLSL!
+		shaderFrag.SetMatrix4x4("matProjInverse", projection);
 		shaderVert.CopyAllBufferData();
 		shaderFrag.CopyAllBufferData();
+
+		//matProjInverse
+		shaderFrag.SetShaderResourceView("textureDiffuse", textureDiffuse.GetShaderResourceView());
+		shaderFrag.SetShaderResourceView("textureNormal", textureNormal.GetShaderResourceView());
+		shaderFrag.SetShaderResourceView("textureDepth", textureDepth.getShaderResourceView());
+		shaderFrag.SetSamplerState("samplerDefault", m_sampler);
+
 		target.ClearRenderTarget(context, 0, 0, 0, 1);
 		targetDepth.clear(context);
 		target.SetRenderTarget(context, targetDepth.getDepthStencilView());
@@ -345,8 +355,8 @@ void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *co
 	UINT viewportNum = 1;
 	D3D11_VIEWPORT viewport;
 	context->RSGetViewports(&viewportNum, &viewport);
-	scene.m_camMain.setPos(Vector3(0,0, temp_angle*.1));
-	scene.m_camMain.setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle));
+	//scene.m_camMain.setPos(Vector3(0,0, temp_angle*.1));
+	//scene.m_camMain.setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle));
 	beginRendering();
 
 

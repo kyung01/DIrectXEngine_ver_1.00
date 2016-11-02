@@ -20,7 +20,6 @@ struct VertexToPixel
 {
 	float4 position		: SV_POSITION;
 	float2 uv			: TEXCOORD;
-	float2 posProjected : POSITION0;
 };
 
 // --------------------------------------------------------
@@ -34,7 +33,6 @@ VertexToPixel main(VertexShaderInput input)
 	// Calculate output position
 	output.position = mul(float4(input.position, 1.0f), matViewProjection);
 	output.uv = input.uv;
-	output.posProjected = float4(input.position.xy,0,0);
 
 	return output;
 }

@@ -32,7 +32,8 @@ void Scene::loadExample00()
 			continue;
 		count++;
 		auto obj = std::shared_ptr<Object>(new Object());
-		obj->m_meshType = (MESH_ID)(count % 6);
+		obj->m_meshType = (MESH_ID)(count % 6);//MESH_ID::PLANE
+		//obj->m_meshType = MESH_ID::PLANE;
 		obj->m_ObjectType = NScene::OBJECT_TYPE::SOLID;
 		obj->setPos(Vector3(i, j, k) * 2);
 		obj->m_textures[TEXTURE_TYPE::TEXTURE_DIFFUSE] = diffuseTextures[(count * 77) % 5];
@@ -47,5 +48,5 @@ void Scene::loadExample00()
 		this->objects.push_back(obj);
 
 	}
-	//this->m_camMain.
+	this->m_camMain.setPos(Vector3(0, 0, -10));
 }

@@ -2,19 +2,18 @@
 // Constant Buffer for external (C++) data
 cbuffer externalData : register(b0)
 {
-	float3 worldSize;
-	matrix world;
-	matrix view;
-	matrix projection;
+	matrix matProjInverse;
 };
 
+// External texture-related data
+Texture2D textureDiffuse		: register(t0);
+Texture2D textureNormal		: register(t1);
+Texture2D textureDepth		: register(t2);
+SamplerState samplerDefault	: register(s0);
 // Struct representing a single vertex worth of data
 struct VertexShaderInput
 {
-	float3 position		: POSITION;
-	float3 normal		: NORMAL0;
-	float3 tangent		: NORMAL1;
-	float3 biTangent	: NORMAL2;
+	float4 position		: SV_POSITION;
 	float2 uv			: TEXCOORD;
 };
 
@@ -22,12 +21,17 @@ struct VertexShaderInput
 struct VertexToPixel
 {
 	float4 position		: SV_POSITION;
-	float3 normal		: NORMAL0;
-	float3 tangent		: NORMAL1;
-	float3 biTangent	: NORMAL2;
-	float4 worldPos		: POSITION;
 	float2 uv			: TEXCOORD;
 };
+
+
 float4 main(VertexToPixel input) : SV_TARGET
-{return float4(0,0,0,0);
+{
+	float4 posProjected = float4(
+		input.uv.x * 2 - 1, (1 - input.uv.y) * 2 - 1, 
+		textureDepth.Sample(samplerDefault, input.uv).x ,1);
+	float4 p = mul(posProjected,matProjInverse);
+	return float4(p.xyz / p.w, 1);
+	return float4(input.uv*100,1,1);
+	return textureDiffuse.Sample(samplerDefault, input.uv);
 }
