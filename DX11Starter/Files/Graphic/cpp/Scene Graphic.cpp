@@ -11,6 +11,7 @@ Graphic::NScene::Scene::Scene(float x, float y, float z):size(x,y,z)
 
 void Scene::loadExample00()
 {
+	int contentSize = 4;
 	int count = 0;
 	TEXTURE_ID normalTexture[]{
 		TEXTURE_ID::TEXTURE_NORMAL_DEFAULT,
@@ -27,7 +28,7 @@ void Scene::loadExample00()
 		TEXTURE_ID::TEXTURE_TEST_04,
 		TEXTURE_ID::TEXTURE_TEST_05,
 		TEXTURE_ID::TEXTURE_TEST_06 };
-	for (int i = -2; i < 3; i++) for (int j = -2; j < 3; j++)for (int k = -2; k < 3; k++) {
+	for (int i = -contentSize+1; i < contentSize; i++) for (int j = -contentSize+1; j < contentSize; j++)for (int k = -contentSize+1; k < contentSize; k++) {
 		if (abs(i) + abs(j) + abs(k) < 4)
 			continue;
 		count++;
@@ -48,5 +49,5 @@ void Scene::loadExample00()
 		this->objects.push_back(obj);
 
 	}
-	this->m_camMain.setPos(Vector3(0, 0, -10));
+	this->m_camMain.setPos(Vector3(0, 0, 0));
 }

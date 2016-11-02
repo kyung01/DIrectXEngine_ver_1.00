@@ -259,7 +259,7 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 			continue;
 		auto &p = **it;
 		auto lightCamera = dynamic_cast<NScene::Camera*>(&(p));
-		float angle = temp_angle*0.01;
+		float angle = temp_angle*0.1;
 		lightCamera->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), angle*10));
 		//lightCamera->setPos(Vector3( sin(angle) * 10, 0, cos(angle)*-10 ));
 		auto lightViewProjection = DirectX::XMMatrixMultiply(lightCamera->getViewMatrix(), lightProjectionOrtho);
@@ -372,7 +372,7 @@ void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *co
 	D3D11_VIEWPORT viewport;
 	context->RSGetViewports(&viewportNum, &viewport);
 	//scene.m_camMain.setPos(Vector3(0,0, temp_angle*.1));
-	//scene.m_camMain.setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle));
+	scene.m_camMain.setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle*0.1f));
 	beginRendering();
 
 

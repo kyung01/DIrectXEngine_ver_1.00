@@ -30,7 +30,6 @@ struct VertexToPixel
 float4 main(VertexToPixel input) : SV_TARGET
 {
 	float4 output;
-	float4 diffuseColor = textureDiffuse.Sample(samplerDefault, input.uv);
 	float4 posProjected = float4(
 		input.uv.x * 2 - 1, ( input.uv.y) * 2 - 1,
 		textureDepth.Sample(samplerDefault, input.uv).x, 1);
@@ -41,7 +40,6 @@ float4 main(VertexToPixel input) : SV_TARGET
 	//float3 lightDir = normalize(mul(float4(0, 0, 1, 1), matProjInverse).xyz - lightPos.xyz);
 	//float3 lightDirToMe = normalize(posWorld.xyz - lightPos.xyz);
 
-	float power = dot(lightDir, normalize(posWorld.xyz- lightPos) );
 
 	float4 posFromLightSource = mul(posWorld, matLightViewProj);
 	float2 uvNew = (posFromLightSource.xy*0.5 + 0.5)/ posFromLightSource.w ;
@@ -50,11 +48,13 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float ratio = posFromLightSource.z*lightDepth*0.00001;
 	
 	//return float4(, 1 + ratio);
+	float4 normal = textureNormal.Sample(samplerDefault, input.uv);
+	float4 diffuseColor = textureDiffuse.Sample(samplerDefault, input.uv);
+	float intensity = max(0, dot(-lightDir, normal.xyz*2 -1));
+	float shadow = min(1, max(0, (lightDepth - (posFromLightSource.z - 0.08))) * 100 );
+	output = diffuseColor*intensity * shadow;
+	output.w = 1;
 
-	if (posFromLightSource.z - 0.08< lightDepth)
-		output = float4(1, 1, 1, 1+ ratio)*diffuseColor;
-	else output = float4(0, .1, .1, 1+ ratio)*diffuseColor;
-	output.xyz *= min(max(0,power*1000 ),1);
 
 	//else output = float4(0, 0, 1, 1+ ratio)*diffuseColor;
 	//output = float4(0, posFromLightSource.z +0.5, ratio, 1);
