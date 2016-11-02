@@ -30,7 +30,7 @@ namespace Graphic {
 			//Information required for rendering process
 			OBJECT_TYPE				m_ObjectType;
 			RENDER_TYPE				m_renderType;
-			MESH_TYPE				m_meshType;
+			MESH_ID				m_meshType;
 			std::map<TEXTURE_TYPE, TEXTURE_ID> m_textures;
 
 			Object();

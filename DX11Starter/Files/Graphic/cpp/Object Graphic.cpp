@@ -4,7 +4,7 @@ int Graphic::NScene::Object::OBJECT_UNIQUE_ID = 0;
 Object::Object() :
 	m_id(OBJECT_UNIQUE_ID++),
 	m_ObjectType(SOLID),
-	m_meshType(MESH_TYPE::CUBE),
+	m_meshType(MESH_ID::CUBE),
 	m_renderType(RENDER_TYPE::DEFAULT),
 	m_isDirty(true),
 	m_scale(1,1,1)

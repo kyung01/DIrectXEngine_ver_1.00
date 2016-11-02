@@ -26,6 +26,7 @@ namespace Graphic {
 			float zNear, zFar;
 
 			Camera();
+			Matrix getProjectionMatrix();
 			Matrix getProjectionMatrix(float screen_width, float screen_height, float cam_near, float cam_far);
 			Matrix getViewMatrix();
 			void setPos(Vector3 pos) override;

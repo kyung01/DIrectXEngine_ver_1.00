@@ -28,7 +28,7 @@ namespace Graphic {
 	//TODO hlsl files are stroed in debug folder once they are built with extention .cso You need grasp them
 	
 	struct MeshLoadInformation {
-		MESH_TYPE type;
+		MESH_ID type;
 		char* path;
 	};
 	struct ShaderLoadInformation {
@@ -55,13 +55,13 @@ namespace Graphic {
 		bool initTextures		(ID3D11Device* device, ID3D11DeviceContext *context, int width, int height);
 		bool initShaders		(ID3D11Device* device, ID3D11DeviceContext *context);
 		
-		void renderPreDeffered(	ID3D11DeviceContext* context, NScene::Scene scene,
+		void renderPreDeffered(	ID3D11DeviceContext* context, NScene::Scene &scene,
 								SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
 								RenderTexture& texture_diffuse, RenderTexture& texture_normal, DepthTexture& textureDepth
 			);
-		void renderLights(ID3D11Device* device,	ID3D11DeviceContext* context, NScene::Scene scene,
+		void renderLights(ID3D11Device* device,	ID3D11DeviceContext* context, NScene::Scene &scene,
 						SimpleVertexShader& shaderVertDepthOnly,
-						SimpleVertexShader& shaderVert, SimpleFragmentShader& shaderFrag,
+						SimpleVertexShader& shaderVert, SimpleFragmentShader& shaderFrag, RenderTexture& target, DepthTexture& targetDepth,
 						RenderTexture& textureDiffuse, RenderTexture& textureNormal, DepthTexture& textureDepth
 			);
 		
@@ -81,7 +81,7 @@ namespace Graphic {
 		std::map<int, DepthTexture*> m_lightDepthTextures;
 		std::map<RENDER_TYPE, std::shared_ptr<SimpleFragmentShader>> m_shadersFrag;
 		std::map<RENDER_TYPE, std::shared_ptr<SimpleVertexShader>> m_shadersVert;
-		std::map<MESH_TYPE, std::unique_ptr<Mesh*>> m_meshes;
+		std::map<MESH_ID, std::unique_ptr<Mesh*>> m_meshes;
 		ID3D11SamplerState *m_sampler;
 
 		std::map<int, Model*> models;

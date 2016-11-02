@@ -2,11 +2,27 @@
 #include <iostream>
 using namespace Graphic;
 using namespace Graphic::NScene;
-Camera::Camera()	
+Camera::Camera():
+	m_clipFar(100),
+	m_clipNear(0),
+	m_screenWidth(100),
+	m_screenHeight(100)
 {
 	m_pos = Vector3(0, 0, 0);
 	m_isDirty_matView = true;
 	m_isDirty_matProjection = true;
+}
+
+Matrix Graphic::NScene::Camera::getProjectionMatrix()
+{
+	if (m_isDirty_matProjection) {
+		m_isDirty_matProjection = false;
+		m_matProjection = DirectX::XMMatrixPerspectiveFovLH(
+			0.25f * 3.1415926535f,		// Field of View Angle
+			m_screenWidth / m_screenHeight,		// Aspect ratio
+			m_clipNear, m_clipFar);					// Far clip plane distance
+	}
+	return m_matProjection;
 }
 
 Matrix Camera::getProjectionMatrix(float screen_width, float screen_height,float clipNear,float clipFar)
