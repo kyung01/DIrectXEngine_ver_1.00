@@ -32,22 +32,38 @@ float4 main(VertexToPixel input) : SV_TARGET
 {
 	float4 output;
 	float4 posProjected = float4(
-		input.uv.x * 2 - 1, ( input.uv.y) * 2 - 1,
+		input.uv.x * 2 - 1, (1-input.uv.y) * 2 - 1,
 		textureDepth.Sample(samplerDefault, input.uv).x, 1);
 	float4 posWorld = mul(posProjected,matProjInverse);
 	posWorld /= posWorld.w;
 
+	float4 posFromLightSource = mul(posWorld, matLightViewProj);
+	posFromLightSource /= posFromLightSource.w;
+	float depthFarest = posFromLightSource.z;
+	float bias = 0.0250000711;
+	float2 index = posFromLightSource.xy* 0.5 + 0.5;
+	float depthClosest = textureLightDepth.Sample(samplerDefault, float2( index.x, 1 -index.y ) ).x ;
+
+	//return float4(depthClosest, 0, 0, 1);
+	posFromLightSource.w = 1;
+	//return posFromLightSource;
+	return float4(0,1* (posFromLightSource.z -bias> depthClosest),0, 1);
+	if (depthClosest-posFromLightSource.z  < 0) {
+		return float4(1, 0, 0, 1);
+	}
+	return float4(0.1, 0.1, .1, 1);
+	//return float4(depthClosest, 0, depthFarest, 1);
+	/*
 	//float4 lightPos = mul(float4(0, 0, 0, 1) ,matProjInverse);
 	//float3 lightDir = normalize(mul(float4(0, 0, 1, 1), matProjInverse).xyz - lightPos.xyz);
 	//float3 lightDirToMe = normalize(posWorld.xyz - lightPos.xyz);
 
 
-	float4 posFromLightSource = mul(posWorld, matLightViewProj);
+
 	float3 posFromLightSourceWorld = posWorld.xyz - lightPos;
-	float2 uvNew = (posFromLightSource.xy*0.5 + 0.5)/ posFromLightSource.w ;
+	float2 uvNew = (posFromLightSource.xy*0.5 + 0.5);// / posFromLightSource.w;
 	float4 lightDepthRaw = textureLightDepth.Sample(samplerDefault, uvNew);// .x;
-	float lightDepth = textureLightDepth.Sample(samplerDefault, uvNew).x;
-	float ratio = posFromLightSource.z*lightDepth*0.00001;
+	float depthClosest = textureLightDepth.Sample(samplerDefault, uvNew).x ;
 	float lightPower =
 		(lightColor.w) /
 		(lightColor.w + 
@@ -58,9 +74,17 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float4 normal = textureNormal.Sample(samplerDefault, input.uv);
 	float4 diffuseColor = textureDiffuse.Sample(samplerDefault, input.uv);
 	float intensity = max(0, dot(-lightDir, normal.xyz*2 -1));
-	float shadow = min(1, max(0, (lightDepth - (posFromLightSource.z - 0.08))) * 100 );
+	float shadow = 0;
+	//return float4(0, depthClosest, 0, 1);
+	if (posFromLightSource.z / posFromLightSource.w< depthClosest) {
+		//render
+		return float4(0, 1, 0, 1);
+	}
+	return float4(.1, .1, .1, 1);
+
+	//float shadow = min(1, max(0, (lightDepth - (posFromLightSource.z - 0.08))) * 100 );
 	//output = diffuseColor.xyz*intensity * shadow;
-	output.xyz = (diffuseColor.xyz*intensity  * lightColor.xyz* lightPower);// *shadow;
+	output.xyz = (diffuseColor.xyz*intensity  * lightColor.xyz* lightPower) * shadow;// *shadow;
 	output.w = shadow;
 
 

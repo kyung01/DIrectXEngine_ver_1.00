@@ -4,7 +4,7 @@
 
 using namespace Graphic;
 
-static int SIZE_LIGHT_TEXTURE = 512;
+static int SIZE_LIGHT_TEXTURE = 512*2;
 void Graphic::GraphicMain::processObject(NScene::Object obj) {
 }
 
@@ -141,6 +141,16 @@ bool GraphicMain::initShaders(ID3D11Device* device, ID3D11DeviceContext *context
 	}
 
 	D3D11_SAMPLER_DESC samplerDesc = {};
+	//samplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_MIP_POINT; // Could be anisotropic
+	//samplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
+	//samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	//samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	//samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	//samplerDesc.BorderColor[0] = 1.0f;
+	//samplerDesc.BorderColor[1] = 1.0f;
+	//samplerDesc.BorderColor[2] = 1.0f;
+	//samplerDesc.BorderColor[3] = 1.0f;
+
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 	//samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -250,8 +260,8 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 	int count = 0;
 	DirectX::XMFLOAT4X4 world, view, projection;
 	auto sceneReverseProjectionView = DirectX::XMMatrixInverse(0, DirectX::XMMatrixMultiply(scene.m_camMain.getViewMatrix(), scene.m_camMain.getProjectionMatrix()));
-	auto lightProjectionOrtho = DirectX::XMMatrixOrthographicLH(25, 25, 0.0, 50);
-	auto defferedOrtho = DirectX::XMMatrixOrthographicLH(1, 1, 0.1, 100);
+	auto lightProjectionOrtho = DirectX::XMMatrixOrthographicLH(15, 15, -10.0, 20);
+	auto defferedOrtho = DirectX::XMMatrixOrthographicLH(1, 1, 0.0, 100);
 	target.ClearRenderTarget(context, 0, 0, 0, 1);
 	for (auto it = scene.objects.begin(); it != scene.objects.end(); it++) {
 		if ((*it)->m_ObjectType != NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL)
@@ -262,12 +272,13 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 
 		auto &p = **it;
 		auto lightCamera = dynamic_cast<NScene::Light*>(&(p));
-		float angle = temp_angle*0.1;
+		float angle = temp_angle;
 		if (count++ == 0) {
-			lightCamera->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), angle * .0010));
+			float xAxisRotation = 3.14/180 *80.0f;
+			lightCamera->setRotation(Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), xAxisRotation) * Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), angle * .10));
 		}
 		else {
-			lightCamera->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), -angle * 3.510));
+			//lightCamera->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), -angle * 3.510));
 		}
 		//lightCamera->setPos(Vector3( sin(angle) * 10, 0, cos(angle)*-10 ));
 		auto lightViewProjection = DirectX::XMMatrixMultiply(lightCamera->getViewMatrix(), lightProjectionOrtho);
@@ -387,7 +398,7 @@ void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *co
 	D3D11_VIEWPORT viewport;
 	context->RSGetViewports(&viewportNum, &viewport);
 	//scene.m_camMain.setPos(Vector3(0,0, temp_angle*.1));
-	scene.m_camMain.setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle*0.01f));
+	//scene.m_camMain.setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), temp_angle*0.01f));
 	beginRendering();
 
 
