@@ -4,7 +4,7 @@
 
 using namespace Graphic;
 
-static int SIZE_LIGHT_TEXTURE = 512*2;
+static int SIZE_LIGHT_TEXTURE = 512;
 void Graphic::GraphicMain::processObject(NScene::Object obj) {
 }
 
@@ -28,7 +28,7 @@ std::list<ShaderLoadInformation> Graphic::GraphicMain::getLoadListShaderFrag()
 		{ RENDER_TYPE::DEFAULT,			L"Resource/Shader/default_frag.hlsl" },
 		{ RENDER_TYPE::DEFFERED,		L"Resource/Shader/deffered_frag.hlsl" },
 		{ RENDER_TYPE::DEPTH,			L"Resource/Shader/depth_frag.hlsl" },
-		{ RENDER_TYPE::DEFFERED_LIGHT_DIRECTIONAL,		L"Resource/Shader/deffered_light_directional_frag.hlsl" }
+		{ RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT,		L"Resource/Shader/deffered_light_spot_frag.hlsl" }
 	});
 	return lst;
 }
@@ -39,7 +39,7 @@ std::list<ShaderLoadInformation> Graphic::GraphicMain::getLoadListShaderVert()
 		{RENDER_TYPE::DEFAULT,			L"Resource/Shader/default_vert.hlsl" },
 		{RENDER_TYPE::DEFFERED,			L"Resource/Shader/deffered_vert.hlsl" },
 		{RENDER_TYPE::DEPTH,			L"Resource/Shader/depth_vert.hlsl" },
-		{ RENDER_TYPE::DEFFERED_LIGHT_DIRECTIONAL,		L"Resource/Shader/deffered_light_directional_vert.hlsl" }
+		{ RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT,		L"Resource/Shader/deffered_light_spot_vert.hlsl" }
 	});
 	return lst;
 }
@@ -141,33 +141,34 @@ bool GraphicMain::initShaders(ID3D11Device* device, ID3D11DeviceContext *context
 	}
 
 	D3D11_SAMPLER_DESC samplerDesc = {};
-	//samplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_MIP_POINT; // Could be anisotropic
-	//samplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
-	//samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	//samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	//samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	//samplerDesc.BorderColor[0] = 1.0f;
-	//samplerDesc.BorderColor[1] = 1.0f;
-	//samplerDesc.BorderColor[2] = 1.0f;
-	//samplerDesc.BorderColor[3] = 1.0f;
-
-	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-	//samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	samplerDesc.BorderColor[0] = 0.0f;
-	samplerDesc.BorderColor[1] = 0.0f;
-	samplerDesc.BorderColor[2] = 0.0f;
-	samplerDesc.BorderColor[3] = 0.0f;
+	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC; // Could be anisotropic
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.MaxAnisotropy = 16;
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
+	D3D11_SAMPLER_DESC samplerDescLight = {};
+	samplerDescLight.Filter = D3D11_FILTER_ANISOTROPIC;
+	//samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDescLight.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDescLight.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDescLight.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDescLight.BorderColor[0] = 1.0f;
+	samplerDescLight.BorderColor[1] = 1.0f;
+	samplerDescLight.BorderColor[2] = 1.0f;
+	samplerDescLight.BorderColor[3] = 1.0f;
+	samplerDescLight.MaxAnisotropy = 16;
+	samplerDescLight.MinLOD = 0;
+	samplerDescLight.MaxLOD = D3D11_FLOAT32_MAX;
+
 
 	//samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	// Ask the device to create a state
-	device->CreateSamplerState(&samplerDesc, &m_sampler);
+	device->CreateSamplerState(&samplerDesc, &m_samplerDefault);
+	device->CreateSamplerState(&samplerDescLight, &m_samplerLight);
 
 	return true;
 
@@ -211,7 +212,7 @@ void Graphic::GraphicMain::renderPreDeffered(
 
 	DirectX::XMStoreFloat4x4(&world,		XMMatrixTranspose(scene.m_camMain.getModelMatrix())); // Transpose for HLSL!
 	DirectX::XMStoreFloat4x4(&view,			XMMatrixTranspose(scene.m_camMain.getViewMatrix())); // Transpose for HLSL!
-	DirectX::XMStoreFloat4x4(&projection,	XMMatrixTranspose(scene.m_camMain.getProjectionMatrix(.25f *3.14, m_width, m_height, 0.1f, 100.0f))); // Transpose for HLSL!
+	DirectX::XMStoreFloat4x4(&projection,	XMMatrixTranspose(scene.m_camMain.getProjectionMatrix(.25f *3.14, m_width, m_height, 0.01f, 100.0f))); // Transpose for HLSL!
 
 	context->OMSetRenderTargets(2, renderTargets, textureDepth.getDepthStencilView());
 
@@ -223,7 +224,7 @@ void Graphic::GraphicMain::renderPreDeffered(
 	shader_vert.SetMatrix4x4("world", world);
 	shader_vert.SetMatrix4x4("view", view);
 	shader_vert.SetMatrix4x4("projection", projection);
-	shader_frag.SetSamplerState("sampler_default", m_sampler);
+	shader_frag.SetSamplerState("sampler_default", m_samplerDefault);
 
 	shader_vert.CopyAllBufferData();
 	shader_frag.CopyAllBufferData();
@@ -275,16 +276,20 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 		shaderVertDepthOnly.SetShader();
 		context->OMSetBlendState(m_blendStateNoBlack, 0, 0xffffffff);//::NoBlack, blendFactor, 0xffffffff);
 		context->PSSetShader(NULL, NULL, 0); //set pixel writing stage to none
-		auto lightProjectionMatrix = lightCamera->getProjectionMatrix(.25*3.14f, SIZE_LIGHT_TEXTURE, SIZE_LIGHT_TEXTURE, 0.1, 20);
+		auto lightProjectionMatrix = lightCamera->getProjectionMatrix(.25*3.14f, SIZE_LIGHT_TEXTURE, SIZE_LIGHT_TEXTURE, 0.1, 1000);
 
-		float angle = temp_angle;
-		if (count++ == 0) {
+		float progress = temp_angle;
+		if (count == 0) {
 			float xAxisRotation = 3.14/180 *30.0f;
-			lightCamera->setRotation( Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), angle * .010));
+			lightCamera->setRotation( Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), progress * .010));
+			Vector3 target = (Vector3)DirectX::XMVector3Rotate(Vector3(0, 0, 1), lightCamera->m_rotation);
+			std::cout << target.x<<"," << target.y << "," << target.z << "\n";
 		}
-		else {
-			//lightCamera->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), -angle * 3.510));
+		else if(count==1){
+			lightCamera->setPos(Vector3(lightCamera->m_pos.x, lightCamera->m_pos.y, cos(progress*0.1) ) );
 		}
+		count++;
+
 		//lightCamera->setPos(Vector3( sin(angle) * 10, 0, cos(angle)*-10 ));
 		auto lightViewProjection = DirectX::XMMatrixMultiply(lightCamera->getViewMatrix(), lightProjectionMatrix);
 		D3D11_VIEWPORT viewport;
@@ -352,15 +357,16 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 
 		shaderVert.SetMatrix4x4("matViewProjection", projection);
 		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(sceneReverseProjectionView)); // Transpose for HLSL!
-		shaderFrag.SetMatrix4x4("matProjInverse", projection);
+		shaderFrag.SetMatrix4x4("matProjViewInverse", projection);
 		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(lightViewProjection)); // Transpose for HLSL!
-		shaderFrag.SetMatrix4x4("matLightViewProj", projection);
+		if (!shaderFrag.SetMatrix4x4("matLightViewProj", projection)) {
+			std::cout << "ERER";
+		}
 		DirectX::XMFLOAT3 storeVector3;
 		DirectX::XMStoreFloat3(&storeVector3, DirectX::XMVector3Rotate(Vector3(0, 0, 1), it->get()->m_rotation));
 		DirectX::XMFLOAT4 storeVector4;
 		DirectX::XMStoreFloat4(&storeVector4, lightCamera->m_lightColor);
 		shaderFrag.SetFloat3("lightPos", it->get()->m_pos);
-		shaderFrag.SetFloat3("lightDir", storeVector3);//	t()->m_pos * Vector3(0, 0, 1));
 		shaderFrag.SetFloat4("lightColor", storeVector4);//	t()->m_pos * Vector3(0, 0, 1));
 
 		//matProjInverse
@@ -372,7 +378,7 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 			std::cout << "FAIL";
 			//textureLightDepth
 		}
-		shaderFrag.SetSamplerState("samplerDefault", m_sampler);
+		shaderFrag.SetSamplerState("samplerDefault", m_samplerLight);
 
 
 
@@ -417,7 +423,7 @@ void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *co
 		);
 	renderLights(device,context, scene,
 		*m_shadersVert[RENDER_TYPE::DEPTH],
-		*m_shadersVert[RENDER_TYPE::DEFFERED_LIGHT_DIRECTIONAL], *m_shadersFrag[RENDER_TYPE::DEFFERED_LIGHT_DIRECTIONAL],
+		*m_shadersVert[RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT], *m_shadersFrag[RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT],
 
 		*m_renderTextures[RENDER_TYPE::DEFFERED_FINAL],* m_depthTextures[RENDER_TYPE::DEFFERED_FINAL],
 		*m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL], *m_depthTextures[RENDER_TYPE::DEFFERED]

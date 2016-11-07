@@ -79,29 +79,23 @@ void Scene::loadExample00()
 		obj->m_textures[TEXTURE_TYPE::TEXTURE_NORMAL] = normalTexture[(count * 73) % 5];
 		this->objects.push_back(obj);
 	}
-	{
-		auto obj = std::shared_ptr<Object>(new Light());
-		obj->m_ObjectType = NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL;
-		obj->setPos(Vector3(.5, 1.5f, 0));
-		obj->setRotation(Quaternion());
-		dynamic_cast<Light*>(obj.get())->m_lightColor = Vector4(1, 0, 0, 5);
-		this->objects.push_back(obj);
-	}
-
-	{
-		//auto obj = std::shared_ptr<Object>(new Light());
-		//obj->m_ObjectType = NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL;
-		//obj->setPos(Vector3(2.2, 5, 6));
-		//obj->setRotation( Quaternion::CreateFromAxisAngle(Vector3(0, 0, 1), 3.14 / 180 * 180));
-		//dynamic_cast<Light*>(obj.get())->m_lightColor = Vector4(0, 1, 0, 5);
-		//this->objects.push_back(obj);
-	}
+	
 
 	{
 		auto obj = std::shared_ptr<Object>(new Object());
 		obj->m_meshType = MESH_ID::HELIX;
 		obj->m_ObjectType = NScene::OBJECT_TYPE::SOLID;
 		obj->setPos(Vector3(1.5, 1, 5));
+		obj->setScale(Vector3(1, 1, 1));
+		obj->m_textures[TEXTURE_TYPE::TEXTURE_DIFFUSE] = diffuseTextures[(count * 77) % 5];
+		obj->m_textures[TEXTURE_TYPE::TEXTURE_NORMAL] = TEXTURE_NORMAL_WOOD;
+		this->objects.push_back(obj);
+	}
+	{
+		auto obj = std::shared_ptr<Object>(new Object());
+		obj->m_meshType = MESH_ID::HELIX;
+		obj->m_ObjectType = NScene::OBJECT_TYPE::SOLID;
+		obj->setPos(Vector3(-1.5, 1, 5));
 		obj->setScale(Vector3(1, 1, 1));
 		obj->m_textures[TEXTURE_TYPE::TEXTURE_DIFFUSE] = diffuseTextures[(count * 77) % 5];
 		obj->m_textures[TEXTURE_TYPE::TEXTURE_NORMAL] = TEXTURE_NORMAL_WOOD;
@@ -126,6 +120,24 @@ void Scene::loadExample00()
 		obj->m_textures[TEXTURE_TYPE::TEXTURE_DIFFUSE] = diffuseTextures[(count * 77) % 5];
 		obj->m_textures[TEXTURE_TYPE::TEXTURE_NORMAL] = TEXTURE_NORMAL_WOOD;
 		this->objects.push_back(obj);
+	}
+
+	{
+		auto obj = std::shared_ptr<Object>(new Light());
+		obj->m_ObjectType = NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL;
+		obj->setPos(Vector3(0, 3.5f, 0));
+		obj->setRotation(Quaternion());
+		dynamic_cast<Light*>(obj.get())->m_lightColor = Vector4(1, 0.5, 0.5, 15);
+		this->objects.push_back(obj);
+	}
+
+	{
+		//auto obj = std::shared_ptr<Object>(new Light());
+		//obj->m_ObjectType = NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL;
+		//obj->setPos(Vector3(.5, 1.5f, 0));
+		//obj->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 0, 1), 3.14 / 180 * 45));
+		//dynamic_cast<Light*>(obj.get())->m_lightColor = Vector4(0, 1, 0, 15);
+		//this->objects.push_back(obj);
 	}
 	/*
 	{

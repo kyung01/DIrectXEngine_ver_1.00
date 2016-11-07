@@ -1,0 +1,14 @@
+﻿  Scene Graphic.cpp
+c:\users\kyunghwan chang\documents\github\directxengine\dx11starter\files\graphic\cpp\scene graphic.cpp(41): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\kyunghwan chang\documents\github\directxengine\dx11starter\files\graphic\cpp\scene graphic.cpp(47): warning C4305: 'argument': truncation from 'double' to 'float'
+  GraphicMain.cpp
+c:\users\kyunghwan chang\documents\github\directxengine\dx11starter\files\graphic\cpp\graphicmain.cpp(215): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\kyunghwan chang\documents\github\directxengine\dx11starter\files\graphic\cpp\graphicmain.cpp(215): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\kyunghwan chang\documents\github\directxengine\dx11starter\files\graphic\cpp\graphicmain.cpp(279): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\kyunghwan chang\documents\github\directxengine\dx11starter\files\graphic\cpp\graphicmain.cpp(279): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\kyunghwan chang\documents\github\directxengine\dx11starter\files\graphic\cpp\graphicmain.cpp(283): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\kyunghwan chang\documents\github\directxengine\dx11starter\files\graphic\cpp\graphicmain.cpp(284): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\kyunghwan chang\documents\github\directxengine\dx11starter\files\graphic\cpp\graphicmain.cpp(289): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  Generating Code...
+  DX11Starter.vcxproj -> C:\Users\kyunghwan chang\Documents\GitHub\DIrectXEngine\DX11Starter\Debug\DX11Starter.exe
+  DX11Starter.vcxproj -> C:\Users\kyunghwan chang\Documents\GitHub\DIrectXEngine\DX11Starter\Debug\DX11Starter.pdb (Full PDB)

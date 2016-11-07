@@ -84,7 +84,7 @@ namespace Graphic {
 		std::map<RENDER_TYPE, std::shared_ptr<SimpleFragmentShader>> m_shadersFrag;
 		std::map<RENDER_TYPE, std::shared_ptr<SimpleVertexShader>> m_shadersVert;
 		std::map<MESH_ID, std::unique_ptr<Mesh*>> m_meshes;
-		ID3D11SamplerState *m_sampler;
+		ID3D11SamplerState *m_samplerDefault,*m_samplerLight;
 
 		std::map<int, Model*> models;
 		std::map<int, Shader*> shaders;
