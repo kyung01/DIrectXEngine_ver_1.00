@@ -18,31 +18,25 @@ Matrix Graphic::NScene::Camera::getProjectionMatrix()
 	if (m_isDirty_matProjection) {
 		m_isDirty_matProjection = false;
 		m_matProjection = DirectX::XMMatrixPerspectiveFovLH(
-			0.25f * 3.1415926535f,		// Field of View Angle
+			m_fov,		// Field of View Angle
 			m_screenWidth / m_screenHeight,		// Aspect ratio
 			m_clipNear, m_clipFar);					// Far clip plane distance
 	}
 	return m_matProjection;
 }
 
-Matrix Camera::getProjectionMatrix(float screen_width, float screen_height,float clipNear,float clipFar)
+Matrix Camera::getProjectionMatrix( float fov, float screen_width, float screen_height,float clipNear,float clipFar)
 {
-	if (m_screenWidth != screen_width || m_screenHeight != screen_height||m_clipNear != clipNear || m_clipFar != clipFar) {
+	if (m_fov != fov || m_screenWidth != screen_width || m_screenHeight != screen_height||m_clipNear != clipNear || m_clipFar != clipFar) {
 		m_isDirty_matProjection = true;
 		m_screenWidth = screen_width;
 		m_screenHeight = screen_height;
 		m_clipNear = clipNear;
 		m_clipFar = clipFar;
-	}
-	if (m_isDirty_matProjection) {
-		m_isDirty_matProjection = false;
-		m_matProjection = DirectX::XMMatrixPerspectiveFovLH(
-			0.25f * 3.1415926535f,		// Field of View Angle
-			screen_width / screen_height,		// Aspect ratio
-			clipNear, clipFar);					// Far clip plane distance
+		m_fov = fov;
 	}
 	//DirectX::SimpleMath::Matrix::CreatePerspective()
-	return m_matProjection;
+	return getProjectionMatrix();
 }
 
 Matrix Camera::getViewMatrix()

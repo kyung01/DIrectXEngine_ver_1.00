@@ -153,9 +153,13 @@ bool GraphicMain::initShaders(ID3D11Device* device, ID3D11DeviceContext *context
 
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 	//samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDesc.BorderColor[0] = 0.0f;
+	samplerDesc.BorderColor[1] = 0.0f;
+	samplerDesc.BorderColor[2] = 0.0f;
+	samplerDesc.BorderColor[3] = 0.0f;
 	samplerDesc.MaxAnisotropy = 16;
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
@@ -207,7 +211,7 @@ void Graphic::GraphicMain::renderPreDeffered(
 
 	DirectX::XMStoreFloat4x4(&world,		XMMatrixTranspose(scene.m_camMain.getModelMatrix())); // Transpose for HLSL!
 	DirectX::XMStoreFloat4x4(&view,			XMMatrixTranspose(scene.m_camMain.getViewMatrix())); // Transpose for HLSL!
-	DirectX::XMStoreFloat4x4(&projection,	XMMatrixTranspose(scene.m_camMain.getProjectionMatrix(m_width, m_height, 0.1f, 100.0f))); // Transpose for HLSL!
+	DirectX::XMStoreFloat4x4(&projection,	XMMatrixTranspose(scene.m_camMain.getProjectionMatrix(.25f *3.14, m_width, m_height, 0.1f, 100.0f))); // Transpose for HLSL!
 
 	context->OMSetRenderTargets(2, renderTargets, textureDepth.getDepthStencilView());
 
@@ -260,28 +264,29 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 	int count = 0;
 	DirectX::XMFLOAT4X4 world, view, projection;
 	auto sceneReverseProjectionView = DirectX::XMMatrixInverse(0, DirectX::XMMatrixMultiply(scene.m_camMain.getViewMatrix(), scene.m_camMain.getProjectionMatrix()));
-	auto lightProjectionOrtho = DirectX::XMMatrixOrthographicLH(15, 15, -10.0, 20);
-	auto defferedOrtho = DirectX::XMMatrixOrthographicLH(1, 1, 0.0, 100);
+	//auto lightProjectionMatrix = DirectX::XMMatrixOrthographicLH(15, 15, -10.0, 20);
+	auto matScreenOrtho = DirectX::XMMatrixOrthographicLH(1, 1, 0.0, 100);
 	target.ClearRenderTarget(context, 0, 0, 0, 1);
 	for (auto it = scene.objects.begin(); it != scene.objects.end(); it++) {
 		if ((*it)->m_ObjectType != NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL)
 			continue;
+		auto &p = **it;
+		auto lightCamera = dynamic_cast<NScene::Light*>(&(p));
 		shaderVertDepthOnly.SetShader();
 		context->OMSetBlendState(m_blendStateNoBlack, 0, 0xffffffff);//::NoBlack, blendFactor, 0xffffffff);
 		context->PSSetShader(NULL, NULL, 0); //set pixel writing stage to none
+		auto lightProjectionMatrix = lightCamera->getProjectionMatrix(.25*3.14f, SIZE_LIGHT_TEXTURE, SIZE_LIGHT_TEXTURE, 0.1, 20);
 
-		auto &p = **it;
-		auto lightCamera = dynamic_cast<NScene::Light*>(&(p));
 		float angle = temp_angle;
 		if (count++ == 0) {
-			float xAxisRotation = 3.14/180 *80.0f;
-			lightCamera->setRotation(Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), xAxisRotation) * Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), angle * .10));
+			float xAxisRotation = 3.14/180 *30.0f;
+			lightCamera->setRotation( Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), angle * .010));
 		}
 		else {
 			//lightCamera->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), -angle * 3.510));
 		}
 		//lightCamera->setPos(Vector3( sin(angle) * 10, 0, cos(angle)*-10 ));
-		auto lightViewProjection = DirectX::XMMatrixMultiply(lightCamera->getViewMatrix(), lightProjectionOrtho);
+		auto lightViewProjection = DirectX::XMMatrixMultiply(lightCamera->getViewMatrix(), lightProjectionMatrix);
 		D3D11_VIEWPORT viewport;
 		viewport.TopLeftX = 0;
 		viewport.TopLeftY = 0;
@@ -307,7 +312,7 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 		}
 		DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose(lightCamera->getModelMatrix())); // Transpose for HLSL!
 		DirectX::XMStoreFloat4x4(&view, XMMatrixTranspose(lightCamera->getViewMatrix())); // Transpose for HLSL!
-		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(lightProjectionOrtho)); // Transpose for HLSL!
+		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(lightProjectionMatrix)); // Transpose for HLSL!
 																			 //DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(cam->getProjectionMatrix(512,512, 0.1f, 100.0f))); // Transpose for HLSL!
 
 
@@ -343,7 +348,7 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 		auto pos = Vector3(0, 0, -10);
 		auto dir = Vector3(0, 0, 1);
 		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(DirectX::XMMatrixMultiply(
-			DirectX::XMMatrixLookToLH(pos, dir, Vector3::Up), defferedOrtho))); // Transpose for HLSL!
+			DirectX::XMMatrixLookToLH(pos, dir, Vector3::Up), matScreenOrtho))); // Transpose for HLSL!
 
 		shaderVert.SetMatrix4x4("matViewProjection", projection);
 		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(sceneReverseProjectionView)); // Transpose for HLSL!

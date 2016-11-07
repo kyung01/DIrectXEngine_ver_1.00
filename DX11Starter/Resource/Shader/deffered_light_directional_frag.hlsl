@@ -36,16 +36,17 @@ float4 main(VertexToPixel input) : SV_TARGET
 		textureDepth.Sample(samplerDefault, input.uv).x, 1);
 	float4 posWorld = mul(posProjected,matProjInverse);
 	posWorld /= posWorld.w;
-	float3 normal = textureNormal.Sample(samplerDefault, input.uv) * 2 -1;
+	float3 diffuse = textureDiffuse.Sample(samplerDefault, input.uv);
+	float3 normal = textureNormal.Sample(samplerDefault, input.uv) * 2 - 1;
 
 	float4 posFromLightSource = mul(posWorld, matLightViewProj);
 	float3 disFromLightToPos = posWorld.xyz - lightPos;
 	posFromLightSource /= posFromLightSource.w;
 	float depthFarest = posFromLightSource.z;
-	float bias = 0.0250000711;
+	float bias = 0.00000007;
 	float2 index = posFromLightSource.xy* 0.5 + 0.5;
-	float depthClosest = textureLightDepth.Sample(samplerDefault, float2( index.x, 1 -index.y ) ).x ;
-	float shadow = (posFromLightSource.z - bias < depthClosest);
+	float depthClosest = textureLightDepth.Sample(samplerDefault, float2( index.x,1- index.y ) ).x ;
+	float shadow = (posFromLightSource.z -bias < depthClosest);
 	float powerReflective = dot(lightDir, -normal);
 	float lightPower =
 		(lightColor.w) /
@@ -56,7 +57,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	
 	//return float4(depthClosest, 0, 0, 1);
 	posFromLightSource.w = 1;
-	output.xyz = lightColor.xyz * (powerReflective* lightPower* shadow);
+	output.xyz = float3(1,1,1) * ( shadow);
 	output.w = 1;
 	return output;
 	//return posFromLightSource;

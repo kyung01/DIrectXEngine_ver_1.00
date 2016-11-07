@@ -10,6 +10,7 @@ namespace Graphic {
 		class Camera : public Object {
 		private:
 			float
+				m_fov,
 				m_screenWidth, m_screenHeight,
 				m_clipNear, m_clipFar;
 			Matrix	m_matProjection,
@@ -27,7 +28,7 @@ namespace Graphic {
 
 			Camera();
 			Matrix getProjectionMatrix();
-			Matrix getProjectionMatrix(float screen_width, float screen_height, float cam_near, float cam_far);
+			Matrix getProjectionMatrix(float fov,float screen_width, float screen_height, float cam_near, float cam_far);
 			Matrix getViewMatrix();
 			void setPos(Vector3 pos) override;
 			void setRotation(Quaternion quaternion) override ;
