@@ -276,12 +276,13 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 		shaderVertDepthOnly.SetShader();
 		context->OMSetBlendState(m_blendStateNoBlack, 0, 0xffffffff);//::NoBlack, blendFactor, 0xffffffff);
 		context->PSSetShader(NULL, NULL, 0); //set pixel writing stage to none
-		auto lightProjectionMatrix = lightCamera->getProjectionMatrix(.25*3.14f, SIZE_LIGHT_TEXTURE, SIZE_LIGHT_TEXTURE, 0.1, 1000);
+		auto lightProjectionMatrix = lightCamera->getProjectionMatrix(.55*3.14f, SIZE_LIGHT_TEXTURE, SIZE_LIGHT_TEXTURE, 0.1, 1000);
 
 		float progress = temp_angle;
 		if (count == 0) {
 			float xAxisRotation = 3.14/180 *30.0f;
-			lightCamera->setRotation( Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), progress * .010));
+			lightCamera->setPos(Vector3(cos(progress) * 5, 1, 1));
+			lightCamera->setRotation(Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), progress * .010));
 			Vector3 target = (Vector3)DirectX::XMVector3Rotate(Vector3(0, 0, 1), lightCamera->m_rotation);
 			std::cout << target.x<<"," << target.y << "," << target.z << "\n";
 		}
@@ -367,6 +368,10 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 		DirectX::XMFLOAT4 storeVector4;
 		DirectX::XMStoreFloat4(&storeVector4, lightCamera->m_lightColor);
 		shaderFrag.SetFloat3("lightPos", it->get()->m_pos);
+		if (!shaderFrag.SetFloat3("lightDir", it->get()->m_dirLook)  ){
+			std::cout << "lightDir FAIL FAIL FAIL";
+		}
+		else std::cout << "succeess " << it->get()->m_dirLook.x  << " " << it->get()->m_dirLook.y << " " << it->get()->m_dirLook.z<<"\n";
 		shaderFrag.SetFloat4("lightColor", storeVector4);//	t()->m_pos * Vector3(0, 0, 1));
 
 		//matProjInverse
@@ -378,7 +383,8 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 			std::cout << "FAIL";
 			//textureLightDepth
 		}
-		shaderFrag.SetSamplerState("samplerDefault", m_samplerLight);
+		shaderFrag.SetSamplerState("samplerDefault", m_samplerDefault);
+		shaderFrag.SetSamplerState("samplerLight", m_samplerLight);
 
 
 

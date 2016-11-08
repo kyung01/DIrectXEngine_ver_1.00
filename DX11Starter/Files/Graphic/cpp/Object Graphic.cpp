@@ -7,7 +7,8 @@ Object::Object() :
 	m_meshType(MESH_ID::CUBE),
 	m_renderType(RENDER_TYPE::DEFAULT),
 	m_isDirty(true),
-	m_scale(1,1,1)
+	m_scale(1,1,1),
+	m_dirLook(0,0,1)
 {
 	m_textures[TEXTURE_TYPE::TEXTURE_DIFFUSE] = TEXTURE_ID::TEXTURE_DEFAULT;
 	m_textures[TEXTURE_TYPE::TEXTURE_NORMAL] = TEXTURE_ID::TEXTURE_DEFAULT;
@@ -29,6 +30,7 @@ void Object::setRotation(Quaternion quaternion)
 {
 	m_isDirty = true;
 	m_rotation = quaternion;
+	m_dirLook = DirectX::XMVector3Rotate(Vector3(0, 0, 1), m_rotation);
 }
 
 

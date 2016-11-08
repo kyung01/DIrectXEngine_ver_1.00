@@ -68,6 +68,17 @@ void Scene::loadExample00()
 		obj->m_textures[TEXTURE_TYPE::TEXTURE_NORMAL] = normalTexture[(count * 73) % 5];
 		this->objects.push_back(obj);
 	}
+	{
+		//ground
+		auto obj = std::shared_ptr<Object>(new Object());
+		obj->m_meshType = MESH_ID::CUBE;
+		obj->m_ObjectType = NScene::OBJECT_TYPE::SOLID;
+		obj->setPos(Vector3(0, 0, 7.5));
+		obj->setScale(Vector3(20, 20, 1));
+		obj->m_textures[TEXTURE_TYPE::TEXTURE_DIFFUSE] = diffuseTextures[(count * 77) % 5];
+		obj->m_textures[TEXTURE_TYPE::TEXTURE_NORMAL] = normalTexture[(count * 73) % 5];
+		this->objects.push_back(obj);
+	}
 
 	{
 		auto obj = std::shared_ptr<Object>(new Object());
@@ -125,7 +136,7 @@ void Scene::loadExample00()
 	{
 		auto obj = std::shared_ptr<Object>(new Light());
 		obj->m_ObjectType = NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL;
-		obj->setPos(Vector3(0, 3.5f, 0));
+		obj->setPos(Vector3(0, 2.0f, 0.5));
 		obj->setRotation(Quaternion());
 		dynamic_cast<Light*>(obj.get())->m_lightColor = Vector4(1, 0.5, 0.5, 15);
 		this->objects.push_back(obj);
