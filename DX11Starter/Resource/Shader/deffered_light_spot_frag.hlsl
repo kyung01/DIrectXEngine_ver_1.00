@@ -35,9 +35,9 @@ float4 getPosProjected(float2 uv, Texture2D depthTexture) {
 		uv.x * 2 - 1, (1 - uv.y) * 2 - 1,
 		textureDepth.Sample(samplerDefault, uv).x, 1);
 }
-float spotLight(float3 posEyeToSurface, float3 surfaceNormal, float3 lightDir, float3 dirLightToPos, float luminosity) {
+float spotLight(float3 surfaceNormal, float3 lightDir, float3 dirLightToPos, float luminosity) {
 	
-	float3 P = normalize(posEyeToSurface);
+	float3 P = dirLightToPos;
 	float3 R = (surfaceNormal * 2 * dot(surfaceNormal, lightDir)) -lightDir;
 	//float alongAxis = dot(reflected, -surfaceNormal);
 	//float f = dot(reflected, normalize(surfacePos));
@@ -88,7 +88,8 @@ float4 main(VertexToPixel input) : SV_TARGET
 			disFromLightToPos.y * disFromLightToPos.y +
 			disFromLightToPos.z * disFromLightToPos.z);
 	return float4(
-		diffuse.xyz * lightColor.xyz*powerLuminance * spotLight(posWorld.xyz - lightPos, normal, lightDir, dirFromLightToPos, 2)  , lighted);
+		diffuse.xyz * lightColor.xyz*powerLuminance * spotLight(normal, lightDir, dirFromLightToPos, 2)  , lighted);
+
 	output.xyz = diffuse*lightColor.xyz* lighted *powerLuminance*powerSurfaceReflection;
 	output.w = 1;
 	return output;
