@@ -43,7 +43,6 @@ namespace Graphic {
 
 	class GraphicMain {
 	private:
-		int m_width, m_height;
 		
 		void rendering(NScene::Scene scene);
 		void processObject(NScene::Object obj);
@@ -74,6 +73,7 @@ namespace Graphic {
 		void endRendering();// = 0;
 		void getScreenWidth(int &w, int &h);// = 0;
 	public:
+		int m_width, m_height;
 		Graphic::Mesh * mesh00;
 
 		std::map<TEXTURE_ID, ID3D11ShaderResourceView*> m_textures;

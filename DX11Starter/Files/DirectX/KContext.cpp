@@ -66,6 +66,8 @@ void KContext::Init()
 		}
 		it->scene.loadExample00();
 	}
+	m_ui.init(hInstance, hWnd, device, context, swapChain, backBufferRTV);
+	m_ui.m_uiMain.init(&m_renderContexts.begin()->main);//TODO delete this line
 
 	world.objs.push_back(World::Object());
 	world.objs.push_back(World::Object());
@@ -94,13 +96,19 @@ void KContext::OnResize()
 {
 	// Handle base-level DX resize stuff
 	DXCore::OnResize();
-
+	//for (auto it = m_renderContexts.begin(); it != m_renderContexts.end(); it++) {
+	//	it->main.m_width = width;
+	//	it->main.m_height = height;
+	//}
+	//m_ui.init(hInstance, hWnd, device, context, swapChain, backBufferRTV);
+	//m_ui.init(hInstance, hWnd, device, context, swapChain, backBufferRTV);
+	
 	// Update our projection matrix since the window size changed
-	XMMATRIX P = XMMatrixPerspectiveFovLH(
-		0.25f * 3.1415926535f,	// Field of View Angle
-		(float)width / height,	// Aspect ratio
-		0.1f,				  	// Near clip plane distance
-		100.0f);			  	// Far clip plane distance
+	//XMMATRIX P = XMMatrixPerspectiveFovLH(
+	//	0.25f * 3.1415926535f,	// Field of View Angle
+	//	(float)width / height,	// Aspect ratio
+	//	0.1f,				  	// Near clip plane distance
+	//	100.0f);			  	// Far clip plane distance
 	//XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(P)); // Transpose for HLSL!
 }
 
@@ -170,7 +178,7 @@ void KContext::Draw(float deltaTime, float totalTime)
 	
 
 	context->OMSetRenderTargets(1,&this-> backBufferRTV, depthStencilView);
-	if (m_ui) m_ui->render();
+	m_ui.render();
 	swapChain->Present(0, 0);
 }
 
