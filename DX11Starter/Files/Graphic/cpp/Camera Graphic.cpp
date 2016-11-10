@@ -45,8 +45,8 @@ Matrix Camera::getViewMatrix()
 		m_isDirty_matView = false;
 		//std::cout << "DEBUG " << m_pos.x << " " << m_pos.y << " " << m_pos.z << "\n";
 		//std::cout << "rotatedFOrward " << rotatedFOrward.x << " " << rotatedFOrward.y << " " << rotatedFOrward.z << "\n";
-		Vector3 target =  (Vector3)DirectX::XMVector3Rotate(Vector3(0,0,1), m_rotation);// , 0.0f);
-		m_matView = DirectX::XMMatrixLookToLH(m_pos, target, Vector3::Up);
+		//Vector3 target =  (Vector3)DirectX::XMVector3Rotate(Vector3(0,0,1), m_rotation);// , 0.0f);
+		m_matView = DirectX::XMMatrixLookToLH(m_pos, m_dirLook, Vector3::Up);
 	}
 	return m_matView;
 }

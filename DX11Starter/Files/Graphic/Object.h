@@ -24,6 +24,7 @@ namespace Graphic {
 			int m_id;
 			Vector3 m_scale;
 			Vector3 m_pos;
+			Vector3 m_dirLook;
 			Quaternion m_rotation;
 			Matrix m_matModel;
 			
