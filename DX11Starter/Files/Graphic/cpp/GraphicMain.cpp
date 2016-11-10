@@ -212,11 +212,13 @@ void Graphic::GraphicMain::renderPreDeffered(
 
 	DirectX::XMStoreFloat4x4(&world,		XMMatrixTranspose(scene.m_camMain.getModelMatrix())); // Transpose for HLSL!
 	DirectX::XMStoreFloat4x4(&view,			XMMatrixTranspose(scene.m_camMain.getViewMatrix())); // Transpose for HLSL!
-	DirectX::XMStoreFloat4x4(&projection,	XMMatrixTranspose(scene.m_camMain.getProjectionMatrix(.25f *3.14, m_width, m_height, 0.01f, 100.0f))); // Transpose for HLSL!
+	DirectX::XMStoreFloat4x4(&projection,	XMMatrixTranspose(scene.m_camMain.getProjectionMatrix(.25f *3.14,m_width, m_height, 0.01f, 100.0f))); // Transpose for HLSL!
 
+	context->RSSetViewports(1, &texture_diffuse.viewport);
 	context->OMSetRenderTargets(2, renderTargets, textureDepth.getDepthStencilView());
 
 	textureDepth	.clear(context);
+	
 	texture_diffuse	.ClearRenderTarget(context, 0, 0.0, 0, 1);
 	texture_normal	.ClearRenderTarget(context, 0, 0, 0, 1);
 
