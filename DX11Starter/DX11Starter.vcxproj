@@ -127,6 +127,7 @@
   <ItemGroup>
     <ClCompile Include="Files\DirectX\DXCore.cpp" />
     <ClCompile Include="Files\DirectX\KContext.cpp" />
+    <ClCompile Include="Files\Graphic\Assets.cpp" />
     <ClCompile Include="Files\Graphic\cpp\DepthTexture.cpp" />
     <ClCompile Include="Files\Graphic\Mesh.cpp" />
     <ClCompile Include="Files\Graphic\cpp\RenderTexture.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="Files\DirectX\DirectXUtility.h" />
     <ClInclude Include="Files\DirectX\DXCore.h" />
     <ClInclude Include="Files\DirectX\KContext.h" />
+    <ClInclude Include="Files\Graphic\Assets.h" />
     <ClInclude Include="Files\Graphic\DepthTexture.h" />
     <ClInclude Include="Files\Graphic\Light.h" />
     <ClInclude Include="Files\Graphic\Mesh.h" />

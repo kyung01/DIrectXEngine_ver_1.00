@@ -8,11 +8,9 @@
 #include "WorldMain.h"
 
 
-#include "imgui\DirectX\Context.h"
+#include "imgui\DirectX\KContext.h"
+#include "Graphic\Assets.h"
 #include "Graphic\GraphicMain.h"
-#include "Graphic\RenderTexture.h"
-#include "Graphic\Camera.h"
-#include "Graphic\Mesh.h"
 
 //TODO Draw triangle with different backgrounds onto three different framebuffers
 namespace NDirectX {
@@ -31,11 +29,10 @@ namespace NDirectX {
 	{
 
 	private:
+		NImGui::KContext m_ui;
 		World::WorldMain world;
 
 	public:
-		NImGui::Context *m_ui;
-		Graphic::GraphicMain m_graphicMain;
 		std::list<RenderContext> m_renderContexts;
 		Graphic::NScene::Camera testingCamera; //TODO delete this?
 		~KContext();
