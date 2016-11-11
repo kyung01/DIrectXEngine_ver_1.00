@@ -108,4 +108,10 @@ bool Asset::init(ID3D11Device * device, ID3D11DeviceContext * context)
 	samplerDescLight.MaxAnisotropy = 16;
 	samplerDescLight.MinLOD = 0;
 	samplerDescLight.MaxLOD = D3D11_FLOAT32_MAX;
+	ID3D11SamplerState * samplerDefault, *samplerBorderOne;
+	device->CreateSamplerState(&samplerDesc, &samplerDefault);
+	device->CreateSamplerState(&samplerDescLight, &samplerBorderOne);
+	m_samplers[SAMPLER_ID::SAMPLER_WRAP]		= samplerDefault;
+	m_samplers[SAMPLER_ID::SAMPLER_BORDER_ONE]	= samplerBorderOne;
+
 }

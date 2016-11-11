@@ -24,26 +24,6 @@ std::list<MeshLoadInformation> Graphic::GraphicMain::getLoadListMesh()
 
 
 
-std::list<TextureLoadInformation> Graphic::GraphicMain::getLoadListTexture()
-{
-	std::list<TextureLoadInformation> lst({
-		{ TEXTURE_ID::TEXTURE_DEFAULT,		L"Resource/Texture/textureTest00.jpg" },
-		{ TEXTURE_ID::TEXTURE_NORMAL_DEFAULT,	L"Resource/Texture/normal_default.jpg" },
-		{ TEXTURE_ID::TEXTURE_NORMAL_DIRT,		L"Resource/Texture/normal_dirt.jpg" },
-		{ TEXTURE_ID::TEXTURE_NORMAL_WOOD,		L"Resource/Texture/normal_wood.jpg" },
-		{ TEXTURE_ID::TEXTURE_NORMAL_BRICK,		L"Resource/Texture/normal_brick.jpg" },
-		{ TEXTURE_ID::TEXTURE_NORMAL_ROCK,		L"Resource/Texture/normal_rock.jpg" },//normal_couch.bmp
-		{ TEXTURE_ID::TEXTURE_NORMAL_COUCH,		L"Resource/Texture/normal_couch.bmp" },//normal_couch.bmp
-		{ TEXTURE_ID::TEXTURE_TEST_00,			L"Resource/Texture/texture_test_00.jpg" } ,
-		{ TEXTURE_ID::TEXTURE_TEST_01,			L"Resource/Texture/texture_test_01.jpg" } ,
-		{ TEXTURE_ID::TEXTURE_TEST_02,			L"Resource/Texture/texture_test_02.jpg" },
-		{ TEXTURE_ID::TEXTURE_TEST_03,			L"Resource/Texture/texture_test_03.jpg" },
-		{ TEXTURE_ID::TEXTURE_TEST_04,			L"Resource/Texture/texture_test_04.jpg" },
-		{ TEXTURE_ID::TEXTURE_TEST_05,			L"Resource/Texture/texture_test_05.jpg" },
-		{ TEXTURE_ID::TEXTURE_TEST_06,			L"Resource/Texture/texture_test_06.jpg" }
-	});
-	return lst;
-}
 
 
 
@@ -96,49 +76,11 @@ bool Graphic::GraphicMain::initTextures(ID3D11Device * device, ID3D11DeviceConte
 }
 bool GraphicMain::initShaders(ID3D11Device* device, ID3D11DeviceContext *context) {
 	auto dataMesh = getLoadListMesh();
-	auto dataTexture = getLoadListTexture();
 
 	for (auto it = dataMesh.begin(); it != dataMesh.end(); it++) {
 		auto mesh = new Mesh(device, it->path);
 		m_meshes[it->type] = std::make_unique<Mesh*>(mesh);
 	}
-	for (auto it = dataTexture.begin(); it != dataTexture.end(); it++) {
-		ID3D11ShaderResourceView *texture;
-		//DirectX::CreateWICTextureFromFileEx(device,)
-		
-		DirectX::CreateWICTextureFromFile(device, context,it->path, 0, &texture);
-		m_textures[it->id] = texture;
-	}
-
-	D3D11_SAMPLER_DESC samplerDesc = {};
-	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC; // Could be anisotropic
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.MaxAnisotropy = 16;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	D3D11_SAMPLER_DESC samplerDescLight = {};
-	samplerDescLight.Filter = D3D11_FILTER_ANISOTROPIC;
-	//samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDescLight.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	samplerDescLight.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	samplerDescLight.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	samplerDescLight.BorderColor[0] = 1.0f;
-	samplerDescLight.BorderColor[1] = 1.0f;
-	samplerDescLight.BorderColor[2] = 1.0f;
-	samplerDescLight.BorderColor[3] = 1.0f;
-	samplerDescLight.MaxAnisotropy = 16;
-	samplerDescLight.MinLOD = 0;
-	samplerDescLight.MaxLOD = D3D11_FLOAT32_MAX;
-
-
-	//samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	// Ask the device to create a state
-	device->CreateSamplerState(&samplerDesc, &m_samplerDefault);
-	device->CreateSamplerState(&samplerDescLight, &m_samplerLight);
 
 	return true;
 
@@ -170,7 +112,8 @@ float temp_angle = 0;
 void Graphic::GraphicMain::renderPreDeffered(
 	ID3D11DeviceContext * context, NScene::Scene& scene,
 	SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
-	RenderTexture& texture_diffuse, RenderTexture& texture_normal, DepthTexture& textureDepth)
+	RenderTexture& texture_diffuse, RenderTexture& texture_normal, DepthTexture& textureDepth,
+	std::map<TEXTURE_ID,ID3D11ShaderResourceView*> *textures, ID3D11SamplerState * sampler)
 {
 	ID3D11RenderTargetView *renderTargets[]{
 		texture_diffuse.getRenderTargetView(),
@@ -196,7 +139,7 @@ void Graphic::GraphicMain::renderPreDeffered(
 	shader_vert.SetMatrix4x4("world", world);
 	shader_vert.SetMatrix4x4("view", view);
 	shader_vert.SetMatrix4x4("projection", projection);
-	shader_frag.SetSamplerState("sampler_default", m_samplerDefault);
+	shader_frag.SetSamplerState("sampler_default", sampler);
 
 	shader_vert.CopyAllBufferData();
 	shader_frag.CopyAllBufferData();
@@ -211,10 +154,10 @@ void Graphic::GraphicMain::renderPreDeffered(
 		DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose((*it)->getModelMatrix())); // Transpose for HLSL!
 
 		shader_vert.SetMatrix4x4("world", world);
-		shader_frag.SetShaderResourceView("texture_diffuse", m_textures[(*it)->m_textures[TEXTURE_TYPE::TEXTURE_DIFFUSE]]);
-		shader_frag.SetShaderResourceView("texture_normal", m_textures[(*it)->m_textures[TEXTURE_TYPE::TEXTURE_NORMAL]]);
-		shader_frag.SetShaderResourceView("texture_specular", m_textures[(*it)->m_textures[TEXTURE_TYPE::TEXTURE_SPECULAR]]);
-		shader_frag.SetShaderResourceView("texture_displacement", m_textures[(*it)->m_textures[TEXTURE_TYPE::TEXTURE_DISPLACEMENT]]);
+		shader_frag.SetShaderResourceView("texture_diffuse",		(*textures)[(*it)->m_textures[TEXTURE_TYPE::TEXTURE_DIFFUSE]]);
+		shader_frag.SetShaderResourceView("texture_normal",			(*textures)[(*it)->m_textures[TEXTURE_TYPE::TEXTURE_NORMAL]]);
+		shader_frag.SetShaderResourceView("texture_specular",		(*textures)[(*it)->m_textures[TEXTURE_TYPE::TEXTURE_SPECULAR]]);
+		shader_frag.SetShaderResourceView("texture_displacement",	(*textures)[(*it)->m_textures[TEXTURE_TYPE::TEXTURE_DISPLACEMENT]]);
 		shader_vert.CopyAllBufferData();
 		shader_frag.CopyAllBufferData();
 
@@ -238,7 +181,9 @@ void Graphic::GraphicMain::renderLights(
 	ID3D11Device * device, ID3D11DeviceContext * context,
 	NScene::Scene &scene, SimpleVertexShader & shaderVertDepthOnly, 
 	SimpleVertexShader & shaderVert, SimpleFragmentShader & shaderFrag, RenderTexture& target, DepthTexture& targetDepth,
-	RenderTexture & textureDiffuse, RenderTexture & textureNormal, DepthTexture & textureDepth)
+	RenderTexture & textureDiffuse, RenderTexture & textureNormal, DepthTexture & textureDepth,
+	std::map<TEXTURE_ID, ID3D11ShaderResourceView*> *textures, 
+	ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth)
 {
 	int count = 0;
 	DirectX::XMFLOAT4X4 world, view, projection;
@@ -361,8 +306,8 @@ void Graphic::GraphicMain::renderLights(
 			std::cout << "FAIL";
 			//textureLightDepth
 		}
-		shaderFrag.SetSamplerState("samplerDefault", m_samplerDefault);
-		shaderFrag.SetSamplerState("samplerLight", m_samplerLight);
+		shaderFrag.SetSamplerState("samplerDefault", samplerDefault);
+		shaderFrag.SetSamplerState("samplerLight", samplerLightDepth);
 
 
 
@@ -406,16 +351,19 @@ void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *co
 	
 	renderPreDeffered(context, scene,
 		*asset->m_shadersVert[RENDER_TYPE::DEFFERED], *asset->m_shadersFrag[RENDER_TYPE::DEFFERED],
-		*m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL],*m_depthTextures[RENDER_TYPE::DEFFERED]
+		*m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL],*m_depthTextures[RENDER_TYPE::DEFFERED],
+		&asset->m_textures,
+		asset->m_samplers[SAMPLER_ID::SAMPLER_WRAP]
 
 		);
 	renderLights(device,context, 
 		scene,
 		*asset->m_shadersVert[RENDER_TYPE::DEPTH],
 		*asset->m_shadersVert[RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT], *asset->m_shadersFrag[RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT],
-
 		*m_renderTextures[RENDER_TYPE::DEFFERED_FINAL],* m_depthTextures[RENDER_TYPE::DEFFERED_FINAL],
-		*m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL], *m_depthTextures[RENDER_TYPE::DEFFERED]
+		*m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL], *m_depthTextures[RENDER_TYPE::DEFFERED],
+		&asset->m_textures,
+		asset->m_samplers[SAMPLER_ID::SAMPLER_WRAP], asset->m_samplers[SAMPLER_ID::SAMPLER_BORDER_ONE]
 		);
 	/*
 	*/

@@ -138,44 +138,26 @@ void Scene::loadExample00()
 		obj->m_ObjectType = NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL;
 		obj->setPos(Vector3(0, 2.0f, 0.5));
 		obj->setRotation(Quaternion());
-		dynamic_cast<Light*>(obj.get())->m_lightColor = Vector4(1, 0.0, 0.0, 15);
+		dynamic_cast<Light*>(obj.get())->m_lightColor = Vector4(1, 0.0, 0.0, 5);
 		this->objects.push_back(obj);
 	}
 	{
 		auto obj = std::shared_ptr<Object>(new Light());
 		obj->m_ObjectType = NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL;
-		obj->setPos(Vector3(1, 2.0f, 0.5));
+		obj->setPos(Vector3(1, 3.0f, 0.5));
 		obj->setRotation(Quaternion());
-		dynamic_cast<Light*>(obj.get())->m_lightColor = Vector4(0, 1.0, 0.0, 15);
+		dynamic_cast<Light*>(obj.get())->m_lightColor = Vector4(0, 1.0, 0.0, 5);
 		this->objects.push_back(obj);
 	}
 	{
 		auto obj = std::shared_ptr<Object>(new Light());
 		obj->m_ObjectType = NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL;
-		obj->setPos(Vector3(4, 2.0f, 0.5));
+		obj->setPos(Vector3(4, 3.0f, 0.5));
 		obj->setRotation(Quaternion());
-		dynamic_cast<Light*>(obj.get())->m_lightColor = Vector4(0, 0.0, 1.0, 15);
+		dynamic_cast<Light*>(obj.get())->m_lightColor = Vector4(0, 0.0, 1.0, 5);
 		this->objects.push_back(obj);
 	}
 
-	{
-		//auto obj = std::shared_ptr<Object>(new Light());
-		//obj->m_ObjectType = NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL;
-		//obj->setPos(Vector3(.5, 1.5f, 0));
-		//obj->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0, 0, 1), 3.14 / 180 * 45));
-		//dynamic_cast<Light*>(obj.get())->m_lightColor = Vector4(0, 1, 0, 15);
-		//this->objects.push_back(obj);
-	}
-	/*
-	{
-		auto obj = std::shared_ptr<Object>(new Light());
-		obj->m_ObjectType = NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL;
-		obj->setPos(Vector3(1.5, 0, 4));
-		obj->setRotation(Quaternion());
-		dynamic_cast<Light*>(obj.get())->m_lightColor = Vector4(0, 1, 0, 1);
-		this->objects.push_back(obj);
-	}
-	*/
 
 	
 	this->m_camMain.setPos(Vector3(0, 0, 0));

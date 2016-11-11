@@ -206,6 +206,9 @@
     <ClInclude Include="Files\Graphic\Asset\MeshID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Files\Graphic\Asset\SamplerID.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

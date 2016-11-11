@@ -43,20 +43,24 @@ namespace Graphic {
 		void processObject(NScene::Object obj);
 
 		std::list<MeshLoadInformation>		getLoadListMesh();
-		std::list<TextureLoadInformation>	getLoadListTexture();
 
 		bool initTextures		(ID3D11Device* device, ID3D11DeviceContext *context, int width, int height);
 		bool initShaders		(ID3D11Device* device, ID3D11DeviceContext *context);
 		
 		void renderPreDeffered(	ID3D11DeviceContext* context, NScene::Scene &scene, 
 								SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
-								RenderTexture& texture_diffuse, RenderTexture& texture_normal, DepthTexture& textureDepth
+								RenderTexture& texture_diffuse, RenderTexture& texture_normal, DepthTexture& textureDepth,
+								std::map<TEXTURE_ID, ID3D11ShaderResourceView*> *textures,
+								ID3D11SamplerState * sampler
+				
 			);
 		void renderLights(ID3D11Device* device,	ID3D11DeviceContext* context,
 						NScene::Scene &scene,
 						SimpleVertexShader& shaderVertDepthOnly,
 						SimpleVertexShader& shaderVert, SimpleFragmentShader& shaderFrag, RenderTexture& target, DepthTexture& targetDepth,
-						RenderTexture& textureDiffuse, RenderTexture& textureNormal, DepthTexture& textureDepth
+						RenderTexture& textureDiffuse, RenderTexture& textureNormal, DepthTexture& textureDepth,
+						std::map<TEXTURE_ID, ID3D11ShaderResourceView*> *textures,
+						ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth
 			);
 		
 	protected:
@@ -70,13 +74,11 @@ namespace Graphic {
 		int m_width, m_height;
 		Graphic::Mesh * mesh00;
 
-		std::map<TEXTURE_ID, ID3D11ShaderResourceView*> m_textures;
 
 		std::map<RENDER_TYPE, std::shared_ptr<RenderTexture>>	m_renderTextures;
 		std::map<RENDER_TYPE, std::shared_ptr<DepthTexture>>	m_depthTextures;
 		std::map<int, DepthTexture*> m_lightDepthTextures;
 		std::map<MESH_ID, std::unique_ptr<Mesh*>> m_meshes;
-		ID3D11SamplerState *m_samplerDefault,*m_samplerLight;
 
 		std::map<int, Shader*> shaders;
 		// Width and hieght is for the resolution in wihich this graphic main will adjust to render things onto
