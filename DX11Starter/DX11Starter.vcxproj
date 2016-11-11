@@ -127,9 +127,9 @@
   <ItemGroup>
     <ClCompile Include="Files\DirectX\DXCore.cpp" />
     <ClCompile Include="Files\DirectX\KContext.cpp" />
-    <ClCompile Include="Files\Graphic\Assets.cpp" />
+    <ClCompile Include="Files\Graphic\cpp\Asset.cpp" />
     <ClCompile Include="Files\Graphic\cpp\DepthTexture.cpp" />
-    <ClCompile Include="Files\Graphic\Mesh.cpp" />
+    <ClCompile Include="Files\Graphic\cpp\Mesh.cpp" />
     <ClCompile Include="Files\Graphic\cpp\RenderTexture.cpp" />
     <ClCompile Include="Files\Graphic\cpp\Scene Graphic.cpp" />
     <ClCompile Include="Files\imgui\cpp\Context_imgui.cpp" />
@@ -171,16 +171,15 @@
     <ClInclude Include="Files\DirectX\DirectXUtility.h" />
     <ClInclude Include="Files\DirectX\DXCore.h" />
     <ClInclude Include="Files\DirectX\KContext.h" />
-    <ClInclude Include="Files\Graphic\Assets.h" />
+    <ClInclude Include="Files\Graphic\Asset\Asset.h" />
     <ClInclude Include="Files\Graphic\DepthTexture.h" />
     <ClInclude Include="Files\Graphic\Light.h" />
-    <ClInclude Include="Files\Graphic\Mesh.h" />
-    <ClInclude Include="Files\Graphic\MeshID.h" />
+    <ClInclude Include="Files\Graphic\Asset\Mesh.h" />
+    <ClInclude Include="Files\Graphic\Asset\MeshID.h" />
     <ClInclude Include="Files\Graphic\ObjectType.h" />
     <ClInclude Include="Files\Graphic\RenderType.h" />
-    <ClInclude Include="Files\Graphic\ShaderInformation.h" />
-    <ClInclude Include="Files\Graphic\ShaderType.h" />
-    <ClInclude Include="Files\Graphic\TextureID.h" />
+    <ClInclude Include="Files\Graphic\Asset\ShaderType.h" />
+    <ClInclude Include="Files\Graphic\Asset\TextureID.h" />
     <ClInclude Include="Files\Graphic\TextureType.h" />
     <ClInclude Include="Files\imgui\DirectX\Context.h" />
     <ClInclude Include="Files\imgui\DirectX\imgui_impl_dx11.h" />
@@ -194,7 +193,7 @@
     <ClInclude Include="Files\imgui\stb_truetype.h" />
     <ClInclude Include="Files\Graphic\Camera.h" />
     <ClInclude Include="Files\Graphic\GraphicMain.h" />
-    <ClInclude Include="Files\Graphic\Model.h" />
+    <ClInclude Include="Files\Graphic\Asset\Model.h" />
     <ClInclude Include="Files\Graphic\Object.h" />
     <ClInclude Include="Files\Graphic\Scene.h" />
     <ClInclude Include="Files\Graphic\Shader.h" />

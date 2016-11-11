@@ -5,10 +5,10 @@
 #include <d3d11.h>
 #include <SimpleMath.h>
 #include "ObjectType.h"
-#include "MeshID.h"
-#include "TextureID.h"
-#include "TextureType.h"
-#include "RenderType.h"
+#include <Graphic\TextureType.h>
+#include <Graphic\RenderType.h>
+#include <Graphic\Asset\TextureID.h>
+#include <Graphic\Asset\MeshID.h>
 //#include "glm\glm.hpp"
 //#include "Shader.h"
 using namespace DirectX::SimpleMath;

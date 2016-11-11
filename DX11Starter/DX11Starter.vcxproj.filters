@@ -45,9 +45,6 @@
     <ClCompile Include="Files\DirectX\KContext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Files\Graphic\Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Files\Graphic\cpp\RenderTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -84,7 +81,10 @@
     <ClCompile Include="Files\Graphic\cpp\DepthTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Files\Graphic\Assets.cpp">
+    <ClCompile Include="Files\Graphic\cpp\Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Files\Graphic\cpp\Asset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -143,9 +143,6 @@
     <ClInclude Include="Files\Graphic\GraphicMain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Files\Graphic\Model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Files\Graphic\Object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -153,12 +150,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Files\Graphic\Shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Files\Graphic\ShaderInformation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Files\Graphic\ShaderType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Files\Graphic\SimpleShader.h">
@@ -185,15 +176,6 @@
     <ClInclude Include="Files\Graphic\RenderType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Files\Graphic\Mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Files\Graphic\MeshID.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Files\Graphic\TextureID.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Files\Graphic\TextureType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -206,7 +188,22 @@
     <ClInclude Include="Files\Graphic\Light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Files\Graphic\Assets.h">
+    <ClInclude Include="Files\Graphic\Asset\Asset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Files\Graphic\Asset\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Files\Graphic\Asset\Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Files\Graphic\Asset\ShaderType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Files\Graphic\Asset\TextureID.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Files\Graphic\Asset\MeshID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

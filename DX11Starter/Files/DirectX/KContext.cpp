@@ -68,7 +68,7 @@ void KContext::Init()
 	}
 	m_ui.init(hInstance, hWnd, device, context, swapChain, backBufferRTV);
 	m_ui.m_uiMain.init(&m_renderContexts.begin()->main);//TODO delete this line
-
+	m_asset.init(device, context);
 	world.objs.push_back(World::Object());
 	world.objs.push_back(World::Object());
 	world.objs.push_back(World::Object());
@@ -127,6 +127,11 @@ void KContext::Update(float deltaTime, float totalTime)
 	int count = 0;
 	
 	XMVECTOR dir;
+	if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
+		std::cout << "Quit\n";
+		Quit();
+		/* Do something useful */
+	}
 	if (GetAsyncKeyState('W') & 0x8000) {
 		testingCamera.setPos(testingCamera.m_pos + (Vector3)(Vector3(0, 0, 1* dis_camerMove)* testingCamera.m_rotation));
 		/* Do something useful */
@@ -152,9 +157,7 @@ void KContext::Update(float deltaTime, float totalTime)
 // --------------------------------------------------------
 void KContext::Draw(float deltaTime, float totalTime)
 {
-	for (auto it = m_renderContexts.begin(); it != m_renderContexts.end(); it++) {
-		it->main.render(this->device, this->context, it->scene);
-	}
+	
 	// Background color (Cornflower Blue in this case) for clearing
 	const float color[4] = {0.4f, 0.6f, 0.75f, 0.0f};
 
@@ -176,7 +179,9 @@ void KContext::Draw(float deltaTime, float totalTime)
 	DirectX::XMFLOAT4X4 worldMatrix_temp;
 	int count = 0;
 	
-
+	for (auto it = m_renderContexts.begin(); it != m_renderContexts.end(); it++) {
+		it->main.render(this->device, this->context,&m_asset, it->scene);
+	}
 	context->OMSetRenderTargets(1,&this-> backBufferRTV, depthStencilView);
 	m_ui.render();
 	swapChain->Present(0, 0);

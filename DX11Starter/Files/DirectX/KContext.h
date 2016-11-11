@@ -9,8 +9,8 @@
 
 
 #include "imgui\DirectX\KContext.h"
-#include "Graphic\Assets.h"
-#include "Graphic\GraphicMain.h"
+#include <Graphic\GraphicMain.h>
+#include <Graphic\Asset\Asset.h>
 
 //TODO Draw triangle with different backgrounds onto three different framebuffers
 namespace NDirectX {
@@ -31,6 +31,7 @@ namespace NDirectX {
 	private:
 		NImGui::KContext m_ui;
 		World::WorldMain world;
+		Graphic::Asset m_asset;
 
 	public:
 		std::list<RenderContext> m_renderContexts;

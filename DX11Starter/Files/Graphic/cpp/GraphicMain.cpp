@@ -22,27 +22,7 @@ std::list<MeshLoadInformation> Graphic::GraphicMain::getLoadListMesh()
 	return lst;
 }
 
-std::list<ShaderLoadInformation> Graphic::GraphicMain::getLoadListShaderFrag()
-{
-	std::list<ShaderLoadInformation> lst({
-		{ RENDER_TYPE::DEFAULT,			L"Resource/Shader/default_frag.hlsl" },
-		{ RENDER_TYPE::DEFFERED,		L"Resource/Shader/deffered_frag.hlsl" },
-		{ RENDER_TYPE::DEPTH,			L"Resource/Shader/depth_frag.hlsl" },
-		{ RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT,		L"Resource/Shader/deffered_light_spot_frag.hlsl" }
-	});
-	return lst;
-}
 
-std::list<ShaderLoadInformation> Graphic::GraphicMain::getLoadListShaderVert()
-{
-	std::list<ShaderLoadInformation> lst({	
-		{RENDER_TYPE::DEFAULT,			L"Resource/Shader/default_vert.hlsl" },
-		{RENDER_TYPE::DEFFERED,			L"Resource/Shader/deffered_vert.hlsl" },
-		{RENDER_TYPE::DEPTH,			L"Resource/Shader/depth_vert.hlsl" },
-		{ RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT,		L"Resource/Shader/deffered_light_spot_vert.hlsl" }
-	});
-	return lst;
-}
 
 std::list<TextureLoadInformation> Graphic::GraphicMain::getLoadListTexture()
 {
@@ -115,19 +95,9 @@ bool Graphic::GraphicMain::initTextures(ID3D11Device * device, ID3D11DeviceConte
 	return true;
 }
 bool GraphicMain::initShaders(ID3D11Device* device, ID3D11DeviceContext *context) {
-	auto dataVert = getLoadListShaderVert();
-	auto dataFrag = getLoadListShaderFrag();
 	auto dataMesh = getLoadListMesh();
 	auto dataTexture = getLoadListTexture();
 
-	for (auto it = dataFrag.begin(); it != dataFrag.end(); it++) {
-		m_shadersFrag[it->type] = std::shared_ptr<SimpleFragmentShader>(new Graphic::SimpleFragmentShader(device, context));
-		if (!m_shadersFrag[it->type]->LoadShaderFileHLSL(it->path, "ps_5_0")) return false;
-	}
-	for (auto it = dataVert.begin(); it != dataVert.end(); it++) {
-		m_shadersVert[it->type] = std::shared_ptr<SimpleVertexShader>(new Graphic::SimpleVertexShader(device, context));
-		if(!m_shadersVert[it->type]->LoadShaderFileHLSL(it->path, "vs_5_0")) return false;
-	}
 	for (auto it = dataMesh.begin(); it != dataMesh.end(); it++) {
 		auto mesh = new Mesh(device, it->path);
 		m_meshes[it->type] = std::make_unique<Mesh*>(mesh);
@@ -198,7 +168,7 @@ bool Graphic::GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *conte
 }
 float temp_angle = 0;
 void Graphic::GraphicMain::renderPreDeffered(
-	ID3D11DeviceContext * context, NScene::Scene& scene, 
+	ID3D11DeviceContext * context, NScene::Scene& scene,
 	SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
 	RenderTexture& texture_diffuse, RenderTexture& texture_normal, DepthTexture& textureDepth)
 {
@@ -258,8 +228,14 @@ void Graphic::GraphicMain::renderPreDeffered(
 			0,     // Offset to the first index we want to use
 			0);    // Offset to add to each index when looking up vertices
 	}
+
+	shader_frag.SetShaderResourceView("texture_diffuse", 0);
+	shader_frag.SetShaderResourceView("texture_normal",0);
+	shader_frag.SetShaderResourceView("texture_specular", 0);
+	shader_frag.SetShaderResourceView("texture_displacement",0);
 }
-void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceContext * context,
+void Graphic::GraphicMain::renderLights(
+	ID3D11Device * device, ID3D11DeviceContext * context,
 	NScene::Scene &scene, SimpleVertexShader & shaderVertDepthOnly, 
 	SimpleVertexShader & shaderVert, SimpleFragmentShader & shaderFrag, RenderTexture& target, DepthTexture& targetDepth,
 	RenderTexture & textureDiffuse, RenderTexture & textureNormal, DepthTexture & textureDepth)
@@ -285,8 +261,8 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 			float xAxisRotation = 3.14/180 *30.0f;
 			lightCamera->setPos(Vector3(cos(progress) * 5, 1, 1));
 			lightCamera->setRotation(Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), progress * .010));
-			Vector3 target = (Vector3)DirectX::XMVector3Rotate(Vector3(0, 0, 1), lightCamera->m_rotation);
-			std::cout << target.x<<"," << target.y << "," << target.z << "\n";
+			//Vector3 target = (Vector3)DirectX::XMVector3Rotate(Vector3(0, 0, 1), lightCamera->m_rotation);
+			//std::cout << target.x<<"," << target.y << "," << target.z << "\n";
 		}
 		else if(count==1){
 			lightCamera->setPos(Vector3(lightCamera->m_pos.x, lightCamera->m_pos.y, cos(progress*0.1) ) );
@@ -347,7 +323,6 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 				0,     // Offset to the first index we want to use
 				0);    // Offset to add to each index when looking up vertices
 		}
-
 		//orthogonal display here
 		target.SetRenderTarget(context, targetDepth.getDepthStencilView());
 		targetDepth.clear(context);
@@ -361,6 +336,7 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 		shaderVert.SetMatrix4x4("matViewProjection", projection);
 		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(sceneReverseProjectionView)); // Transpose for HLSL!
 		shaderFrag.SetMatrix4x4("matProjViewInverse", projection);
+		//ok so far
 		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(lightViewProjection)); // Transpose for HLSL!
 		if (!shaderFrag.SetMatrix4x4("matLightViewProj", projection)) {
 			std::cout << "ERER";
@@ -371,13 +347,13 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 		DirectX::XMStoreFloat4(&storeVector4, lightCamera->m_lightColor);
 		shaderFrag.SetFloat3("lightPos", it->get()->m_pos);
 		if (!shaderFrag.SetFloat3("lightDir", it->get()->m_dirLook)  ){
-			std::cout << "lightDir FAIL FAIL FAIL";
+			//std::cout << "lightDir FAIL FAIL FAIL";
 		}
-		else std::cout << "succeess " << it->get()->m_dirLook.x  << " " << it->get()->m_dirLook.y << " " << it->get()->m_dirLook.z<<"\n";
+		//else std::cout << "succeess " << it->get()->m_dirLook.x  << " " << it->get()->m_dirLook.y << " " << it->get()->m_dirLook.z<<"\n";
 		shaderFrag.SetFloat4("lightColor", storeVector4);//	t()->m_pos * Vector3(0, 0, 1));
 
 		//matProjInverse
-		
+
 		shaderFrag.SetShaderResourceView("textureDiffuse", textureDiffuse.GetShaderResourceView());
 		shaderFrag.SetShaderResourceView("textureNormal", textureNormal.GetShaderResourceView());
 		shaderFrag.SetShaderResourceView("textureDepth", textureDepth.getShaderResourceView());
@@ -406,11 +382,15 @@ void Graphic::GraphicMain::renderLights(ID3D11Device * device, ID3D11DeviceConte
 				0,     // Offset to the first index we want to use
 				0);    // Offset to add to each index when looking up vertices
 		}
+
+		shaderFrag.SetShaderResourceView("textureDiffuse", 0);
+		shaderFrag.SetShaderResourceView("textureNormal", 0);
+		shaderFrag.SetShaderResourceView("textureDepth", 0);
 	}
 
 	context->OMSetBlendState(0, 0, 0xffffffff);//::NoBlack, blendFactor, 0xffffffff);
 }
-void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *context, NScene::Scene scene)
+void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *context, Asset* asset, NScene::Scene scene)
 {
 	temp_angle += .051f;
 	UINT viewportNum = 1;
@@ -425,13 +405,14 @@ void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *co
 	//renderPreDeffered(context, scene);
 	
 	renderPreDeffered(context, scene,
-		*m_shadersVert[RENDER_TYPE::DEFFERED], *m_shadersFrag[RENDER_TYPE::DEFFERED],
+		*asset->m_shadersVert[RENDER_TYPE::DEFFERED], *asset->m_shadersFrag[RENDER_TYPE::DEFFERED],
 		*m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL],*m_depthTextures[RENDER_TYPE::DEFFERED]
 
 		);
-	renderLights(device,context, scene,
-		*m_shadersVert[RENDER_TYPE::DEPTH],
-		*m_shadersVert[RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT], *m_shadersFrag[RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT],
+	renderLights(device,context, 
+		scene,
+		*asset->m_shadersVert[RENDER_TYPE::DEPTH],
+		*asset->m_shadersVert[RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT], *asset->m_shadersFrag[RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT],
 
 		*m_renderTextures[RENDER_TYPE::DEFFERED_FINAL],* m_depthTextures[RENDER_TYPE::DEFFERED_FINAL],
 		*m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL], *m_depthTextures[RENDER_TYPE::DEFFERED]

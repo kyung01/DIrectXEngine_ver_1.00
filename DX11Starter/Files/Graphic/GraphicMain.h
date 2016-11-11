@@ -5,13 +5,10 @@
 #include "Shader.h"
 #include "Camera.h"
 
-#include "ShaderInformation.h"
-#include "TextureID.h"
 #include "RenderType.h"
 #include "SimpleShader.h"
 #include "RenderTexture.h"
 #include "DepthTexture.h"
-#include "MeshID.h"
 #include "Graphic\Light.h"
 #include <list>
 #include <map>
@@ -20,10 +17,12 @@
 
 #include <SimpleMath.h>
 #include <WICTextureLoader.h>
+#include <Graphic\Asset\Asset.h>
+#include <Graphic\Asset\Mesh.h>// TODO delete this
+#include <Graphic\Asset\MeshID.h>
+#include <Graphic\Asset\TextureId.h>
 
 
-
-#include "Graphic/Mesh.h" // TODO delete this
 
 namespace Graphic {
 	//TODO hlsl files are stroed in debug folder once they are built with extention .cso You need grasp them
@@ -31,10 +30,6 @@ namespace Graphic {
 	struct MeshLoadInformation {
 		MESH_ID type;
 		char* path;
-	};
-	struct ShaderLoadInformation {
-		RENDER_TYPE type;
-		LPCWSTR path;
 	};
 	struct TextureLoadInformation {
 		TEXTURE_ID id;
@@ -48,18 +43,17 @@ namespace Graphic {
 		void processObject(NScene::Object obj);
 
 		std::list<MeshLoadInformation>		getLoadListMesh();
-		std::list<ShaderLoadInformation>	getLoadListShaderVert();
-		std::list<ShaderLoadInformation>	getLoadListShaderFrag();
 		std::list<TextureLoadInformation>	getLoadListTexture();
 
 		bool initTextures		(ID3D11Device* device, ID3D11DeviceContext *context, int width, int height);
 		bool initShaders		(ID3D11Device* device, ID3D11DeviceContext *context);
 		
-		void renderPreDeffered(	ID3D11DeviceContext* context, NScene::Scene &scene,
+		void renderPreDeffered(	ID3D11DeviceContext* context, NScene::Scene &scene, 
 								SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
 								RenderTexture& texture_diffuse, RenderTexture& texture_normal, DepthTexture& textureDepth
 			);
-		void renderLights(ID3D11Device* device,	ID3D11DeviceContext* context, NScene::Scene &scene,
+		void renderLights(ID3D11Device* device,	ID3D11DeviceContext* context,
+						NScene::Scene &scene,
 						SimpleVertexShader& shaderVertDepthOnly,
 						SimpleVertexShader& shaderVert, SimpleFragmentShader& shaderFrag, RenderTexture& target, DepthTexture& targetDepth,
 						RenderTexture& textureDiffuse, RenderTexture& textureNormal, DepthTexture& textureDepth
@@ -81,16 +75,13 @@ namespace Graphic {
 		std::map<RENDER_TYPE, std::shared_ptr<RenderTexture>>	m_renderTextures;
 		std::map<RENDER_TYPE, std::shared_ptr<DepthTexture>>	m_depthTextures;
 		std::map<int, DepthTexture*> m_lightDepthTextures;
-		std::map<RENDER_TYPE, std::shared_ptr<SimpleFragmentShader>> m_shadersFrag;
-		std::map<RENDER_TYPE, std::shared_ptr<SimpleVertexShader>> m_shadersVert;
 		std::map<MESH_ID, std::unique_ptr<Mesh*>> m_meshes;
 		ID3D11SamplerState *m_samplerDefault,*m_samplerLight;
 
-		std::map<int, Model*> models;
 		std::map<int, Shader*> shaders;
 		// Width and hieght is for the resolution in wihich this graphic main will adjust to render things onto
 		GraphicMain();
 		bool init(ID3D11Device *device, ID3D11DeviceContext *context, int width, int height);
-		void render(ID3D11Device * device , ID3D11DeviceContext* context, NScene::Scene scene);
+		void render(ID3D11Device * device , ID3D11DeviceContext* context,  Asset* asset, NScene::Scene scene);
 	};
 }
