@@ -157,6 +157,18 @@ void Scene::loadExample00()
 		dynamic_cast<Light*>(obj.get())->m_lightColor = Vector4(0, 0.0, 1.0, 5);
 		this->objects.push_back(obj);
 	}
+	{
+		auto obj = std::shared_ptr<Object>(new Object());
+		obj->m_ObjectType = NScene::OBJECT_TYPE::UI;
+		obj->m_meshType = MESH_ID::PLANE;
+		obj->m_textures[TEXTURE_TYPE::TEXTURE_TYPE_DEFAULT] = TEXTURE_ID::ICN_LIGHT;
+		obj->m_textures[TEXTURE_TYPE::TEXTURE_DIFFUSE] = diffuseTextures[(count * 77) % 5];
+		obj->m_textures[TEXTURE_TYPE::TEXTURE_NORMAL] = TEXTURE_NORMAL_WOOD;
+		obj->setPos(Vector3(3.0, 1, 5));
+		obj->setScale(Vector3(2, 2, 2));
+		obj->setRotation(Quaternion());
+		this->objects.push_back(obj);
+	}
 
 
 	

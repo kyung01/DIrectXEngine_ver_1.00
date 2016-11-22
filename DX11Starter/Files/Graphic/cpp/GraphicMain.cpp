@@ -177,6 +177,54 @@ void Graphic::GraphicMain::renderPreDeffered(
 	shader_frag.SetShaderResourceView("texture_specular", 0);
 	shader_frag.SetShaderResourceView("texture_displacement",0);
 }
+void Graphic::GraphicMain::renderUI(
+	ID3D11DeviceContext * context, NScene::Scene & scene, 
+	SimpleVertexShader & shader_vert, SimpleFragmentShader & shader_frag, 
+	RenderTexture & texture_final, DepthTexture& textureDepth,
+	std::map<TEXTURE_ID, ID3D11ShaderResourceView*>* textures, ID3D11SamplerState * sampler)
+{
+	DirectX::XMFLOAT4X4 world, view, projection;
+
+	DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose(scene.m_camMain.getModelMatrix())); // Transpose for HLSL!
+	DirectX::XMStoreFloat4x4(&view, XMMatrixTranspose(scene.m_camMain.getViewMatrix())); // Transpose for HLSL!
+	DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(scene.m_camMain.getProjectionMatrix(.25f *3.14, m_width, m_height, 0.01f, 100.0f))); // Transpose for HLSL!
+	
+	texture_final.SetRenderTarget(context, textureDepth.getDepthStencilView());
+	//texture_final.ClearRenderTarget(context,0,0,1,1);
+	//textureDepth.clear(context);
+
+	shader_vert.SetMatrix4x4("world", world);
+	shader_vert.SetMatrix4x4("view", view);
+	shader_vert.SetMatrix4x4("projection", projection);
+	shader_frag.SetSamplerState("sampler_default", sampler);
+
+	shader_vert.CopyAllBufferData();
+	shader_frag.CopyAllBufferData();
+	shader_vert.SetShader();
+	shader_frag.SetShader();
+	int count = 0;
+	for (auto it = scene.objects.begin(); it != scene.objects.end(); it++) {
+		if ((*it)->m_ObjectType != NScene::OBJECT_TYPE::UI)
+			continue;
+		auto mesh = *m_meshes[(*it)->m_meshType];
+		DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose((*it)->getModelMatrix())); // Transpose for HLSL!
+
+		shader_vert.SetMatrix4x4("world", world);
+		shader_frag.SetShaderResourceView("texture00", (*textures)[(*it)->m_textures[TEXTURE_TYPE::TEXTURE_TYPE_DEFAULT]]);
+		shader_vert.CopyAllBufferData();
+		shader_frag.CopyAllBufferData();
+
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+		context->IASetVertexBuffers(0, 1, &mesh->getBufferVertexRef(), &stride, &offset);
+		context->IASetIndexBuffer(mesh->getBufferIndex(), DXGI_FORMAT_R32_UINT, 0);
+
+		context->DrawIndexed(
+			mesh->getBufferIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
+			0,     // Offset to the first index we want to use
+			0);    // Offset to add to each index when looking up vertices
+	}
+}
 void Graphic::GraphicMain::renderLights(
 	ID3D11Device * device, ID3D11DeviceContext * context,
 	NScene::Scene &scene, SimpleVertexShader & shaderVertDepthOnly, 
@@ -354,7 +402,6 @@ void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *co
 		*m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL],*m_depthTextures[RENDER_TYPE::DEFFERED],
 		&asset->m_textures,
 		asset->m_samplers[SAMPLER_ID::SAMPLER_WRAP]
-
 		);
 	renderLights(device,context, 
 		scene,
@@ -365,6 +412,12 @@ void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *co
 		&asset->m_textures,
 		asset->m_samplers[SAMPLER_ID::SAMPLER_WRAP], asset->m_samplers[SAMPLER_ID::SAMPLER_BORDER_ONE]
 		);
+	renderUI(context, scene,
+		*asset->m_shadersVert[RENDER_TYPE::RENDER_TYPE_UI], *asset->m_shadersFrag[RENDER_TYPE::RENDER_TYPE_UI],
+		*m_renderTextures[RENDER_TYPE::DEFFERED_FINAL], *m_depthTextures[RENDER_TYPE::DEFFERED],
+		&asset->m_textures,
+		asset->m_samplers[SAMPLER_ID::SAMPLER_WRAP]
+	);
 	/*
 	*/
 	

@@ -132,26 +132,22 @@ void KContext::Update(float deltaTime, float totalTime)
 		Quit();
 		/* Do something useful */
 	}
-	if (GetAsyncKeyState('W') & 0x8000) {
-		testingCamera.setPos(testingCamera.m_pos + (Vector3)(Vector3(0, 0, 1* dis_camerMove)* testingCamera.m_rotation));
-		/* Do something useful */
-	}
-
-	if (GetAsyncKeyState('S') & 0x8000) {
-		testingCamera.setPos(testingCamera.m_pos + (Vector3)(Vector3(0, 0, -1 * dis_camerMove)* testingCamera.m_rotation));
-		/* Do something useful */
-	}
-
-	if (GetAsyncKeyState('A') & 0x8000) {
-		testingCamera.setPos(testingCamera.m_pos + (Vector3)(Vector3(-1 * dis_camerMove, 0, 0 )* testingCamera.m_rotation));
-		/* Do something useful */
-	}
-
-	if (GetAsyncKeyState('D') & 0x8000) {
-		testingCamera.setPos(testingCamera.m_pos + (Vector3)(Vector3(1* dis_camerMove, 0, 0 )* testingCamera.m_rotation));
-		/* Do something useful */
+	auto &cam = m_renderContexts.begin()->scene.m_camMain;
+	auto forwardModified = cam.m_dirLook;
+	forwardModified.y = 0;
+	forwardModified.Normalize();
+	auto vecLeft = forwardModified.Cross(Vector3(0, 1, 0));
+	vecLeft.Normalize();
+	std::map < char, Vector3 > keys = { { 'W', cam.m_dirLook } ,{ 'S', -cam.m_dirLook },{ 'A', vecLeft },{ 'D',-vecLeft } };
+	for each(auto k in keys) {
+		if (GetAsyncKeyState(k.first) & 0x8000) {
+			auto result = k.second * dis_camerMove;
+			cam.setPos(cam.m_pos + result);
+			/* Do something useful */
+		}
 	}
 }
+
 // --------------------------------------------------------
 // Clear the screen, redraw everything, present to the user
 // --------------------------------------------------------
@@ -216,16 +212,24 @@ void KContext::OnMouseUp(WPARAM buttonState, int x, int y)
 	ReleaseCapture();
 }
 
-// --------------------------------------------------------
-// Helper method for mouse movement.  We only get this message
-// if the mouse is currently over the window, or if we're 
-// currently capturing the mouse.
-// --------------------------------------------------------
+
+int mouseMoveXY[2] = {-1,-1};
 void KContext::OnMouseMove(WPARAM buttonState, int x, int y)
 {
-	// Add any custom code here...
-
-
+	bool isContinue = true;
+	auto &cam = m_renderContexts.begin()->scene.m_camMain;
+	int xDis = x - mouseMoveXY[0];
+	int yDis = y - mouseMoveXY[1];
+	if (mouseMoveXY[0] == -1) {
+		isContinue = false;
+	}
+	mouseMoveXY[0] = x;
+	mouseMoveXY[1] = y;
+	if (!isContinue)return;
+	cam.setRotation(cam.m_rotation * Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), xDis*0.01)
+		* Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), yDis*0.01));
+	//cam.setRotation(cam.m_rotation * Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), yDis*0.01));
+	std::cout << x<<"\n";
 }
 
 // --------------------------------------------------------

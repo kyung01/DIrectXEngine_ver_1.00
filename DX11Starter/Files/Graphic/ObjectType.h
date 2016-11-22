@@ -16,6 +16,7 @@ namespace Graphic {
 	namespace NScene {
 		enum OBJECT_TYPE {
 			SOLID,
+			UI,
 			LIGHT_DIRECTIONAL
 		};
 	}

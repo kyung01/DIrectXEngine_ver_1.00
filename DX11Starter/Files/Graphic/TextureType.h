@@ -1,6 +1,7 @@
 #pragma once
 namespace Graphic {
 	enum TEXTURE_TYPE {
+		TEXTURE_TYPE_DEFAULT,
 		TEXTURE_DIFFUSE,
 		TEXTURE_NORMAL,
 		TEXTURE_DISPLACEMENT,

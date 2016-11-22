@@ -21,7 +21,8 @@ std::list<LoadInfoShader> Asset::getLoadListShaderVert()
 		{ RENDER_TYPE::DEFAULT,			L"Resource/Shader/default_vert.hlsl" },
 		{ RENDER_TYPE::DEFFERED,			L"Resource/Shader/deffered_vert.hlsl" },
 		{ RENDER_TYPE::DEPTH,			L"Resource/Shader/depth_vert.hlsl" },
-		{ RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT,		L"Resource/Shader/deffered_light_spot_vert.hlsl" }
+		{ RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT,		L"Resource/Shader/deffered_light_spot_vert.hlsl" },
+		{ RENDER_TYPE::RENDER_TYPE_UI,		L"Resource/Shader/simple_texture_vert.hlsl" }
 	});
 	return lst;
 }
@@ -32,7 +33,8 @@ std::list<LoadInfoShader> Asset::getLoadListShaderFrag()
 		{ RENDER_TYPE::DEFAULT,			L"Resource/Shader/default_frag.hlsl" },
 		{ RENDER_TYPE::DEFFERED,		L"Resource/Shader/deffered_frag.hlsl" },
 		{ RENDER_TYPE::DEPTH,			L"Resource/Shader/depth_frag.hlsl" },
-		{ RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT,		L"Resource/Shader/deffered_light_spot_frag.hlsl" }
+		{ RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT,		L"Resource/Shader/deffered_light_spot_frag.hlsl" },
+		{ RENDER_TYPE::RENDER_TYPE_UI,		L"Resource/Shader/simple_texture_frag.hlsl" }
 	});
 	return lst;
 }
@@ -53,7 +55,8 @@ std::list<LoadInfoTexture> Asset::getLoadListTexture()
 		{ TEXTURE_ID::TEXTURE_TEST_03,			L"Resource/Texture/texture_test_03.jpg" },
 		{ TEXTURE_ID::TEXTURE_TEST_04,			L"Resource/Texture/texture_test_04.jpg" },
 		{ TEXTURE_ID::TEXTURE_TEST_05,			L"Resource/Texture/texture_test_05.jpg" },
-		{ TEXTURE_ID::TEXTURE_TEST_06,			L"Resource/Texture/texture_test_06.jpg" }
+		{ TEXTURE_ID::TEXTURE_TEST_06,			L"Resource/Texture/texture_test_06.jpg" },
+		{ TEXTURE_ID::ICN_LIGHT,		L"Resource/Texture/icn_light.png" }
 	});
 	return lst;
 }

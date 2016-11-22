@@ -54,6 +54,12 @@ namespace Graphic {
 								ID3D11SamplerState * sampler
 				
 			);
+		void renderUI(
+			ID3D11DeviceContext* context, NScene::Scene &scene,
+			SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
+			RenderTexture& texture_final, DepthTexture& textureDepth,
+			std::map<TEXTURE_ID, ID3D11ShaderResourceView*> *textures,
+			ID3D11SamplerState * sampler);
 		void renderLights(ID3D11Device* device,	ID3D11DeviceContext* context,
 						NScene::Scene &scene,
 						SimpleVertexShader& shaderVertDepthOnly,
