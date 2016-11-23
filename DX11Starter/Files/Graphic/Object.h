@@ -18,7 +18,7 @@ namespace Graphic {
 		class Object {
 		private:
 			static int OBJECT_UNIQUE_ID;
-			bool m_isDirty;
+			bool m_isAlive, m_isDirty;
 		protected:
 		public:
 			int m_id;

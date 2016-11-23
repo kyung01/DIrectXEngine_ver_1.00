@@ -209,6 +209,12 @@
     <ClInclude Include="Files\Graphic\Asset\SamplerID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Files\Game\Entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Files\Graphic\GraphicEnum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -171,9 +171,11 @@
     <ClInclude Include="Files\DirectX\DirectXUtility.h" />
     <ClInclude Include="Files\DirectX\DXCore.h" />
     <ClInclude Include="Files\DirectX\KContext.h" />
+    <ClInclude Include="Files\Game\Entity.h" />
     <ClInclude Include="Files\Graphic\Asset\Asset.h" />
     <ClInclude Include="Files\Graphic\Asset\SamplerID.h" />
     <ClInclude Include="Files\Graphic\DepthTexture.h" />
+    <ClInclude Include="Files\Graphic\GraphicEnum.h" />
     <ClInclude Include="Files\Graphic\Light.h" />
     <ClInclude Include="Files\Graphic\Asset\Mesh.h" />
     <ClInclude Include="Files\Graphic\Asset\MeshID.h" />

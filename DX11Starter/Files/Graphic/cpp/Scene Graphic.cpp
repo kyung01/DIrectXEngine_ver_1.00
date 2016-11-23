@@ -10,6 +10,10 @@ Graphic::NScene::Scene::Scene(float x, float y, float z):size(x,y,z)
 {
 }
 
+void Graphic::NScene::Scene::addObject(std::shared_ptr<Object> obj)
+{
+}
+
 void Scene::loadExample00()
 {
 	int contentSize = 4;

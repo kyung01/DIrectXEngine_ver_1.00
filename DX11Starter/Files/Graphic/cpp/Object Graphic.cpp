@@ -2,6 +2,7 @@
 using namespace Graphic::NScene;
 int Graphic::NScene::Object::OBJECT_UNIQUE_ID = 0;
 Object::Object() :
+	m_isAlive(true),
 	m_id(OBJECT_UNIQUE_ID++),
 	m_ObjectType(SOLID),
 	m_meshType(MESH_ID::CUBE),

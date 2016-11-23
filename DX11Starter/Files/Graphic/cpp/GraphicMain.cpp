@@ -79,7 +79,7 @@ bool GraphicMain::initShaders(ID3D11Device* device, ID3D11DeviceContext *context
 
 	for (auto it = dataMesh.begin(); it != dataMesh.end(); it++) {
 		auto mesh = new Mesh(device, it->path);
-		m_meshes[it->type] = std::make_unique<Mesh*>(mesh);
+		m_meshes[it->id] = std::make_unique<Mesh*>(mesh);
 	}
 
 	return true;

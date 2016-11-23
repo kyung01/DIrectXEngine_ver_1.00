@@ -28,7 +28,7 @@ namespace Graphic {
 	//TODO hlsl files are stroed in debug folder once they are built with extention .cso You need grasp them
 	
 	struct MeshLoadInformation {
-		MESH_ID type;
+		MESH_ID id;
 		char* path;
 	};
 	struct TextureLoadInformation {
