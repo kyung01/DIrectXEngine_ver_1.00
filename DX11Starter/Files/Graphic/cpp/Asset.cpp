@@ -4,13 +4,13 @@ using namespace Graphic;
 std::list<LoadInfoMesh> Asset::getLoadListMesh()
 {
 	std::list<LoadInfoMesh> lst({
-		{ MESH_ID::CONE, "Resource/Mesh/cone.obj" },
-		{ MESH_ID::CUBE, "Resource/Mesh/cube.obj" },
-		{ MESH_ID::CYLINDER, "Resource/Mesh/cylinder.obj" },
-		{ MESH_ID::HELIX, "Resource/Mesh/helix.obj" },
-		{ MESH_ID::SPHERE, "Resource/Mesh/sphere.obj" },
-		{ MESH_ID::TORUS, "Resource/Mesh/torus.obj" },
-		{ MESH_ID::PLANE, "Resource/Mesh/plane.obj" }
+		{ GEnum::MESH_ID_CONE, "Resource/Mesh/cone.obj" },
+		{ GEnum::MESH_ID_CUBE, "Resource/Mesh/cube.obj" },
+		{ GEnum::MESH_ID_CYLINDER, "Resource/Mesh/cylinder.obj" },
+		{ GEnum::MESH_ID_HELIX, "Resource/Mesh/helix.obj" },
+		{ GEnum::MESH_ID_SPHERE, "Resource/Mesh/sphere.obj" },
+		{ GEnum::MESH_ID_TORUS, "Resource/Mesh/torus.obj" },
+		{ GEnum::MESH_ID_PLANE, "Resource/Mesh/plane.obj" }
 	});
 	return lst;
 }
@@ -78,7 +78,7 @@ bool Asset::init(ID3D11Device * device, ID3D11DeviceContext * context)
 	}
 	for (auto it = dataMesh.begin(); it != dataMesh.end(); it++) {
 		auto mesh = new Mesh(device, it->path);
-		m_meshes[it->type] = std::make_unique<Mesh*>(mesh);
+		m_meshes[it->id] = std::make_unique<Mesh*>(mesh);
 	}
 	for (auto it = dataTexture.begin(); it != dataTexture.end(); it++) {
 		ID3D11ShaderResourceView *texture;

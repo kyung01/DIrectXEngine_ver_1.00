@@ -11,22 +11,16 @@ void Graphic::GraphicMain::processObject(NScene::Object obj) {
 std::list<MeshLoadInformation> Graphic::GraphicMain::getLoadListMesh()
 {
 	std::list<MeshLoadInformation> lst({
-		{ MESH_ID::CONE, "Resource/Mesh/cone.obj" },
-		{ MESH_ID::CUBE, "Resource/Mesh/cube.obj" },
-		{ MESH_ID::CYLINDER, "Resource/Mesh/cylinder.obj" },
-		{ MESH_ID::HELIX, "Resource/Mesh/helix.obj" },
-		{ MESH_ID::SPHERE, "Resource/Mesh/sphere.obj" },
-		{ MESH_ID::TORUS, "Resource/Mesh/torus.obj" },
-		{ MESH_ID::PLANE, "Resource/Mesh/plane.obj" }
+		{ GEnum::MESH_ID_CONE, "Resource/Mesh/cone.obj" },
+		{ GEnum::MESH_ID_CUBE, "Resource/Mesh/cube.obj" },
+		{ GEnum::MESH_ID_CYLINDER, "Resource/Mesh/cylinder.obj" },
+		{ GEnum::MESH_ID_HELIX, "Resource/Mesh/helix.obj" },
+		{ GEnum::MESH_ID_SPHERE, "Resource/Mesh/sphere.obj" },
+		{ GEnum::MESH_ID_TORUS, "Resource/Mesh/torus.obj" },
+		{ GEnum::MESH_ID_PLANE, "Resource/Mesh/plane.obj" }
 	});
 	return lst;
 }
-
-
-
-
-
-
 
 void Graphic::GraphicMain::processCamera(Graphic::NScene::Camera cam)
 {
@@ -150,7 +144,7 @@ void Graphic::GraphicMain::renderPreDeffered(
 	for (auto it = scene.objects.begin(); it != scene.objects.end(); it++, count++) {
 		if ((*it)->m_ObjectType != NScene::OBJECT_TYPE::SOLID)
 			continue;
-		auto mesh = *m_meshes[(*it)->m_meshType];
+		auto mesh = *m_meshes[(*it)->m_meshId];
 		DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose((*it)->getModelMatrix())); // Transpose for HLSL!
 
 		shader_vert.SetMatrix4x4("world", world);
@@ -206,7 +200,7 @@ void Graphic::GraphicMain::renderUI(
 	for (auto it = scene.objects.begin(); it != scene.objects.end(); it++) {
 		if ((*it)->m_ObjectType != NScene::OBJECT_TYPE::UI)
 			continue;
-		auto mesh = *m_meshes[(*it)->m_meshType];
+		auto mesh = *m_meshes[(*it)->m_meshId];
 		DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose((*it)->getModelMatrix())); // Transpose for HLSL!
 
 		shader_vert.SetMatrix4x4("world", world);
@@ -301,7 +295,7 @@ void Graphic::GraphicMain::renderLights(
 
 		for (auto obj = scene.objects.begin(); obj != scene.objects.end(); obj++) {
 			if ((*obj)->m_ObjectType != NScene::OBJECT_TYPE::SOLID) continue;
-			auto mesh = *m_meshes[(*obj)->m_meshType];
+			auto mesh = *m_meshes[(*obj)->m_meshId];
 			DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose((*obj)->getModelMatrix())); // Transpose for HLSL!
 
 			shaderVertDepthOnly.SetMatrix4x4("world", world);
@@ -365,7 +359,7 @@ void Graphic::GraphicMain::renderLights(
 		shaderFrag.CopyAllBufferData();
 
 		{
-			auto mesh = *m_meshes[MESH_ID::PLANE];
+			auto mesh = *m_meshes[GEnum::MESH_ID_PLANE];
 			UINT stride = sizeof(Vertex);
 			UINT offset = 0;
 			context->IASetVertexBuffers(0, 1, &mesh->getBufferVertexRef(), &stride, &offset);
