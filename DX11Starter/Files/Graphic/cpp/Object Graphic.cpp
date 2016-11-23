@@ -5,7 +5,7 @@ Object::Object() :
 	m_isAlive(true),
 	m_id(OBJECT_UNIQUE_ID++),
 	m_ObjectType(SOLID),
-	m_meshId(GEnum::MESH_ID_CUBE),
+	m_meshId(KEnum::MESH_ID_CUBE),
 	m_renderType(RENDER_TYPE::DEFAULT),
 	m_isDirty(true),
 	m_scale(1,1,1),

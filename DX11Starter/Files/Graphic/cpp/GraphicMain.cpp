@@ -11,13 +11,13 @@ void Graphic::GraphicMain::processObject(NScene::Object obj) {
 std::list<MeshLoadInformation> Graphic::GraphicMain::getLoadListMesh()
 {
 	std::list<MeshLoadInformation> lst({
-		{ GEnum::MESH_ID_CONE, "Resource/Mesh/cone.obj" },
-		{ GEnum::MESH_ID_CUBE, "Resource/Mesh/cube.obj" },
-		{ GEnum::MESH_ID_CYLINDER, "Resource/Mesh/cylinder.obj" },
-		{ GEnum::MESH_ID_HELIX, "Resource/Mesh/helix.obj" },
-		{ GEnum::MESH_ID_SPHERE, "Resource/Mesh/sphere.obj" },
-		{ GEnum::MESH_ID_TORUS, "Resource/Mesh/torus.obj" },
-		{ GEnum::MESH_ID_PLANE, "Resource/Mesh/plane.obj" }
+		{ KEnum::MESH_ID_CONE, "Resource/Mesh/cone.obj" },
+		{ KEnum::MESH_ID_CUBE, "Resource/Mesh/cube.obj" },
+		{ KEnum::MESH_ID_CYLINDER, "Resource/Mesh/cylinder.obj" },
+		{ KEnum::MESH_ID_HELIX, "Resource/Mesh/helix.obj" },
+		{ KEnum::MESH_ID_SPHERE, "Resource/Mesh/sphere.obj" },
+		{ KEnum::MESH_ID_TORUS, "Resource/Mesh/torus.obj" },
+		{ KEnum::MESH_ID_PLANE, "Resource/Mesh/plane.obj" }
 	});
 	return lst;
 }
@@ -234,7 +234,7 @@ void Graphic::GraphicMain::renderLights(
 	auto matScreenOrtho = DirectX::XMMatrixOrthographicLH(1, 1, 0.0, 100);
 	target.ClearRenderTarget(context, 0, 0, 0, 1);
 	for (auto it = scene.objects.begin(); it != scene.objects.end(); it++) {
-		if ((*it)->m_ObjectType != NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL)
+		if ((*it)->m_ObjectType != NScene::OBJECT_TYPE::LIGHT)
 			continue;
 		auto &p = **it;
 		auto lightCamera = dynamic_cast<NScene::Light*>(&(p));
@@ -359,7 +359,7 @@ void Graphic::GraphicMain::renderLights(
 		shaderFrag.CopyAllBufferData();
 
 		{
-			auto mesh = *m_meshes[GEnum::MESH_ID_PLANE];
+			auto mesh = *m_meshes[KEnum::MESH_ID_PLANE];
 			UINT stride = sizeof(Vertex);
 			UINT offset = 0;
 			context->IASetVertexBuffers(0, 1, &mesh->getBufferVertexRef(), &stride, &offset);

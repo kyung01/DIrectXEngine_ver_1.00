@@ -1,6 +1,9 @@
 #pragma once
 namespace Graphic {
-	enum GEnum {
+	enum KEnum {
+		OBJ_TYPE_SOLID,
+		OBJ_TYPE_UI,
+		OBJ_TYPE_LIGHT,
 		MESH_ID_CONE,
 		MESH_ID_CYLINDER,
 		MESH_ID_CUBE,

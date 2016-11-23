@@ -20,7 +20,7 @@
 #include <Graphic\Asset\Asset.h>
 #include <Graphic\Asset\Mesh.h>// TODO delete this
 #include <Graphic\Asset\TextureId.h>
-#include <Graphic\GraphicEnum.h>
+#include <Graphic\Enum.h>
 
 
 
@@ -28,7 +28,7 @@ namespace Graphic {
 	//TODO hlsl files are stroed in debug folder once they are built with extention .cso You need grasp them
 	
 	struct MeshLoadInformation {
-		GEnum id;
+		KEnum id;
 		char* path;
 	};
 	struct TextureLoadInformation {
@@ -84,7 +84,7 @@ namespace Graphic {
 		std::map<RENDER_TYPE, std::shared_ptr<RenderTexture>>	m_renderTextures;
 		std::map<RENDER_TYPE, std::shared_ptr<DepthTexture>>	m_depthTextures;
 		std::map<int, DepthTexture*> m_lightDepthTextures;
-		std::map<GEnum, std::unique_ptr<Mesh*>> m_meshes;
+		std::map<KEnum, std::unique_ptr<Mesh*>> m_meshes;
 
 		std::map<int, Shader*> shaders;
 		// Width and hieght is for the resolution in wihich this graphic main will adjust to render things onto

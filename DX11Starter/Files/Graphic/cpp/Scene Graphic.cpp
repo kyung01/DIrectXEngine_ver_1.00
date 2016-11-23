@@ -39,7 +39,7 @@ void Scene::loadExample00()
 		continue;
 		count++;
 		auto obj = std::shared_ptr<Object>(new Object());
-		obj->m_meshId = GEnum::MESH_ID_PLANE;//(MESH_ID)(count % 6);//MESH_ID::PLANE
+		obj->m_meshId = KEnum::MESH_ID_PLANE;//(MESH_ID)(count % 6);//MESH_ID::PLANE
 		//obj->m_meshType = MESH_ID::PLANE;
 		obj->m_ObjectType = NScene::OBJECT_TYPE::SOLID;
 		obj->setPos(Vector3(i, j, k) * 2);
@@ -53,7 +53,7 @@ void Scene::loadExample00()
 	for (int i = 0; i < 2; i++)  {
 		continue;
 		auto obj = std::shared_ptr<Object>(new Light());
-		obj->m_ObjectType = NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL;
+		obj->m_ObjectType = NScene::OBJECT_TYPE::LIGHT;
 		obj->setPos(lightPositions[i]);
 		obj->setRotation(Quaternion(lightRotation[i]));
 		dynamic_cast<Light*>(obj.get())->m_lightColor = lightColors[i];
@@ -64,7 +64,7 @@ void Scene::loadExample00()
 	{
 		//ground
 		auto obj = std::shared_ptr<Object>(new Object());
-		obj->m_meshId = GEnum::MESH_ID_CUBE;
+		obj->m_meshId = KEnum::MESH_ID_CUBE;
 		obj->m_ObjectType = NScene::OBJECT_TYPE::SOLID;
 		obj->setPos(Vector3(0, -1, 0));
 		obj->setScale(Vector3(20, 1, 20));
@@ -75,7 +75,7 @@ void Scene::loadExample00()
 	{
 		//ground
 		auto obj = std::shared_ptr<Object>(new Object());
-		obj->m_meshId = GEnum::MESH_ID_CUBE;
+		obj->m_meshId = KEnum::MESH_ID_CUBE;
 		obj->m_ObjectType = NScene::OBJECT_TYPE::SOLID;
 		obj->setPos(Vector3(0, 0, 7.5));
 		obj->setScale(Vector3(20, 20, 1));
@@ -86,7 +86,7 @@ void Scene::loadExample00()
 
 	{
 		auto obj = std::shared_ptr<Object>(new Object());
-		obj->m_meshId = GEnum::MESH_ID_SPHERE;
+		obj->m_meshId = KEnum::MESH_ID_SPHERE;
 		obj->m_ObjectType = NScene::OBJECT_TYPE::SOLID;
 		obj->setPos(Vector3(0, 0, 5));
 		obj->setScale(Vector3(1, 1, 1));
@@ -98,7 +98,7 @@ void Scene::loadExample00()
 
 	{
 		auto obj = std::shared_ptr<Object>(new Object());
-		obj->m_meshId = GEnum::MESH_ID_HELIX;
+		obj->m_meshId = KEnum::MESH_ID_HELIX;
 		obj->m_ObjectType = NScene::OBJECT_TYPE::SOLID;
 		obj->setPos(Vector3(1.5, 1, 5));
 		obj->setScale(Vector3(1, 1, 1));
@@ -108,7 +108,7 @@ void Scene::loadExample00()
 	}
 	{
 		auto obj = std::shared_ptr<Object>(new Object());
-		obj->m_meshId = GEnum::MESH_ID_HELIX;
+		obj->m_meshId = KEnum::MESH_ID_HELIX;
 		obj->m_ObjectType = NScene::OBJECT_TYPE::SOLID;
 		obj->setPos(Vector3(-1.5, 1, 5));
 		obj->setScale(Vector3(1, 1, 1));
@@ -118,7 +118,7 @@ void Scene::loadExample00()
 	}
 	{
 		auto obj = std::shared_ptr<Object>(new Object());
-		obj->m_meshId = GEnum::MESH_ID_CYLINDER;
+		obj->m_meshId = KEnum::MESH_ID_CYLINDER;
 		obj->m_ObjectType = NScene::OBJECT_TYPE::SOLID;
 		obj->setPos(Vector3(3.0, 1, 5));
 		obj->setScale(Vector3(1, 1, 1));
@@ -128,7 +128,7 @@ void Scene::loadExample00()
 	}
 	{
 		auto obj = std::shared_ptr<Object>(new Object());
-		obj->m_meshId = GEnum::MESH_ID_TORUS;
+		obj->m_meshId = KEnum::MESH_ID_TORUS;
 		obj->m_ObjectType = NScene::OBJECT_TYPE::SOLID;
 		obj->setPos(Vector3(4.5, 1, 5));
 		obj->setScale(Vector3(1, 1, 1));
@@ -139,7 +139,7 @@ void Scene::loadExample00()
 
 	{
 		auto obj = std::shared_ptr<Object>(new Light());
-		obj->m_ObjectType = NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL;
+		obj->m_ObjectType = NScene::OBJECT_TYPE::LIGHT;
 		obj->setPos(Vector3(0, 2.0f, 0.5));
 		obj->setRotation(Quaternion());
 		dynamic_cast<Light*>(obj.get())->m_lightColor = Vector4(1, 0.0, 0.0, 5);
@@ -147,7 +147,7 @@ void Scene::loadExample00()
 	}
 	{
 		auto obj = std::shared_ptr<Object>(new Light());
-		obj->m_ObjectType = NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL;
+		obj->m_ObjectType = NScene::OBJECT_TYPE::LIGHT;
 		obj->setPos(Vector3(1, 3.0f, 0.5));
 		obj->setRotation(Quaternion());
 		dynamic_cast<Light*>(obj.get())->m_lightColor = Vector4(0, 1.0, 0.0, 5);
@@ -155,7 +155,7 @@ void Scene::loadExample00()
 	}
 	{
 		auto obj = std::shared_ptr<Object>(new Light());
-		obj->m_ObjectType = NScene::OBJECT_TYPE::LIGHT_DIRECTIONAL;
+		obj->m_ObjectType = NScene::OBJECT_TYPE::LIGHT;
 		obj->setPos(Vector3(4, 3.0f, 0.5));
 		obj->setRotation(Quaternion());
 		dynamic_cast<Light*>(obj.get())->m_lightColor = Vector4(0, 0.0, 1.0, 5);
@@ -164,7 +164,7 @@ void Scene::loadExample00()
 	{
 		auto obj = std::shared_ptr<Object>(new Object());
 		obj->m_ObjectType = NScene::OBJECT_TYPE::UI;
-		obj->m_meshId = GEnum::MESH_ID_PLANE;
+		obj->m_meshId = KEnum::MESH_ID_PLANE;
 		obj->m_textures[TEXTURE_TYPE::TEXTURE_TYPE_DEFAULT] = TEXTURE_ID::ICN_LIGHT;
 		obj->m_textures[TEXTURE_TYPE::TEXTURE_DIFFUSE] = diffuseTextures[(count * 77) % 5];
 		obj->m_textures[TEXTURE_TYPE::TEXTURE_NORMAL] = TEXTURE_NORMAL_WOOD;

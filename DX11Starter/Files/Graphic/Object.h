@@ -8,7 +8,7 @@
 #include <Graphic\TextureType.h>
 #include <Graphic\RenderType.h>
 #include <Graphic\Asset\TextureID.h>
-#include <Graphic\GraphicEnum.h>
+#include <Graphic\Enum.h>
 //#include "glm\glm.hpp"
 //#include "Shader.h"
 using namespace DirectX::SimpleMath;
@@ -31,7 +31,7 @@ namespace Graphic {
 			//Information required for rendering process
 			OBJECT_TYPE				m_ObjectType;
 			RENDER_TYPE				m_renderType;
-			GEnum					m_meshId;
+			KEnum					m_meshId;
 			std::map<TEXTURE_TYPE, TEXTURE_ID> m_textures;
 
 			Object();

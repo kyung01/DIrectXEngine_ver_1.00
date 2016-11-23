@@ -4,13 +4,13 @@ using namespace Graphic;
 std::list<LoadInfoMesh> Asset::getLoadListMesh()
 {
 	std::list<LoadInfoMesh> lst({
-		{ GEnum::MESH_ID_CONE, "Resource/Mesh/cone.obj" },
-		{ GEnum::MESH_ID_CUBE, "Resource/Mesh/cube.obj" },
-		{ GEnum::MESH_ID_CYLINDER, "Resource/Mesh/cylinder.obj" },
-		{ GEnum::MESH_ID_HELIX, "Resource/Mesh/helix.obj" },
-		{ GEnum::MESH_ID_SPHERE, "Resource/Mesh/sphere.obj" },
-		{ GEnum::MESH_ID_TORUS, "Resource/Mesh/torus.obj" },
-		{ GEnum::MESH_ID_PLANE, "Resource/Mesh/plane.obj" }
+		{ KEnum::MESH_ID_CONE, "Resource/Mesh/cone.obj" },
+		{ KEnum::MESH_ID_CUBE, "Resource/Mesh/cube.obj" },
+		{ KEnum::MESH_ID_CYLINDER, "Resource/Mesh/cylinder.obj" },
+		{ KEnum::MESH_ID_HELIX, "Resource/Mesh/helix.obj" },
+		{ KEnum::MESH_ID_SPHERE, "Resource/Mesh/sphere.obj" },
+		{ KEnum::MESH_ID_TORUS, "Resource/Mesh/torus.obj" },
+		{ KEnum::MESH_ID_PLANE, "Resource/Mesh/plane.obj" }
 	});
 	return lst;
 }

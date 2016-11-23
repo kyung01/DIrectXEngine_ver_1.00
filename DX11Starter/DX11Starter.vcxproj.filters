@@ -209,7 +209,7 @@
     <ClInclude Include="Files\Game\Entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Files\Graphic\GraphicEnum.h">
+    <ClInclude Include="Files\Graphic\Enum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

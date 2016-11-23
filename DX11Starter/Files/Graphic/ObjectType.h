@@ -17,7 +17,7 @@ namespace Graphic {
 		enum OBJECT_TYPE {
 			SOLID,
 			UI,
-			LIGHT_DIRECTIONAL
+			LIGHT
 		};
 	}
 }

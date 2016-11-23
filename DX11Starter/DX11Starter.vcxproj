@@ -175,7 +175,7 @@
     <ClInclude Include="Files\Graphic\Asset\Asset.h" />
     <ClInclude Include="Files\Graphic\Asset\SamplerID.h" />
     <ClInclude Include="Files\Graphic\DepthTexture.h" />
-    <ClInclude Include="Files\Graphic\GraphicEnum.h" />
+    <ClInclude Include="Files\Graphic\Enum.h" />
     <ClInclude Include="Files\Graphic\Light.h" />
     <ClInclude Include="Files\Graphic\Asset\Mesh.h" />
     <ClInclude Include="Files\Graphic\ObjectType.h" />
