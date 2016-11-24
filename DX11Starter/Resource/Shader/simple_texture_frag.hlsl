@@ -15,5 +15,5 @@ struct VertexToPixel
 // Entry point for this pixel shader
 float4 main(VertexToPixel input) : SV_TARGET
 {
-	return float4(1,1,1,1);
+	return texture00.Sample(sampler_default, input.uv);
 }

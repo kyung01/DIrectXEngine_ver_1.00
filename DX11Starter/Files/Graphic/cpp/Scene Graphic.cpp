@@ -168,7 +168,7 @@ void Scene::loadExample00()
 		obj->m_textures[TEXTURE_TYPE_DEFAULT] = TEXTURE_ID_ICN_LIGHT;
 		obj->m_textures[TEXTURE_TYPE_DIFFUSE] = diffuseTextures[(count * 77) % 5];
 		obj->m_textures[TEXTURE_TYPE_NORMAL] = TEXTURE_ID_NORMAL_WOOD;
-		obj->setPos(Vector3(3.0, 1, 5));
+		obj->setPos(Vector3(3.0, 1, 3.5));
 		obj->setScale(Vector3(2, 2, 2));
 		obj->setRotation(Quaternion());
 		this->objects.push_back(obj);

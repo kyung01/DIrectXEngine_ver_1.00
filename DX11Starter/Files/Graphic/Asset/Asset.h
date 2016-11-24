@@ -4,7 +4,6 @@
 #include <list>
 #include <map>
 #include <memory>
-#include <Graphic\Asset\SamplerID.h>
 #include <Graphic\Asset\Mesh.h>
 #include <Graphic\SimpleShader.h>
 #include <Graphic\Enum.h>
@@ -36,7 +35,7 @@ namespace Graphic {
 		std::map<KEnum, std::shared_ptr<SimpleVertexShader>> m_shadersVert;
 		std::map<KEnum, std::unique_ptr<Mesh*>> m_meshes;
 		std::map<KEnum, ID3D11ShaderResourceView*> m_textures;
-		std::map<SAMPLER_ID, ID3D11SamplerState*> m_samplers;
+		std::map<KEnum, ID3D11SamplerState*> m_samplers; //sampler ID
 		bool init(ID3D11Device* device, ID3D11DeviceContext *context);
 
 	};

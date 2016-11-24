@@ -89,7 +89,7 @@ bool Graphic::GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *conte
 		!initTextures(device,context,width,height)
 		
 		) return false;
-	D3D11_BLEND_DESC noBlack = { };
+	D3D11_BLEND_DESC noBlack = {};
 	noBlack.RenderTarget[0].BlendEnable = true;
 	noBlack.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
 	noBlack.RenderTarget[0].DestBlend = D3D11_BLEND_DEST_ALPHA;
@@ -99,6 +99,17 @@ bool Graphic::GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *conte
 	noBlack.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	noBlack.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	device->CreateBlendState(&noBlack, &m_blendStateNoBlack);
+
+	D3D11_BLEND_DESC transparent = {};
+	transparent.RenderTarget[0].BlendEnable = true;
+	transparent.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	transparent.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	transparent.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	transparent.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;//D3D11_BLEND_ZERO
+	transparent.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;//D3D11_BLEND_ZERO
+	transparent.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	transparent.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	device->CreateBlendState(&transparent, &m_blendStateTransparent);
 	return true;
 }
 float temp_angle = 0;
@@ -170,12 +181,14 @@ void Graphic::GraphicMain::renderPreDeffered(
 	shader_frag.SetShaderResourceView("texture_specular", 0);
 	shader_frag.SetShaderResourceView("texture_displacement",0);
 }
+
 void Graphic::GraphicMain::renderUI(
 	ID3D11DeviceContext * context, NScene::Scene & scene, 
 	SimpleVertexShader & shader_vert, SimpleFragmentShader & shader_frag, 
 	RenderTexture & texture_final, DepthTexture& textureDepth,
 	std::map<KEnum, ID3D11ShaderResourceView*>* textures, ID3D11SamplerState * sampler)
 {
+	context->OMSetBlendState(m_blendStateTransparent, 0, 0xffffffff);
 	DirectX::XMFLOAT4X4 world, view, projection;
 
 	DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose(scene.m_camMain.getModelMatrix())); // Transpose for HLSL!
@@ -217,6 +230,8 @@ void Graphic::GraphicMain::renderUI(
 			0,     // Offset to the first index we want to use
 			0);    // Offset to add to each index when looking up vertices
 	}
+
+	context->OMSetBlendState(0, 0, 0xffffffff);//::NoBlack, blendFactor, 0xffffffff);
 }
 void Graphic::GraphicMain::renderLights(
 	ID3D11Device * device, ID3D11DeviceContext * context,
@@ -394,7 +409,7 @@ void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *co
 		*asset->m_shadersVert[RENDER_TYPE_DEFFERED], *asset->m_shadersFrag[RENDER_TYPE_DEFFERED],
 		*m_renderTextures[RENDER_TYPE_DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL],*m_depthTextures[RENDER_TYPE_DEFFERED],
 		&asset->m_textures,
-		asset->m_samplers[SAMPLER_ID::SAMPLER_WRAP]
+		asset->m_samplers[SAMPLER_ID_WRAP]
 		);
 	renderLights(device,context, 
 		scene,
@@ -403,13 +418,13 @@ void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *co
 		*m_renderTextures[RENDER_TYPE_DEFFERED_FINAL],* m_depthTextures[RENDER_TYPE_DEFFERED_FINAL],
 		*m_renderTextures[RENDER_TYPE_DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL], *m_depthTextures[RENDER_TYPE_DEFFERED],
 		&asset->m_textures,
-		asset->m_samplers[SAMPLER_ID::SAMPLER_WRAP], asset->m_samplers[SAMPLER_ID::SAMPLER_BORDER_ONE]
+		asset->m_samplers[SAMPLER_ID_WRAP], asset->m_samplers[SAMPLER_ID_BORDER_ONE]
 		);
 	renderUI(context, scene,
 		*asset->m_shadersVert[RENDER_TYPE_UI], *asset->m_shadersFrag[RENDER_TYPE_UI],
 		*m_renderTextures[RENDER_TYPE_DEFFERED_FINAL], *m_depthTextures[RENDER_TYPE_DEFFERED],
 		&asset->m_textures,
-		asset->m_samplers[SAMPLER_ID::SAMPLER_WRAP]
+		asset->m_samplers[SAMPLER_ID_WRAP]
 	);
 	/*
 	*/

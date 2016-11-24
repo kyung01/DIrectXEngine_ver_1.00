@@ -68,7 +68,9 @@ namespace Graphic {
 			);
 		
 	protected:
-		ID3D11BlendState *m_blendStateNoBlack;
+		ID3D11BlendState 
+			*m_blendStateNoBlack,
+			*m_blendStateTransparent;
 		//glm::mat4 matProjection, matView, matModel;
 		void processCamera(Graphic::NScene::Camera cam);// = 0;
 		void beginRendering();// = 0;

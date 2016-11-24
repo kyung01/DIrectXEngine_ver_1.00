@@ -114,7 +114,7 @@ bool Asset::init(ID3D11Device * device, ID3D11DeviceContext * context)
 	ID3D11SamplerState * samplerDefault, *samplerBorderOne;
 	device->CreateSamplerState(&samplerDesc, &samplerDefault);
 	device->CreateSamplerState(&samplerDescLight, &samplerBorderOne);
-	m_samplers[SAMPLER_ID::SAMPLER_WRAP]		= samplerDefault;
-	m_samplers[SAMPLER_ID::SAMPLER_BORDER_ONE]	= samplerBorderOne;
+	m_samplers[SAMPLER_ID_WRAP]		= samplerDefault;
+	m_samplers[SAMPLER_ID_BORDER_ONE]	= samplerBorderOne;
 
 }

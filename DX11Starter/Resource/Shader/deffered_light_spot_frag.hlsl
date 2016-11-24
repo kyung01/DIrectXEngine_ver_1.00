@@ -52,11 +52,7 @@ float spotLight(float3 surfaceNormal, float3 dirEyeToWorld, float3 dirLightToWor
 	float3 eye = normalize(dirEyeToWorld + dirLightToWorld);
 	//float alongAxis = dot(reflected, -surfaceNormal);
 	//float f = dot(reflected, normalize(surfacePos));
-	return dot(dirLightToWorld, -surfaceNormal) + pow(dot(eye, -surfaceNormal), 10);
-	//return  pow(max(0, dot(dirEyeToWorld, lightDirReflected)), 3);// dot(surfaceNormal, -dirLightToPos)* pow(dot(surfaceNormal, -lightDir), 5);
-	//f = abs( f);
-	//return pow(f,3);
-	//return dot(surfaceNormal, -dirLightToPos)*0.1 + pow(f,3);// pow(, luminosity);
+	return max(0,dot(dirLightToWorld, -surfaceNormal) + pow(dot(eye, -surfaceNormal), 10));
 }
 
 float4 main(VertexToPixel input) : SV_TARGET

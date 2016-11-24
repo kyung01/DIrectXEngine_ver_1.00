@@ -188,12 +188,6 @@
     <ClInclude Include="Files\Graphic\Asset\Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Files\Graphic\Asset\ShaderType.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Files\Graphic\Asset\SamplerID.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Files\Game\Entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
