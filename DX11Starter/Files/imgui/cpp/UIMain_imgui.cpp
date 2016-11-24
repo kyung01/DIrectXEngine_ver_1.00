@@ -8,7 +8,7 @@ void NImGui::UIMain::init(Graphic::GraphicMain * graphicMain)
 {
 	this->graphicMain = graphicMain;
 }
-void NImGui::UIMain::render(std::map<Graphic::RENDER_TYPE, std::shared_ptr<Graphic::RenderTexture>> renderTexutres)
+void NImGui::UIMain::render(std::map<Graphic::KEnum, std::shared_ptr<Graphic::RenderTexture>> renderTexutres)
 {
 	ImGui::Begin("RenderTextures Demo", 0, ImGuiWindowFlags_ShowBorders);
 
@@ -36,7 +36,7 @@ void NImGui::UIMain::render(std::map<int, Graphic::DepthTexture*> textures)
 	}
 	ImGui::End();
 }
-void NImGui::UIMain::render(std::map<Graphic::RENDER_TYPE, std::shared_ptr<Graphic::DepthTexture>> textures)
+void NImGui::UIMain::render(std::map<Graphic::KEnum, std::shared_ptr<Graphic::DepthTexture>> textures)
 {
 	ImGui::Begin("DepthTextures Demo", 0, ImGuiWindowFlags_ShowBorders);
 

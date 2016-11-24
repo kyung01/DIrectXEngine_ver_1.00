@@ -18,11 +18,11 @@ std::list<LoadInfoMesh> Asset::getLoadListMesh()
 std::list<LoadInfoShader> Asset::getLoadListShaderVert()
 {
 	std::list<LoadInfoShader> lst({
-		{ RENDER_TYPE::DEFAULT,			L"Resource/Shader/default_vert.hlsl" },
-		{ RENDER_TYPE::DEFFERED,			L"Resource/Shader/deffered_vert.hlsl" },
-		{ RENDER_TYPE::DEPTH,			L"Resource/Shader/depth_vert.hlsl" },
-		{ RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT,		L"Resource/Shader/deffered_light_spot_vert.hlsl" },
-		{ RENDER_TYPE::RENDER_TYPE_UI,		L"Resource/Shader/simple_texture_vert.hlsl" }
+		{ RENDER_TYPE_DEFAULT,			L"Resource/Shader/default_vert.hlsl" },
+		{ RENDER_TYPE_DEFFERED,			L"Resource/Shader/deffered_vert.hlsl" },
+		{ RENDER_TYPE_DEPTH,			L"Resource/Shader/depth_vert.hlsl" },
+		{ RENDER_TYPE_DEFFERED_LIGHT_SPOTLIGHT,		L"Resource/Shader/deffered_light_spot_vert.hlsl" },
+		{ RENDER_TYPE_UI,		L"Resource/Shader/simple_texture_vert.hlsl" }
 	});
 	return lst;
 }
@@ -30,11 +30,11 @@ std::list<LoadInfoShader> Asset::getLoadListShaderVert()
 std::list<LoadInfoShader> Asset::getLoadListShaderFrag()
 {
 	std::list<LoadInfoShader> lst({
-		{ RENDER_TYPE::DEFAULT,			L"Resource/Shader/default_frag.hlsl" },
-		{ RENDER_TYPE::DEFFERED,		L"Resource/Shader/deffered_frag.hlsl" },
-		{ RENDER_TYPE::DEPTH,			L"Resource/Shader/depth_frag.hlsl" },
-		{ RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT,		L"Resource/Shader/deffered_light_spot_frag.hlsl" },
-		{ RENDER_TYPE::RENDER_TYPE_UI,		L"Resource/Shader/simple_texture_frag.hlsl" }
+		{ RENDER_TYPE_DEFAULT,			L"Resource/Shader/default_frag.hlsl" },
+		{ RENDER_TYPE_DEFFERED,		L"Resource/Shader/deffered_frag.hlsl" },
+		{ RENDER_TYPE_DEPTH,			L"Resource/Shader/depth_frag.hlsl" },
+		{ RENDER_TYPE_DEFFERED_LIGHT_SPOTLIGHT,		L"Resource/Shader/deffered_light_spot_frag.hlsl" },
+		{ RENDER_TYPE_UI,		L"Resource/Shader/simple_texture_frag.hlsl" }
 	});
 	return lst;
 }

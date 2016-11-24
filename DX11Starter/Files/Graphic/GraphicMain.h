@@ -5,7 +5,6 @@
 #include "Shader.h"
 #include "Camera.h"
 
-#include "RenderType.h"
 #include "SimpleShader.h"
 #include "RenderTexture.h"
 #include "DepthTexture.h"
@@ -81,8 +80,8 @@ namespace Graphic {
 		Graphic::Mesh * mesh00;
 
 
-		std::map<RENDER_TYPE, std::shared_ptr<RenderTexture>>	m_renderTextures;
-		std::map<RENDER_TYPE, std::shared_ptr<DepthTexture>>	m_depthTextures;
+		std::map<KEnum, std::shared_ptr<RenderTexture>>	m_renderTextures;
+		std::map<KEnum, std::shared_ptr<DepthTexture>>	m_depthTextures;
 		std::map<int, DepthTexture*> m_lightDepthTextures;
 		std::map<KEnum, std::unique_ptr<Mesh*>> m_meshes;
 

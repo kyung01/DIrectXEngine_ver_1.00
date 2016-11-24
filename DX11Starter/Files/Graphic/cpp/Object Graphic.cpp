@@ -4,9 +4,9 @@ int Graphic::NScene::Object::OBJECT_UNIQUE_ID = 0;
 Object::Object() :
 	m_isAlive(true),
 	m_id(OBJECT_UNIQUE_ID++),
-	m_ObjectType(SOLID),
-	m_meshId(KEnum::MESH_ID_CUBE),
-	m_renderType(RENDER_TYPE::DEFAULT),
+	m_ObjectType(KEnum::OBJ_TYPE_SOLID),
+	m_meshId	(KEnum::MESH_ID_CUBE),
+	m_renderType(KEnum::RENDER_TYPE_DEFAULT),
 	m_isDirty(true),
 	m_scale(1,1,1),
 	m_dirLook(0,0,1)

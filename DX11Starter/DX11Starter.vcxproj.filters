@@ -173,16 +173,10 @@
     <ClInclude Include="Files\Graphic\RenderTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Files\Graphic\RenderType.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Files\Graphic\TextureType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Files\Graphic\DepthTexture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Files\Graphic\ObjectType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Files\Graphic\Light.h">

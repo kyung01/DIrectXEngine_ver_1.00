@@ -4,9 +4,7 @@
 #include <vector> //TODO delete
 #include <d3d11.h>
 #include <SimpleMath.h>
-#include "ObjectType.h"
 #include <Graphic\TextureType.h>
-#include <Graphic\RenderType.h>
 #include <Graphic\Asset\TextureID.h>
 #include <Graphic\Enum.h>
 //#include "glm\glm.hpp"
@@ -29,8 +27,8 @@ namespace Graphic {
 			Matrix m_matModel;
 			
 			//Information required for rendering process
-			OBJECT_TYPE				m_ObjectType;
-			RENDER_TYPE				m_renderType;
+			KEnum				m_ObjectType;
+			KEnum				m_renderType;
 			KEnum					m_meshId;
 			std::map<TEXTURE_TYPE, TEXTURE_ID> m_textures;
 

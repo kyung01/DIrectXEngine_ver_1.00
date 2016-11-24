@@ -7,7 +7,6 @@
 #include <Graphic\Asset\TextureID.h>
 #include <Graphic\Asset\SamplerID.h>
 #include <Graphic\Asset\Mesh.h>
-#include <Graphic\RenderType.h>
 #include <Graphic\SimpleShader.h>
 #include <Graphic\Enum.h>
 
@@ -18,7 +17,7 @@ namespace Graphic {
 		char* path;
 	};
 	struct LoadInfoShader {
-		RENDER_TYPE type;
+		KEnum type;
 		LPCWSTR path;
 	};
 	struct LoadInfoTexture {
@@ -34,8 +33,8 @@ namespace Graphic {
 		std::list<LoadInfoTexture>	getLoadListTexture();
 
 	public:
-		std::map<RENDER_TYPE, std::shared_ptr<SimpleFragmentShader>> m_shadersFrag;
-		std::map<RENDER_TYPE, std::shared_ptr<SimpleVertexShader>> m_shadersVert;
+		std::map<KEnum, std::shared_ptr<SimpleFragmentShader>> m_shadersFrag;
+		std::map<KEnum, std::shared_ptr<SimpleVertexShader>> m_shadersVert;
 		std::map<KEnum, std::unique_ptr<Mesh*>> m_meshes;
 		std::map<TEXTURE_ID, ID3D11ShaderResourceView*> m_textures;
 		std::map<SAMPLER_ID, ID3D11SamplerState*> m_samplers;

@@ -49,23 +49,23 @@ bool Graphic::GraphicMain::initTextures(ID3D11Device * device, ID3D11DeviceConte
 	std::cout << "initTextures";
 
 	//auto lightTexture = std::shared_ptr<DepthTexture>(new DepthTexture());
-	this->m_depthTextures[RENDER_TYPE::DEFFERED] = std::shared_ptr<DepthTexture>(new DepthTexture());
-	this->m_depthTextures[RENDER_TYPE::DEFFERED_FINAL] = std::shared_ptr<DepthTexture>(new DepthTexture());
-	this->m_depthTextures[RENDER_TYPE::DEFFERED]->init(device, width, height);
-	this->m_depthTextures[RENDER_TYPE::DEFFERED_FINAL]->init(device, width, height);
+	this->m_depthTextures[KEnum::RENDER_TYPE_DEFFERED] = std::shared_ptr<DepthTexture>(new DepthTexture());
+	this->m_depthTextures[KEnum::RENDER_TYPE_DEFFERED_FINAL] = std::shared_ptr<DepthTexture>(new DepthTexture());
+	this->m_depthTextures[KEnum::RENDER_TYPE_DEFFERED]->init(device, width, height);
+	this->m_depthTextures[KEnum::RENDER_TYPE_DEFFERED_FINAL]->init(device, width, height);
 
-	this->m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE]	= std::shared_ptr<RenderTexture>(new RenderTexture());
-	this->m_renderTextures[RENDER_TYPE::DEFFERED]		= std::shared_ptr<RenderTexture>(new RenderTexture());
-	this->m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL]	= std::shared_ptr<RenderTexture>(new RenderTexture());
-	this->m_renderTextures[RENDER_TYPE::DEFFERED_WORLD]		= std::shared_ptr<RenderTexture>(new  RenderTexture());
-	this->m_renderTextures[RENDER_TYPE::DEFFERED_FINAL]		= std::shared_ptr<RenderTexture>(new  RenderTexture());
+	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED_DIFFUSE]	= std::shared_ptr<RenderTexture>(new RenderTexture());
+	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED]		= std::shared_ptr<RenderTexture>(new RenderTexture());
+	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED_NORMAL]	= std::shared_ptr<RenderTexture>(new RenderTexture());
+	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED_WORLD]		= std::shared_ptr<RenderTexture>(new  RenderTexture());
+	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED_FINAL]		= std::shared_ptr<RenderTexture>(new  RenderTexture());
 
 
-	this->m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE]	->Initialize(device, width, height);
-	this->m_renderTextures[RENDER_TYPE::DEFFERED]	->Initialize(device, width, height);
-	this->m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL]	->Initialize(device, width, height);
-	this->m_renderTextures[RENDER_TYPE::DEFFERED_WORLD]->Initialize(device, width, height);
-	this->m_renderTextures[RENDER_TYPE::DEFFERED_FINAL]->Initialize(device, width, height);
+	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED_DIFFUSE]	->Initialize(device, width, height);
+	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED]	->Initialize(device, width, height);
+	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED_NORMAL]	->Initialize(device, width, height);
+	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED_WORLD]->Initialize(device, width, height);
+	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED_FINAL]->Initialize(device, width, height);
 	return true;
 }
 bool GraphicMain::initShaders(ID3D11Device* device, ID3D11DeviceContext *context) {
@@ -142,7 +142,7 @@ void Graphic::GraphicMain::renderPreDeffered(
 	int count = 0; //TODO why am I using this?
 
 	for (auto it = scene.objects.begin(); it != scene.objects.end(); it++, count++) {
-		if ((*it)->m_ObjectType != NScene::OBJECT_TYPE::SOLID)
+		if ((*it)->m_ObjectType != OBJ_TYPE_SOLID)
 			continue;
 		auto mesh = *m_meshes[(*it)->m_meshId];
 		DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose((*it)->getModelMatrix())); // Transpose for HLSL!
@@ -198,7 +198,7 @@ void Graphic::GraphicMain::renderUI(
 	shader_frag.SetShader();
 	int count = 0;
 	for (auto it = scene.objects.begin(); it != scene.objects.end(); it++) {
-		if ((*it)->m_ObjectType != NScene::OBJECT_TYPE::UI)
+		if ((*it)->m_ObjectType != OBJ_TYPE_UI)
 			continue;
 		auto mesh = *m_meshes[(*it)->m_meshId];
 		DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose((*it)->getModelMatrix())); // Transpose for HLSL!
@@ -234,7 +234,7 @@ void Graphic::GraphicMain::renderLights(
 	auto matScreenOrtho = DirectX::XMMatrixOrthographicLH(1, 1, 0.0, 100);
 	target.ClearRenderTarget(context, 0, 0, 0, 1);
 	for (auto it = scene.objects.begin(); it != scene.objects.end(); it++) {
-		if ((*it)->m_ObjectType != NScene::OBJECT_TYPE::LIGHT)
+		if ((*it)->m_ObjectType != OBJ_TYPE_LIGHT)
 			continue;
 		auto &p = **it;
 		auto lightCamera = dynamic_cast<NScene::Light*>(&(p));
@@ -294,7 +294,7 @@ void Graphic::GraphicMain::renderLights(
 
 
 		for (auto obj = scene.objects.begin(); obj != scene.objects.end(); obj++) {
-			if ((*obj)->m_ObjectType != NScene::OBJECT_TYPE::SOLID) continue;
+			if ((*obj)->m_ObjectType != KEnum::OBJ_TYPE_SOLID) continue;
 			auto mesh = *m_meshes[(*obj)->m_meshId];
 			DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose((*obj)->getModelMatrix())); // Transpose for HLSL!
 
@@ -392,23 +392,23 @@ void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *co
 	//renderPreDeffered(context, scene);
 	
 	renderPreDeffered(context, scene,
-		*asset->m_shadersVert[RENDER_TYPE::DEFFERED], *asset->m_shadersFrag[RENDER_TYPE::DEFFERED],
-		*m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL],*m_depthTextures[RENDER_TYPE::DEFFERED],
+		*asset->m_shadersVert[RENDER_TYPE_DEFFERED], *asset->m_shadersFrag[RENDER_TYPE_DEFFERED],
+		*m_renderTextures[RENDER_TYPE_DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL],*m_depthTextures[RENDER_TYPE_DEFFERED],
 		&asset->m_textures,
 		asset->m_samplers[SAMPLER_ID::SAMPLER_WRAP]
 		);
 	renderLights(device,context, 
 		scene,
-		*asset->m_shadersVert[RENDER_TYPE::DEPTH],
-		*asset->m_shadersVert[RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT], *asset->m_shadersFrag[RENDER_TYPE::DEFFERED_LIGHT_SPOTLIGHT],
-		*m_renderTextures[RENDER_TYPE::DEFFERED_FINAL],* m_depthTextures[RENDER_TYPE::DEFFERED_FINAL],
-		*m_renderTextures[RENDER_TYPE::DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE::DEFFERED_NORMAL], *m_depthTextures[RENDER_TYPE::DEFFERED],
+		*asset->m_shadersVert[RENDER_TYPE_DEPTH],
+		*asset->m_shadersVert[RENDER_TYPE_DEFFERED_LIGHT_SPOTLIGHT], *asset->m_shadersFrag[RENDER_TYPE_DEFFERED_LIGHT_SPOTLIGHT],
+		*m_renderTextures[RENDER_TYPE_DEFFERED_FINAL],* m_depthTextures[RENDER_TYPE_DEFFERED_FINAL],
+		*m_renderTextures[RENDER_TYPE_DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL], *m_depthTextures[RENDER_TYPE_DEFFERED],
 		&asset->m_textures,
 		asset->m_samplers[SAMPLER_ID::SAMPLER_WRAP], asset->m_samplers[SAMPLER_ID::SAMPLER_BORDER_ONE]
 		);
 	renderUI(context, scene,
-		*asset->m_shadersVert[RENDER_TYPE::RENDER_TYPE_UI], *asset->m_shadersFrag[RENDER_TYPE::RENDER_TYPE_UI],
-		*m_renderTextures[RENDER_TYPE::DEFFERED_FINAL], *m_depthTextures[RENDER_TYPE::DEFFERED],
+		*asset->m_shadersVert[RENDER_TYPE_UI], *asset->m_shadersFrag[RENDER_TYPE_UI],
+		*m_renderTextures[RENDER_TYPE_DEFFERED_FINAL], *m_depthTextures[RENDER_TYPE_DEFFERED],
 		&asset->m_textures,
 		asset->m_samplers[SAMPLER_ID::SAMPLER_WRAP]
 	);
