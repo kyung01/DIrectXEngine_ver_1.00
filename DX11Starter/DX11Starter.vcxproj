@@ -179,8 +179,6 @@
     <ClInclude Include="Files\Graphic\Light.h" />
     <ClInclude Include="Files\Graphic\Asset\Mesh.h" />
     <ClInclude Include="Files\Graphic\Asset\ShaderType.h" />
-    <ClInclude Include="Files\Graphic\Asset\TextureID.h" />
-    <ClInclude Include="Files\Graphic\TextureType.h" />
     <ClInclude Include="Files\imgui\DirectX\Context.h" />
     <ClInclude Include="Files\imgui\DirectX\imgui_impl_dx11.h" />
     <ClInclude Include="Files\imgui\DirectX\KContext.h" />

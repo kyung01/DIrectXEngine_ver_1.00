@@ -1,6 +1,5 @@
 #include "Graphic\GraphicMain.h"
 #include <string>
-#include "Graphic\TextureType.h"
 
 using namespace Graphic;
 
@@ -107,7 +106,7 @@ void Graphic::GraphicMain::renderPreDeffered(
 	ID3D11DeviceContext * context, NScene::Scene& scene,
 	SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
 	RenderTexture& texture_diffuse, RenderTexture& texture_normal, DepthTexture& textureDepth,
-	std::map<TEXTURE_ID,ID3D11ShaderResourceView*> *textures, ID3D11SamplerState * sampler)
+	std::map<KEnum,ID3D11ShaderResourceView*> *textures, ID3D11SamplerState * sampler)
 {
 	ID3D11RenderTargetView *renderTargets[]{
 		texture_diffuse.getRenderTargetView(),
@@ -148,10 +147,10 @@ void Graphic::GraphicMain::renderPreDeffered(
 		DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose((*it)->getModelMatrix())); // Transpose for HLSL!
 
 		shader_vert.SetMatrix4x4("world", world);
-		shader_frag.SetShaderResourceView("texture_diffuse",		(*textures)[(*it)->m_textures[TEXTURE_TYPE::TEXTURE_DIFFUSE]]);
-		shader_frag.SetShaderResourceView("texture_normal",			(*textures)[(*it)->m_textures[TEXTURE_TYPE::TEXTURE_NORMAL]]);
-		shader_frag.SetShaderResourceView("texture_specular",		(*textures)[(*it)->m_textures[TEXTURE_TYPE::TEXTURE_SPECULAR]]);
-		shader_frag.SetShaderResourceView("texture_displacement",	(*textures)[(*it)->m_textures[TEXTURE_TYPE::TEXTURE_DISPLACEMENT]]);
+		shader_frag.SetShaderResourceView("texture_diffuse",		(*textures)[(*it)->m_textures[TEXTURE_TYPE_DIFFUSE]]);
+		shader_frag.SetShaderResourceView("texture_normal",			(*textures)[(*it)->m_textures[TEXTURE_TYPE_NORMAL]]);
+		shader_frag.SetShaderResourceView("texture_specular",		(*textures)[(*it)->m_textures[TEXTURE_TYPE_SPECULAR]]);
+		shader_frag.SetShaderResourceView("texture_displacement",	(*textures)[(*it)->m_textures[TEXTURE_TYPE_DISPLACEMENT]]);
 		shader_vert.CopyAllBufferData();
 		shader_frag.CopyAllBufferData();
 
@@ -175,7 +174,7 @@ void Graphic::GraphicMain::renderUI(
 	ID3D11DeviceContext * context, NScene::Scene & scene, 
 	SimpleVertexShader & shader_vert, SimpleFragmentShader & shader_frag, 
 	RenderTexture & texture_final, DepthTexture& textureDepth,
-	std::map<TEXTURE_ID, ID3D11ShaderResourceView*>* textures, ID3D11SamplerState * sampler)
+	std::map<KEnum, ID3D11ShaderResourceView*>* textures, ID3D11SamplerState * sampler)
 {
 	DirectX::XMFLOAT4X4 world, view, projection;
 
@@ -204,7 +203,7 @@ void Graphic::GraphicMain::renderUI(
 		DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose((*it)->getModelMatrix())); // Transpose for HLSL!
 
 		shader_vert.SetMatrix4x4("world", world);
-		shader_frag.SetShaderResourceView("texture00", (*textures)[(*it)->m_textures[TEXTURE_TYPE::TEXTURE_TYPE_DEFAULT]]);
+		shader_frag.SetShaderResourceView("texture00", (*textures)[(*it)->m_textures[TEXTURE_TYPE_DEFAULT]]);
 		shader_vert.CopyAllBufferData();
 		shader_frag.CopyAllBufferData();
 
@@ -224,7 +223,7 @@ void Graphic::GraphicMain::renderLights(
 	NScene::Scene &scene, SimpleVertexShader & shaderVertDepthOnly, 
 	SimpleVertexShader & shaderVert, SimpleFragmentShader & shaderFrag, RenderTexture& target, DepthTexture& targetDepth,
 	RenderTexture & textureDiffuse, RenderTexture & textureNormal, DepthTexture & textureDepth,
-	std::map<TEXTURE_ID, ID3D11ShaderResourceView*> *textures, 
+	std::map<KEnum, ID3D11ShaderResourceView*> *textures, 
 	ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth)
 {
 	int count = 0;

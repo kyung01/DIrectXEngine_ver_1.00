@@ -4,7 +4,6 @@
 #include <list>
 #include <map>
 #include <memory>
-#include <Graphic\Asset\TextureID.h>
 #include <Graphic\Asset\SamplerID.h>
 #include <Graphic\Asset\Mesh.h>
 #include <Graphic\SimpleShader.h>
@@ -21,7 +20,7 @@ namespace Graphic {
 		LPCWSTR path;
 	};
 	struct LoadInfoTexture {
-		TEXTURE_ID id;
+		KEnum id;
 		LPCWSTR path;
 	};
 	class Asset {
@@ -36,7 +35,7 @@ namespace Graphic {
 		std::map<KEnum, std::shared_ptr<SimpleFragmentShader>> m_shadersFrag;
 		std::map<KEnum, std::shared_ptr<SimpleVertexShader>> m_shadersVert;
 		std::map<KEnum, std::unique_ptr<Mesh*>> m_meshes;
-		std::map<TEXTURE_ID, ID3D11ShaderResourceView*> m_textures;
+		std::map<KEnum, ID3D11ShaderResourceView*> m_textures;
 		std::map<SAMPLER_ID, ID3D11SamplerState*> m_samplers;
 		bool init(ID3D11Device* device, ID3D11DeviceContext *context);
 

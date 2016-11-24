@@ -42,21 +42,21 @@ std::list<LoadInfoShader> Asset::getLoadListShaderFrag()
 std::list<LoadInfoTexture> Asset::getLoadListTexture()
 {
 	std::list<LoadInfoTexture> lst({
-		{ TEXTURE_ID::TEXTURE_DEFAULT,		L"Resource/Texture/textureTest00.jpg" },
-		{ TEXTURE_ID::TEXTURE_NORMAL_DEFAULT,	L"Resource/Texture/normal_default.jpg" },
-		{ TEXTURE_ID::TEXTURE_NORMAL_DIRT,		L"Resource/Texture/normal_dirt.jpg" },
-		{ TEXTURE_ID::TEXTURE_NORMAL_WOOD,		L"Resource/Texture/normal_wood.jpg" },
-		{ TEXTURE_ID::TEXTURE_NORMAL_BRICK,		L"Resource/Texture/normal_brick.jpg" },
-		{ TEXTURE_ID::TEXTURE_NORMAL_ROCK,		L"Resource/Texture/normal_rock.jpg" },//normal_couch.bmp
-		{ TEXTURE_ID::TEXTURE_NORMAL_COUCH,		L"Resource/Texture/normal_couch.bmp" },//normal_couch.bmp
-		{ TEXTURE_ID::TEXTURE_TEST_00,			L"Resource/Texture/texture_test_00.jpg" } ,
-		{ TEXTURE_ID::TEXTURE_TEST_01,			L"Resource/Texture/texture_test_01.jpg" } ,
-		{ TEXTURE_ID::TEXTURE_TEST_02,			L"Resource/Texture/texture_test_02.jpg" },
-		{ TEXTURE_ID::TEXTURE_TEST_03,			L"Resource/Texture/texture_test_03.jpg" },
-		{ TEXTURE_ID::TEXTURE_TEST_04,			L"Resource/Texture/texture_test_04.jpg" },
-		{ TEXTURE_ID::TEXTURE_TEST_05,			L"Resource/Texture/texture_test_05.jpg" },
-		{ TEXTURE_ID::TEXTURE_TEST_06,			L"Resource/Texture/texture_test_06.jpg" },
-		{ TEXTURE_ID::ICN_LIGHT,		L"Resource/Texture/icn_light.png" }
+		{ TEXTURE_ID_DEFAULT,		L"Resource/Texture/textureTest00.jpg" },
+		{ TEXTURE_ID_NORMAL_DEFAULT,	L"Resource/Texture/normal_default.jpg" },
+		{ TEXTURE_ID_NORMAL_DIRT,		L"Resource/Texture/normal_dirt.jpg" },
+		{ TEXTURE_ID_NORMAL_WOOD,		L"Resource/Texture/normal_wood.jpg" },
+		{ TEXTURE_ID_NORMAL_BRICK,		L"Resource/Texture/normal_brick.jpg" },
+		{ TEXTURE_ID_NORMAL_ROCK,		L"Resource/Texture/normal_rock.jpg" },//normal_couch.bmp
+		{ TEXTURE_ID_NORMAL_COUCH,		L"Resource/Texture/normal_couch.bmp" },//normal_couch.bmp
+		{ TEXTURE_ID_TEST_00,			L"Resource/Texture/texture_test_00.jpg" } ,
+		{ TEXTURE_ID_TEST_01,			L"Resource/Texture/texture_test_01.jpg" } ,
+		{ TEXTURE_ID_TEST_02,			L"Resource/Texture/texture_test_02.jpg" },
+		{ TEXTURE_ID_TEST_03,			L"Resource/Texture/texture_test_03.jpg" },
+		{ TEXTURE_ID_TEST_04,			L"Resource/Texture/texture_test_04.jpg" },
+		{ TEXTURE_ID_TEST_05,			L"Resource/Texture/texture_test_05.jpg" },
+		{ TEXTURE_ID_TEST_06,			L"Resource/Texture/texture_test_06.jpg" },
+		{ TEXTURE_ID_ICN_LIGHT,		L"Resource/Texture/icn_light.png" }
 	});
 	return lst;
 }

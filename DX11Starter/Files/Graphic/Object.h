@@ -4,8 +4,6 @@
 #include <vector> //TODO delete
 #include <d3d11.h>
 #include <SimpleMath.h>
-#include <Graphic\TextureType.h>
-#include <Graphic\Asset\TextureID.h>
 #include <Graphic\Enum.h>
 //#include "glm\glm.hpp"
 //#include "Shader.h"
@@ -30,7 +28,7 @@ namespace Graphic {
 			KEnum				m_ObjectType;
 			KEnum				m_renderType;
 			KEnum					m_meshId;
-			std::map<TEXTURE_TYPE, TEXTURE_ID> m_textures;
+			std::map<KEnum, KEnum> m_textures;
 
 			Object();
 			virtual void setScale(Vector3 scale);

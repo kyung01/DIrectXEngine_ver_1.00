@@ -18,7 +18,6 @@
 #include <WICTextureLoader.h>
 #include <Graphic\Asset\Asset.h>
 #include <Graphic\Asset\Mesh.h>// TODO delete this
-#include <Graphic\Asset\TextureId.h>
 #include <Graphic\Enum.h>
 
 
@@ -31,7 +30,7 @@ namespace Graphic {
 		char* path;
 	};
 	struct TextureLoadInformation {
-		TEXTURE_ID id;
+		KEnum id;
 		LPCWSTR path;
 	};
 
@@ -49,7 +48,7 @@ namespace Graphic {
 		void renderPreDeffered(	ID3D11DeviceContext* context, NScene::Scene &scene, 
 								SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
 								RenderTexture& texture_diffuse, RenderTexture& texture_normal, DepthTexture& textureDepth,
-								std::map<TEXTURE_ID, ID3D11ShaderResourceView*> *textures,
+								std::map<KEnum, ID3D11ShaderResourceView*> *textures,
 								ID3D11SamplerState * sampler
 				
 			);
@@ -57,14 +56,14 @@ namespace Graphic {
 			ID3D11DeviceContext* context, NScene::Scene &scene,
 			SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
 			RenderTexture& texture_final, DepthTexture& textureDepth,
-			std::map<TEXTURE_ID, ID3D11ShaderResourceView*> *textures,
+			std::map<KEnum, ID3D11ShaderResourceView*> *textures,
 			ID3D11SamplerState * sampler);
 		void renderLights(ID3D11Device* device,	ID3D11DeviceContext* context,
 						NScene::Scene &scene,
 						SimpleVertexShader& shaderVertDepthOnly,
 						SimpleVertexShader& shaderVert, SimpleFragmentShader& shaderFrag, RenderTexture& target, DepthTexture& targetDepth,
 						RenderTexture& textureDiffuse, RenderTexture& textureNormal, DepthTexture& textureDepth,
-						std::map<TEXTURE_ID, ID3D11ShaderResourceView*> *textures,
+						std::map<KEnum, ID3D11ShaderResourceView*> *textures,
 						ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth
 			);
 		
