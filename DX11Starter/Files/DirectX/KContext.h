@@ -20,6 +20,7 @@ namespace NDirectX {
 	struct RenderContext{
 		std::string name; // id to describe the scene
 		std::string description; // describe what this scene is
+		//NGame::Context gameContext;
 		Graphic::GraphicMain main;
 		Graphic::NScene::Scene scene;
 	};

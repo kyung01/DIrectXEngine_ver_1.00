@@ -52,7 +52,7 @@ float spotLight(float3 surfaceNormal, float3 dirEyeToWorld, float3 dirLightToWor
 	float3 eye = normalize(dirEyeToWorld + dirLightToWorld);
 	//float alongAxis = dot(reflected, -surfaceNormal);
 	//float f = dot(reflected, normalize(surfacePos));
-	return max(0,dot(dirLightToWorld, -surfaceNormal) + pow(dot(eye, -surfaceNormal), 10));
+	return max(0,dot(dirLightToWorld, -surfaceNormal) + pow(dot(eye, -surfaceNormal), 50));
 }
 
 float4 main(VertexToPixel input) : SV_TARGET
@@ -96,8 +96,13 @@ float4 main(VertexToPixel input) : SV_TARGET
 			disFromLightToPos.x * disFromLightToPos.x +
 			disFromLightToPos.y * disFromLightToPos.y +
 			disFromLightToPos.z * disFromLightToPos.z);
+
+	float lightMaxAngle = 0.5;
+	float dotAngle = dot(lightDir, dirFromLightToPos);
+	float ratio = max(0, 1 - pow(-dotAngle + 1 ,5) / pow(lightMaxAngle, 10) );
+	float isLightedSpotlight = (dotAngle > lightMaxAngle)*ratio;// *(dotAngle / lightMaxAngle);
 	return float4(
-		diffuse.xyz * lightColor.xyz*powerLuminance * spotLight(normal, dirFromEyeToPos, dirFromLightToPos, 2)  , lighted);
+		diffuse.xyz * lightColor.xyz*powerLuminance * spotLight(normal, dirFromEyeToPos, dirFromLightToPos, 2)  , lighted * isLightedSpotlight);
 
 	/*
 	

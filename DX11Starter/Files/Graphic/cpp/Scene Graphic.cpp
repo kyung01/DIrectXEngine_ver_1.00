@@ -150,7 +150,7 @@ void Scene::loadExample00()
 		obj->m_ObjectType = KEnum::OBJ_TYPE_LIGHT;
 		obj->setPos(Vector3(1, 3.0f, 0.5));
 		obj->setRotation(Quaternion());
-		dynamic_cast<Light*>(obj.get())->m_lightColor = Vector4(0, 1.0, 0.0, 5);
+		dynamic_cast<Light*>(obj.get())->m_lightColor = Vector4(1.0, 1.0, 1.0, 15);
 		this->objects.push_back(obj);
 	}
 	{

@@ -13,6 +13,7 @@ namespace Graphic {
 		public:
 			Vector4 m_lightColor;
 			float m_lightPower;
+			float m_lightAngle;
 		};
 	}
 }
