@@ -4,7 +4,7 @@
 #include "Camera.h"
 #include <Graphic\Object.h>
 #include <Graphic\Light.h>
-namespace Graphic {
+namespace NGraphic {
 	namespace NScene {
 		class Scene {
 

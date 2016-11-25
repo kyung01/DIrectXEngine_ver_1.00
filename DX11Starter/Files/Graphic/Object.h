@@ -9,7 +9,7 @@
 //#include "Shader.h"
 using namespace DirectX::SimpleMath;
 
-namespace Graphic {
+namespace NGraphic {
 	namespace NScene {
 		class Object {
 		private:

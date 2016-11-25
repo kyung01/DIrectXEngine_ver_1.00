@@ -22,7 +22,7 @@
 
 
 
-namespace Graphic {
+namespace NGraphic {
 	//TODO hlsl files are stroed in debug folder once they are built with extention .cso You need grasp them
 	
 	struct MeshLoadInformation {
@@ -72,13 +72,13 @@ namespace Graphic {
 			*m_blendStateNoBlack,
 			*m_blendStateTransparent;
 		//glm::mat4 matProjection, matView, matModel;
-		void processCamera(Graphic::NScene::Camera cam);// = 0;
+		void processCamera(NScene::Camera cam);// = 0;
 		void beginRendering();// = 0;
 		void endRendering();// = 0;
 		void getScreenWidth(int &w, int &h);// = 0;
 	public:
 		int m_width, m_height;
-		Graphic::Mesh * mesh00;
+		Mesh * mesh00;
 
 
 		std::map<KEnum, std::shared_ptr<RenderTexture>>	m_renderTextures;

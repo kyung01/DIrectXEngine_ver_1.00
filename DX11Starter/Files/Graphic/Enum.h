@@ -1,5 +1,5 @@
 #pragma once
-namespace Graphic {
+namespace NGraphic {
 	enum KEnum {
 		OBJ_TYPE_SOLID,
 		OBJ_TYPE_UI,

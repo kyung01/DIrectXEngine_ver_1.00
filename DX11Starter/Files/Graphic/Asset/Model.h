@@ -1,6 +1,6 @@
 #pragma once
 #include "glm\glm.hpp"
-namespace Graphic {
+namespace NGraphic {
 	class Model {
 	public:
 		virtual void draw() = 0;

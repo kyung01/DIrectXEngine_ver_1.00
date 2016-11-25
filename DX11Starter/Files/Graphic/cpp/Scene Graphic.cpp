@@ -1,16 +1,17 @@
 #include "Graphic\Scene.h"
 #include "Graphic\Light.h"
-using namespace Graphic::NScene;
+using namespace NGraphic;
+using namespace NGraphic::NScene;
 Scene::Scene():
 	size(10,10,10)
 {
 }
 
-Graphic::NScene::Scene::Scene(float x, float y, float z):size(x,y,z)
+Scene::Scene(float x, float y, float z):size(x,y,z)
 {
 }
 
-void Graphic::NScene::Scene::addObject(std::shared_ptr<Object> obj)
+void NScene::Scene::addObject(std::shared_ptr<Object> obj)
 {
 }
 

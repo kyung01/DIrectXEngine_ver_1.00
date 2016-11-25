@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
-namespace Graphic {
+namespace NGraphic {
 
 	// --------------------------------------------------------
 	// Used by simple shaders to store information about

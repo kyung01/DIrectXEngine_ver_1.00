@@ -1,6 +1,7 @@
 #include <Graphic\Asset\Mesh.h>
 #include <iostream>
-void Graphic::Mesh::getTangent(
+using namespace NGraphic;
+void Mesh::getTangent(
 	Vertex & vert,
 	DirectX::SimpleMath::Vector3 v0, DirectX::SimpleMath::Vector2 uv0,
 	DirectX::SimpleMath::Vector3 v1, DirectX::SimpleMath::Vector2 uv1,
@@ -47,7 +48,7 @@ void Graphic::Mesh::getTangent(
 	//A = (-uvDelta01.y * posDelta00 + uvDelta00.y*posDelta01) / (- uvDelta01.y*uvDelta00.x + uvDelta00.y*uvDelta01.x)
 	//
 }
-Graphic::Mesh::Mesh(ID3D11Device * device, char* objFile) {
+Mesh::Mesh(ID3D11Device * device, char* objFile) {
 	using namespace DirectX;
 	// File input object
 	std::ifstream obj(objFile);
@@ -198,7 +199,7 @@ Graphic::Mesh::Mesh(ID3D11Device * device, char* objFile) {
 
 }
 
-void Graphic::Mesh::construct(ID3D11Device * device, Vertex * verticies_data, int vertices_offsetEnd, int * indicies_data, int indicies_offsetEnd)
+void Mesh::construct(ID3D11Device * device, Vertex * verticies_data, int vertices_offsetEnd, int * indicies_data, int indicies_offsetEnd)
 {
 
 	verticies.insert(verticies.begin(), verticies_data, verticies_data + vertices_offsetEnd);
@@ -230,7 +231,7 @@ void Graphic::Mesh::construct(ID3D11Device * device, Vertex * verticies_data, in
 
 
 
-Graphic::Mesh::Mesh(ID3D11Device * device, Vertex * verticies_data, int vertices_offsetEnd, int * indicies_data, int indicies_offsetEnd)
+Mesh::Mesh(ID3D11Device * device, Vertex * verticies_data, int vertices_offsetEnd, int * indicies_data, int indicies_offsetEnd)
 {
 
 	verticies.insert(verticies.begin(), verticies_data, verticies_data + vertices_offsetEnd);
@@ -260,29 +261,29 @@ Graphic::Mesh::Mesh(ID3D11Device * device, Vertex * verticies_data, int vertices
 	device->CreateBuffer(&ibd, &initialIndexData, &this->bufferIndicies);
 }
 
-Graphic::Mesh::~Mesh()
+Mesh::~Mesh()
 {
 	if (bufferVertices) { bufferVertices->Release(); }
 	if (bufferIndicies) { bufferIndicies->Release(); }
 }
 
 
-ID3D11Buffer* Graphic::Mesh::getBufferVertex()
+ID3D11Buffer* Mesh::getBufferVertex()
 {
 	return bufferVertices;
 }
 
-ID3D11Buffer*& Graphic::Mesh::getBufferVertexRef()
+ID3D11Buffer*& Mesh::getBufferVertexRef()
 {
 	return bufferVertices;
 }
 
-ID3D11Buffer * Graphic::Mesh::getBufferIndex()
+ID3D11Buffer * Mesh::getBufferIndex()
 {
 	return bufferIndicies;
 }
 
-int Graphic::Mesh::getBufferIndexCount()
+int Mesh::getBufferIndexCount()
 {
 	return indices.size();
 }

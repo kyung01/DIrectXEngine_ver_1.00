@@ -4,7 +4,7 @@
 #include <list>
 namespace NGame {
 	class Entity {
-		std::list<std::shared_ptr<Graphic::NScene::Object>> m_graphicObjects;
+		std::list<std::shared_ptr<NGraphic::NScene::Object>> m_graphicObjects;
 
 		
 	};

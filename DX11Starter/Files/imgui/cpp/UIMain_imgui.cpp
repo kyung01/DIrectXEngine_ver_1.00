@@ -1,14 +1,14 @@
 #include "imgui\DirectX\UIMain.h"
 #include "imgui\imgui.h"
 using namespace NImGui;
+using namespace NGraphic;
 
 
-
-void NImGui::UIMain::init(Graphic::GraphicMain * graphicMain)
+void NImGui::UIMain::init(GraphicMain * graphicMain)
 {
 	this->graphicMain = graphicMain;
 }
-void NImGui::UIMain::render(std::map<Graphic::KEnum, std::shared_ptr<Graphic::RenderTexture>> renderTexutres)
+void NImGui::UIMain::render(std::map<KEnum, std::shared_ptr<RenderTexture>> renderTexutres)
 {
 	ImGui::Begin("RenderTextures Demo", 0, ImGuiWindowFlags_ShowBorders);
 
@@ -22,7 +22,7 @@ void NImGui::UIMain::render(std::map<Graphic::KEnum, std::shared_ptr<Graphic::Re
 	}
 	ImGui::End();
 }
-void NImGui::UIMain::render(std::map<int, Graphic::DepthTexture*> textures)
+void NImGui::UIMain::render(std::map<int, DepthTexture*> textures)
 {
 	ImGui::Begin("LightSource DepthTextures Demo", 0, ImGuiWindowFlags_ShowBorders);
 
@@ -36,7 +36,7 @@ void NImGui::UIMain::render(std::map<int, Graphic::DepthTexture*> textures)
 	}
 	ImGui::End();
 }
-void NImGui::UIMain::render(std::map<Graphic::KEnum, std::shared_ptr<Graphic::DepthTexture>> textures)
+void NImGui::UIMain::render(std::map<KEnum, std::shared_ptr<DepthTexture>> textures)
 {
 	ImGui::Begin("DepthTextures Demo", 0, ImGuiWindowFlags_ShowBorders);
 

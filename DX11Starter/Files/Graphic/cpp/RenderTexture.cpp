@@ -2,7 +2,7 @@
 
 
 
-using namespace Graphic;
+using namespace NGraphic;
 
 RenderTexture::RenderTexture()
 {

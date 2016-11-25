@@ -9,8 +9,8 @@
 
 // For the DirectX Math library
 using namespace NDirectX;
-using namespace Graphic;
-using namespace Graphic::NScene;
+using namespace NGraphic;
+using namespace NGraphic::NScene;
 
 // --------------------------------------------------------
 // Constructor
@@ -59,7 +59,7 @@ KContext::~KContext()
 void KContext::Init()
 {
 	
-	m_renderContexts.push_back({ "example00","Created for demo purpose.", Graphic::GraphicMain(), Scene() });
+	m_renderContexts.push_back({ "example00","Created for demo purpose.", GraphicMain(), Scene() });
 	for (auto it = m_renderContexts.begin(); it != m_renderContexts.end(); it++) {
 		if (!it->main.init(this->device, this->context, this->width, this->height)) {
 			std::cout << "GraphicMain failed to init" << std::endl;

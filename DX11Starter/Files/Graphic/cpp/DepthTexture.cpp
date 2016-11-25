@@ -1,5 +1,5 @@
 #include "Graphic/DepthTexture.h"
-using namespace Graphic;
+using namespace NGraphic;
 
 float DepthTexture::getWidth()
 {

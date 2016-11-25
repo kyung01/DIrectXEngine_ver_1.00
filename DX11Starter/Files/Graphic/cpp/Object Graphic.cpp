@@ -1,6 +1,7 @@
 #include "Graphic/Object.h"
-using namespace Graphic::NScene;
-int Graphic::NScene::Object::OBJECT_UNIQUE_ID = 0;
+using namespace NGraphic::NScene;
+
+int Object::OBJECT_UNIQUE_ID = 0;
 Object::Object() :
 	m_isAlive(true),
 	m_id(OBJECT_UNIQUE_ID++),

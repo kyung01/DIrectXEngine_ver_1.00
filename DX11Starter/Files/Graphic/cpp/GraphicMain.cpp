@@ -1,13 +1,13 @@
 #include "Graphic\GraphicMain.h"
 #include <string>
 
-using namespace Graphic;
+using namespace NGraphic;
 
 static int SIZE_LIGHT_TEXTURE = 512;
-void Graphic::GraphicMain::processObject(NScene::Object obj) {
+void GraphicMain::processObject(NScene::Object obj) {
 }
 
-std::list<MeshLoadInformation> Graphic::GraphicMain::getLoadListMesh()
+std::list<MeshLoadInformation> GraphicMain::getLoadListMesh()
 {
 	std::list<MeshLoadInformation> lst({
 		{ KEnum::MESH_ID_CONE, "Resource/Mesh/cone.obj" },
@@ -21,29 +21,29 @@ std::list<MeshLoadInformation> Graphic::GraphicMain::getLoadListMesh()
 	return lst;
 }
 
-void Graphic::GraphicMain::processCamera(Graphic::NScene::Camera cam)
+void GraphicMain::processCamera(NScene::Camera cam)
 {
 }
 
-void Graphic::GraphicMain::beginRendering()
+void GraphicMain::beginRendering()
 {
 }
 
-void Graphic::GraphicMain::endRendering()
+void GraphicMain::endRendering()
 {
 }
 
-void Graphic::GraphicMain::getScreenWidth(int & w, int & h)
+void GraphicMain::getScreenWidth(int & w, int & h)
 {
 }
 
 
-void Graphic::GraphicMain::rendering(NScene::Scene scene)
+void GraphicMain::rendering(NScene::Scene scene)
 {
 
 	
 }
-bool Graphic::GraphicMain::initTextures(ID3D11Device * device, ID3D11DeviceContext * context,int width, int height)
+bool GraphicMain::initTextures(ID3D11Device * device, ID3D11DeviceContext * context,int width, int height)
 {
 	std::cout << "initTextures";
 
@@ -78,10 +78,10 @@ bool GraphicMain::initShaders(ID3D11Device* device, ID3D11DeviceContext *context
 	return true;
 
 }
-Graphic::GraphicMain::GraphicMain()
+GraphicMain::GraphicMain()
 {
 }
-bool Graphic::GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *context, int width, int height)
+bool GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *context, int width, int height)
 {
 	this->m_width = width;
 	this->m_height = height;
@@ -113,7 +113,7 @@ bool Graphic::GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *conte
 	return true;
 }
 float temp_angle = 0;
-void Graphic::GraphicMain::renderPreDeffered(
+void GraphicMain::renderPreDeffered(
 	ID3D11DeviceContext * context, NScene::Scene& scene,
 	SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
 	RenderTexture& texture_diffuse, RenderTexture& texture_normal, DepthTexture& textureDepth,
@@ -182,7 +182,7 @@ void Graphic::GraphicMain::renderPreDeffered(
 	shader_frag.SetShaderResourceView("texture_displacement",0);
 }
 
-void Graphic::GraphicMain::renderUI(
+void GraphicMain::renderUI(
 	ID3D11DeviceContext * context, NScene::Scene & scene, 
 	SimpleVertexShader & shader_vert, SimpleFragmentShader & shader_frag, 
 	RenderTexture & texture_final, DepthTexture& textureDepth,
@@ -233,7 +233,7 @@ void Graphic::GraphicMain::renderUI(
 
 	context->OMSetBlendState(0, 0, 0xffffffff);//::NoBlack, blendFactor, 0xffffffff);
 }
-void Graphic::GraphicMain::renderLights(
+void GraphicMain::renderLights(
 	ID3D11Device * device, ID3D11DeviceContext * context,
 	NScene::Scene &scene, SimpleVertexShader & shaderVertDepthOnly, 
 	SimpleVertexShader & shaderVert, SimpleFragmentShader & shaderFrag, RenderTexture& target, DepthTexture& targetDepth,
@@ -391,7 +391,7 @@ void Graphic::GraphicMain::renderLights(
 
 	context->OMSetBlendState(0, 0, 0xffffffff);//::NoBlack, blendFactor, 0xffffffff);
 }
-void Graphic::GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *context, Asset* asset, NScene::Scene scene)
+void GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *context, Asset* asset, NScene::Scene scene)
 {
 	temp_angle += .051f;
 	UINT viewportNum = 1;

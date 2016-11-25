@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include "glm\glm.hpp"
-namespace Graphic {
+namespace NGraphic {
 	class Shader {
 	private:
 	protected:

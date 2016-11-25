@@ -1,7 +1,7 @@
 #include "Graphic\SimpleShader.h"
 #include <iostream>
 #include "DirectX\DirectXUtility.h"
-using namespace Graphic;
+using namespace NGraphic;
 ///////////////////////////////////////////////////////////////////////////////
 // ------ BASE SIMPLE SHADER --------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////
@@ -63,7 +63,7 @@ void ISimpleShader::CleanUp()
 	textureTable.clear();
 }
 
-bool Graphic::ISimpleShader::LoadShaderFile(ID3DBlob *blob)
+bool ISimpleShader::LoadShaderFile(ID3DBlob *blob)
 {
 	shaderBlob = blob;
 	// Create the shader - Calls an overloaded version of this abstract

@@ -5,7 +5,7 @@
 #include <d3d11.h>
 #include "Vertex.h"
 #include <SimpleMath.h>
-namespace Graphic
+namespace NGraphic
 {
 	// Contains all the information for the engineto draw this object proeprly 
 	class Mesh {

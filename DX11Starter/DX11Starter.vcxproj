@@ -127,6 +127,7 @@
   <ItemGroup>
     <ClCompile Include="Files\DirectX\DXCore.cpp" />
     <ClCompile Include="Files\DirectX\KContext.cpp" />
+    <ClCompile Include="Files\Game\cpp\Context_Game.cpp" />
     <ClCompile Include="Files\Graphic\cpp\Asset.cpp" />
     <ClCompile Include="Files\Graphic\cpp\DepthTexture.cpp" />
     <ClCompile Include="Files\Graphic\cpp\Mesh.cpp" />

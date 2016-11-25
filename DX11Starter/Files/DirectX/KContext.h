@@ -21,8 +21,8 @@ namespace NDirectX {
 		std::string name; // id to describe the scene
 		std::string description; // describe what this scene is
 		//NGame::Context gameContext;
-		Graphic::GraphicMain main;
-		Graphic::NScene::Scene scene;
+		NGraphic::GraphicMain main;
+		NGraphic::NScene::Scene scene;
 	};
 
 	class KContext
@@ -32,11 +32,11 @@ namespace NDirectX {
 	private:
 		NImGui::KContext m_ui;
 		World::WorldMain world;
-		Graphic::Asset m_asset;
+		NGraphic::Asset m_asset;
 
 	public:
 		std::list<RenderContext> m_renderContexts;
-		Graphic::NScene::Camera testingCamera; //TODO delete this?
+		NGraphic::NScene::Camera testingCamera; //TODO delete this?
 		~KContext();
 
 

@@ -1,6 +1,6 @@
 #pragma once
 #include <d3d11.h>
-namespace Graphic {
+namespace NGraphic {
 	//mainly used for light 
 	class DepthTexture {
 	private:

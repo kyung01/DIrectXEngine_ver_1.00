@@ -5,7 +5,7 @@
 #include <SimpleMath.h>
 using namespace DirectX::SimpleMath;
 //using namespace glm;
-namespace Graphic {
+namespace NGraphic {
 
 	namespace NScene {
 		class Light : public Camera {

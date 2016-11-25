@@ -1,7 +1,7 @@
 #include "Graphic\Camera.h"
 #include <iostream>
-using namespace Graphic;
-using namespace Graphic::NScene;
+using namespace NGraphic;
+using namespace NGraphic::NScene;
 Camera::Camera():
 	m_clipFar(100),
 	m_clipNear(0),
@@ -13,7 +13,7 @@ Camera::Camera():
 	m_isDirty_matProjection = true;
 }
 
-Matrix Graphic::NScene::Camera::getProjectionMatrix()
+Matrix NScene::Camera::getProjectionMatrix()
 {
 	if (m_isDirty_matProjection) {
 		m_isDirty_matProjection = false;

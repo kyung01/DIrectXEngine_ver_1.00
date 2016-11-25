@@ -1,5 +1,5 @@
 #include <Graphic\Asset\Asset.h>
-using namespace Graphic;
+using namespace NGraphic;
 
 std::list<LoadInfoMesh> Asset::getLoadListMesh()
 {
@@ -69,11 +69,11 @@ bool Asset::init(ID3D11Device * device, ID3D11DeviceContext * context)
 	auto dataTexture = getLoadListTexture();
 
 	for (auto it = dataFrag.begin(); it != dataFrag.end(); it++) {
-		m_shadersFrag[it->type] = std::shared_ptr<SimpleFragmentShader>(new Graphic::SimpleFragmentShader(device, context));
+		m_shadersFrag[it->type] = std::shared_ptr<SimpleFragmentShader>(new SimpleFragmentShader(device, context));
 		if (!m_shadersFrag[it->type]->LoadShaderFileHLSL(it->path, "ps_5_0")) return false;
 	}
 	for (auto it = dataVert.begin(); it != dataVert.end(); it++) {
-		m_shadersVert[it->type] = std::shared_ptr<SimpleVertexShader>(new Graphic::SimpleVertexShader(device, context));
+		m_shadersVert[it->type] = std::shared_ptr<SimpleVertexShader>(new SimpleVertexShader(device, context));
 		if (!m_shadersVert[it->type]->LoadShaderFileHLSL(it->path, "vs_5_0")) return false;
 	}
 	for (auto it = dataMesh.begin(); it != dataMesh.end(); it++) {

@@ -3,7 +3,7 @@
 #include <SimpleMath.h>
 using namespace DirectX::SimpleMath;
 //using namespace glm;
-namespace Graphic {
+namespace NGraphic {
 	enum CAMERA_TYPE { PERSPECTIVE, ORTHOGONAL };
 
 	namespace NScene {

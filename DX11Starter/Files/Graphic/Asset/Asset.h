@@ -9,7 +9,7 @@
 #include <Graphic\Enum.h>
 
 
-namespace Graphic {
+namespace NGraphic {
 	struct LoadInfoMesh {
 		KEnum id;
 		char* path;
