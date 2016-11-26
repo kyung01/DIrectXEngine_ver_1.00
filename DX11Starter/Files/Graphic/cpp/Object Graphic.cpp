@@ -12,27 +12,30 @@ Object::Object() :
 	m_scale(1,1,1),
 	m_dirLook(0,0,1)
 {
-	m_textures[TEXTURE_TYPE_DIFFUSE] = TEXTURE_ID_DEFAULT;
-	m_textures[TEXTURE_TYPE_NORMAL] = TEXTURE_ID_DEFAULT;
+	m_textures[TEXTURE_TYPE_DIFFUSE] = TEXTURE_ID_WHITE;
+	m_textures[TEXTURE_TYPE_NORMAL] = TEXTURE_ID_NORMAL_DEFAULT;
 	m_textures[TEXTURE_TYPE_SPECULAR] = TEXTURE_ID_DEFAULT;
 	m_textures[TEXTURE_TYPE_DISPLACEMENT] = TEXTURE_ID_DEFAULT;
 }
 
-void Object::setPos(Vector3 pos)
+Object Object::setPos(Vector3 pos)
 {
 	m_isDirty = true;
 	m_pos = pos;
+	return *this;
 }
-void Object::setScale(Vector3 scale)
+Object Object::setScale(Vector3 scale)
 {
 	m_isDirty = true;
 	m_scale = scale;
+	return *this;
 }
-void Object::setRotation(Quaternion quaternion)
+Object Object::setRotation(Quaternion quaternion)
 {
 	m_isDirty = true;
 	m_rotation = quaternion;
 	m_dirLook = DirectX::XMVector3Rotate(Vector3(0, 0, 1), m_rotation);
+	return *this;
 }
 
 

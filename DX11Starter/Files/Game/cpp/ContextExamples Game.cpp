@@ -1,0 +1,79 @@
+#include <Game\ContextExamples.h>
+#include <Game\Script\Y_Axis_Rotate.h>
+#include <Game\Script\X_Axis_Rotate.h>
+using namespace NGame;
+
+void NGame::LoadExample00(Context &context)
+{
+	auto ground = new Entity(); 
+	
+	NGraphic::KEnum meshIds[] = {
+		NGraphic::MESH_ID_STONEHENGE_02,
+		NGraphic::MESH_ID_STONEHENGE_06,
+		NGraphic::MESH_ID_STONEHENGE_03,
+		NGraphic::MESH_ID_STONEHENGE_00,
+		NGraphic::MESH_ID_STONEHENGE_04,
+		NGraphic::MESH_ID_STONEHENGE_05,
+		NGraphic::MESH_ID_STONEHENGE_01 };
+
+	float angle = 0;
+	float distance = 3;
+	{
+		auto obj = context.m_scene->getObjSolid();
+		obj.get()->m_meshId = NGraphic::MESH_ID_TERRAIN_00;
+		ground->m_graphicObjects.push_back(obj);
+		ground->setPos(-25 , 0, -25);
+	}
+	distance = 16;
+	for (int i = 0; i < 7; i++) {
+		angle = 3.14 / 6 * i;
+		auto obj = context.m_scene->getObjSolid();
+		obj.get()->m_meshId = meshIds[i];
+		auto e = new Entity();
+		context.addEntity(std::shared_ptr<Entity>(e));
+		e->m_graphicObjects.push_back(obj);
+		e->setPos(cos(angle)*distance, -0.25, sin(angle)*distance);
+		e->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0,1,0), 3.14/2- 3.14 / 6 * i));
+	}
+	distance = 3;
+	for (int i = 0; i < 7; i++) {
+		angle = 3.14 / 6 * i;
+		auto obj = context.m_scene->getObjSolid();
+		obj.get()->m_meshId = NGraphic::MESH_ID_SPHERE;
+		auto e = new Entity();
+		context.addEntity(std::shared_ptr<Entity>(e));
+		e->m_graphicObjects.push_back(obj);
+		e->setPos(cos(angle)*distance, 0.5, sin(angle)*distance);
+	}
+	distance = 5;
+	for (int i = 0; i < 9; i++) {
+		angle = 3.14 / 8 * i;
+		auto obj = context.m_scene->getObjSolid();
+		obj.get()->m_meshId = NGraphic::MESH_ID_SPHERE;
+		auto e = new Entity();
+		context.addEntity(std::shared_ptr<Entity>(e));
+		e->m_graphicObjects.push_back(obj);
+		e->setPos(cos(angle)*distance, 0.5, sin(angle)*distance);
+	}
+	{
+		auto obj = context.m_scene->getObjLight();
+		auto light = new Entity();
+		context.addEntity(std::shared_ptr<Entity>(light));
+		obj->m_lightColor = Vector4(1.0, 1.0, 1.0, 10);
+		light->m_graphicObjects.push_back(obj);
+		light->setPos(0, 5.5, 0);
+		light->setRotation(Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), 3.14*0.25f));
+		light->addScript(context, std::shared_ptr<Script>(new NScript::Y_Axis_Rotate()));
+	}
+	{
+		auto obj = context.m_scene->getObjLight();
+		auto light = new Entity();
+		context.addEntity(std::shared_ptr<Entity>(light));
+		obj->m_lightColor = Vector4(1.0, 0.0, 0.0, 10);
+		light->m_graphicObjects.push_back(obj);
+		light->setPos(0, 5.5, 0);
+		//light_spotlight00->setRotation(Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), 3.14*0.25f));
+		light->addScript(context, std::shared_ptr<Script>(new NScript::X_Axis_Rotate()));
+	}
+
+}

@@ -30,8 +30,8 @@ namespace NGraphic {
 			Matrix getProjectionMatrix();
 			Matrix getProjectionMatrix(float fov,float screen_width, float screen_height, float cam_near, float cam_far);
 			Matrix getViewMatrix();
-			void setPos(Vector3 pos) override;
-			void setRotation(Quaternion quaternion) override ;
+			Object setPos(Vector3 pos) override;
+			Object setRotation(Quaternion quaternion) override ;
 			
 			//mat4 getProjViewMatrix();
 		};

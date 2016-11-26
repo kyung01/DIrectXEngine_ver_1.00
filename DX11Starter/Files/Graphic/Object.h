@@ -31,9 +31,9 @@ namespace NGraphic {
 			std::map<KEnum, KEnum> m_textures;
 
 			Object();
-			virtual void setScale(Vector3 scale);
-			virtual void setPos(Vector3 pos);
-			virtual void setRotation(Quaternion quaternion);
+			virtual Object setScale(Vector3 scale);
+			virtual Object setPos(Vector3 pos);
+			virtual Object setRotation(Quaternion quaternion);
 			Matrix getModelMatrix();
 		};
 	}

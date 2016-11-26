@@ -10,7 +10,15 @@ std::list<LoadInfoMesh> Asset::getLoadListMesh()
 		{ KEnum::MESH_ID_HELIX, "Resource/Mesh/helix.obj" },
 		{ KEnum::MESH_ID_SPHERE, "Resource/Mesh/sphere.obj" },
 		{ KEnum::MESH_ID_TORUS, "Resource/Mesh/torus.obj" },
-		{ KEnum::MESH_ID_PLANE, "Resource/Mesh/plane.obj" }
+		{ KEnum::MESH_ID_PLANE, "Resource/Mesh/plane.obj" },
+		{ KEnum::MESH_ID_TERRAIN_00, "Resource/Mesh/Grounds/Ground_s_01.obj" },
+		{ KEnum::MESH_ID_STONEHENGE_00, "Resource/Mesh/Stonehenge_Rocks/Stonehenge_01.obj" },
+		{ KEnum::MESH_ID_STONEHENGE_01, "Resource/Mesh/Stonehenge_Rocks/Stonehenge_02.obj" },
+		{ KEnum::MESH_ID_STONEHENGE_02, "Resource/Mesh/Stonehenge_Rocks/Stonehenge_03.obj" },
+		{ KEnum::MESH_ID_STONEHENGE_03, "Resource/Mesh/Stonehenge_Rocks/Stonehenge_04.obj" },
+		{ KEnum::MESH_ID_STONEHENGE_04, "Resource/Mesh/Stonehenge_Rocks/Stonehenge_05.obj" },
+		{ KEnum::MESH_ID_STONEHENGE_05, "Resource/Mesh/Stonehenge_Rocks/Stonehenge_06.obj" },
+		{ KEnum::MESH_ID_STONEHENGE_06, "Resource/Mesh/Stonehenge_Rocks/Stonehenge_07.obj" }
 	});
 	return lst;
 }
@@ -56,7 +64,8 @@ std::list<LoadInfoTexture> Asset::getLoadListTexture()
 		{ TEXTURE_ID_TEST_04,			L"Resource/Texture/texture_test_04.jpg" },
 		{ TEXTURE_ID_TEST_05,			L"Resource/Texture/texture_test_05.jpg" },
 		{ TEXTURE_ID_TEST_06,			L"Resource/Texture/texture_test_06.jpg" },
-		{ TEXTURE_ID_ICN_LIGHT,		L"Resource/Texture/icn_light.png" }
+		{ TEXTURE_ID_ICN_LIGHT,		L"Resource/Texture/icn_light.png" },
+		{ TEXTURE_ID_WHITE,			L"Resource/Texture/texture_white.png" }
 	});
 	return lst;
 }

@@ -127,12 +127,18 @@
   <ItemGroup>
     <ClCompile Include="Files\DirectX\DXCore.cpp" />
     <ClCompile Include="Files\DirectX\KContext.cpp" />
-    <ClCompile Include="Files\Game\cpp\Context_Game.cpp" />
+    <ClCompile Include="Files\Game\cpp\ContextExamples Game.cpp" />
+    <ClCompile Include="Files\Game\cpp\Context Game.cpp" />
+    <ClCompile Include="Files\Game\cpp\Entity Game.cpp" />
+    <ClCompile Include="Files\Game\cpp\Script Game.cpp" />
+    <ClCompile Include="Files\Game\Script\X_Axis_Rotate.cpp" />
+    <ClCompile Include="Files\Game\Script\Y_Axis_Rotate.cpp" />
     <ClCompile Include="Files\Graphic\cpp\Asset.cpp" />
     <ClCompile Include="Files\Graphic\cpp\DepthTexture.cpp" />
     <ClCompile Include="Files\Graphic\cpp\Mesh.cpp" />
     <ClCompile Include="Files\Graphic\cpp\RenderTexture.cpp" />
     <ClCompile Include="Files\Graphic\cpp\Scene Graphic.cpp" />
+    <ClCompile Include="Files\Graphic\Light.cpp" />
     <ClCompile Include="Files\imgui\cpp\Context_imgui.cpp" />
     <ClCompile Include="Files\imgui\cpp\UIMain_imgui.cpp" />
     <ClCompile Include="Files\imgui\cpp\dx11_imgui.cpp" />
@@ -172,8 +178,12 @@
     <ClInclude Include="Files\DirectX\DirectXUtility.h" />
     <ClInclude Include="Files\DirectX\DXCore.h" />
     <ClInclude Include="Files\DirectX\KContext.h" />
+    <ClInclude Include="Files\Game\ContextExamples.h" />
     <ClInclude Include="Files\Game\Entity.h" />
     <ClInclude Include="Files\Game\Context.h" />
+    <ClInclude Include="Files\Game\Script.h" />
+    <ClInclude Include="Files\Game\Script\X_Axis_Rotate.h" />
+    <ClInclude Include="Files\Game\Script\Y_Axis_Rotate.h" />
     <ClInclude Include="Files\Graphic\Asset\Asset.h" />
     <ClInclude Include="Files\Graphic\DepthTexture.h" />
     <ClInclude Include="Files\Graphic\Enum.h" />

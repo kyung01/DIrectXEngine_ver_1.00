@@ -9,6 +9,8 @@
 
 
 #include "imgui\DirectX\KContext.h"
+#include <Game\Context.h>
+#include <Game\ContextExamples.h>
 #include <Graphic\GraphicMain.h>
 #include <Graphic\Asset\Asset.h>
 
@@ -21,7 +23,8 @@ namespace NDirectX {
 		std::string name; // id to describe the scene
 		std::string description; // describe what this scene is
 		//NGame::Context gameContext;
-		NGraphic::GraphicMain main;
+		NGame::Context			gameContext;
+		NGraphic::GraphicMain	main;
 		NGraphic::NScene::Scene scene;
 	};
 

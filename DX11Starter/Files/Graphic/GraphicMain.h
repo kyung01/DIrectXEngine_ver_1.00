@@ -40,7 +40,6 @@ namespace NGraphic {
 		void rendering(NScene::Scene scene);
 		void processObject(NScene::Object obj);
 
-		std::list<MeshLoadInformation>		getLoadListMesh();
 
 		bool initTextures		(ID3D11Device* device, ID3D11DeviceContext *context, int width, int height);
 		bool initShaders		(ID3D11Device* device, ID3D11DeviceContext *context);
@@ -48,7 +47,7 @@ namespace NGraphic {
 		void renderPreDeffered(	ID3D11DeviceContext* context, NScene::Scene &scene, 
 								SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
 								RenderTexture& texture_diffuse, RenderTexture& texture_normal, DepthTexture& textureDepth,
-								std::map<KEnum, ID3D11ShaderResourceView*> *textures,
+								std::map<KEnum, std::unique_ptr<Mesh*>> &meshes,std::map<KEnum, ID3D11ShaderResourceView*> *textures,
 								ID3D11SamplerState * sampler
 				
 			);
@@ -56,14 +55,14 @@ namespace NGraphic {
 			ID3D11DeviceContext* context, NScene::Scene &scene,
 			SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
 			RenderTexture& texture_final, DepthTexture& textureDepth,
-			std::map<KEnum, ID3D11ShaderResourceView*> *textures,
+			std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> *textures,
 			ID3D11SamplerState * sampler);
 		void renderLights(ID3D11Device* device,	ID3D11DeviceContext* context,
 						NScene::Scene &scene,
 						SimpleVertexShader& shaderVertDepthOnly,
 						SimpleVertexShader& shaderVert, SimpleFragmentShader& shaderFrag, RenderTexture& target, DepthTexture& targetDepth,
 						RenderTexture& textureDiffuse, RenderTexture& textureNormal, DepthTexture& textureDepth,
-						std::map<KEnum, ID3D11ShaderResourceView*> *textures,
+			std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> *textures,
 						ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth
 			);
 		
@@ -84,7 +83,6 @@ namespace NGraphic {
 		std::map<KEnum, std::shared_ptr<RenderTexture>>	m_renderTextures;
 		std::map<KEnum, std::shared_ptr<DepthTexture>>	m_depthTextures;
 		std::map<int, DepthTexture*> m_lightDepthTextures;
-		std::map<KEnum, std::unique_ptr<Mesh*>> m_meshes;
 
 		std::map<int, Shader*> shaders;
 		// Width and hieght is for the resolution in wihich this graphic main will adjust to render things onto

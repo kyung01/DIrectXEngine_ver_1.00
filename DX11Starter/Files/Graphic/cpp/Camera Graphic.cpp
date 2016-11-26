@@ -51,16 +51,18 @@ Matrix Camera::getViewMatrix()
 	return m_matView;
 }
 
-void Camera::setPos(Vector3 pos) 
+Object Camera::setPos(Vector3 pos)
 {
 	Object::setPos(pos);
 	m_isDirty_matView = true;
+	return *this;
 }
 
 
-void Camera::setRotation(Quaternion quaternion) 
+Object Camera::setRotation(Quaternion quaternion) 
 {
 	Object::setRotation(quaternion);
 	m_isDirty_matView = true;
+	return *this;
 
 }

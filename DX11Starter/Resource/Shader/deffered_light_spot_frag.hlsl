@@ -28,12 +28,14 @@ struct VertexToPixel
 // Out of the vertex shader (and eventually input to the PS)
 
 
-float4 getPosProjected(float2 uv, Texture2D depthTexture) {
-
-
-	return float4(
+float4 getPosWorld(float2 uv, Texture2D depthTexture, matrix matProjViewInverse) {
+	float4 posWorld = float4(
 		uv.x * 2 - 1, (1 - uv.y) * 2 - 1,
 		textureDepth.Sample(samplerDefault, uv).x, 1);
+	posWorld = mul(posWorld, matProjViewInverse);
+	posWorld /= 0.00000001 + posWorld.w;
+
+	return posWorld;
 }
 /*
 float spotLight(float3 surfaceNormal, float3 lightDir, float3 dirEyeToWorld, float luminosity) {
@@ -54,7 +56,6 @@ float spotLight(float3 surfaceNormal, float3 dirEyeToWorld, float3 dirLightToWor
 	//float f = dot(reflected, normalize(surfacePos));
 	return max(0,dot(dirLightToWorld, -surfaceNormal) + pow(dot(eye, -surfaceNormal), 50));
 }
-
 float4 main(VertexToPixel input) : SV_TARGET
 {
 	float4 output;
@@ -63,14 +64,13 @@ float4 main(VertexToPixel input) : SV_TARGET
 		0.0, 0.5, 0.0, 0.0,
 		0.0, 0.0, 0.5, 0.0,
 		0.5, 0.5, 0.5, 1.0);
-	float bias = 0.002;
+	float bias = 0.000050;
 	//values I can get from textures
 	float3 diffuse = textureDiffuse.Sample(samplerDefault, input.uv);
 	float3 normal = textureNormal.Sample(samplerDefault, input.uv) * 2 - 1;
 	
 	float4 posEye = mul(float4(0, 0, 0, 0), matProjViewInverse);
-	float4 posWorld = mul(getPosProjected(input.uv, textureDepth), matProjViewInverse);
-	posWorld	/= 0.00000001 + posWorld.w;
+	float4 posWorld = getPosWorld(input.uv, textureDepth, matProjViewInverse);
 	posEye		/= 0.00000001 + posEye.w;
 	float4 posFromLightProjection = mul(posWorld, matLightViewProj);
 	posFromLightProjection /=0.000000001+ posFromLightProjection.w;
@@ -79,13 +79,15 @@ float4 main(VertexToPixel input) : SV_TARGET
 	//posFromLightProjection /= posFromLightProjection.w;
 	//posFromLightProjection = mul(posFromLightProjection, matBias);
 
-	float depthClosest = textureLightDepth.Sample(samplerLight, uv  ).x ;
 
 	float3 disFromLightToPos = posWorld.xyz - lightPos;
 	float3 dirFromLightToPos = normalize(disFromLightToPos);
 	float3 dirFromEyeToPos = normalize(posWorld.xyz - posEye.xyz);
 
-	float lighted = (posFromLightProjection.z  -bias< depthClosest );
+	float lighted = posFromLightProjection.z - bias < textureLightDepth.Sample(samplerLight, uv).x;
+	//lighted = getShadowAt(posWorld, bias);// (posFromLightProjection.z - bias < lighted);
+	//float lighted = (posFromLightProjection.z  -bias< depthClosest );
+	
 
 	float powerSurfaceReflection = cos((   max(0,1 - dot(dirFromLightToPos, -normal)*10.0)  ) * 3.14/2 ); // not good
 	//float powerSurfaceReflection = dot(dirFromLightToPos, -normal);

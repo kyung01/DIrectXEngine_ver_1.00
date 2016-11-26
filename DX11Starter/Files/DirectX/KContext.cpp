@@ -59,8 +59,12 @@ KContext::~KContext()
 void KContext::Init()
 {
 	
-	m_renderContexts.push_back({ "example00","Created for demo purpose.", GraphicMain(), Scene() });
+	m_renderContexts.push_back({ "example00","Created for demo purpose.", NGame::Context(),GraphicMain(), Scene() });
 	for (auto it = m_renderContexts.begin(); it != m_renderContexts.end(); it++) {
+		it->gameContext.init(& it->scene);
+		NGame::LoadExample00(it->gameContext);
+
+
 		if (!it->main.init(this->device, this->context, this->width, this->height)) {
 			std::cout << "GraphicMain failed to init" << std::endl;
 		}
@@ -118,12 +122,15 @@ void KContext::OnResize()
 void KContext::Update(float deltaTime, float totalTime)
 {
 	world.update(deltaTime);
+	for (auto it = m_renderContexts.begin(); it != m_renderContexts.end(); it++) {
+		it->gameContext.update(deltaTime);
+	}
 	// Quit if the escape key is pressed
 	if (GetAsyncKeyState(VK_ESCAPE))
 		Quit();
 
 
-	float x, y, speed(.5f* deltaTime), dis_camerMove(1.3f*deltaTime);
+	float x, y, speed(.5f* deltaTime), dis_camerMove(10.3f*deltaTime);
 	int count = 0;
 	
 	XMVECTOR dir;
@@ -138,10 +145,11 @@ void KContext::Update(float deltaTime, float totalTime)
 	forwardModified.Normalize();
 	auto vecLeft = forwardModified.Cross(Vector3(0, 1, 0));
 	vecLeft.Normalize();
+
 	std::map < char, Vector3 > keys = { { 'W', cam.m_dirLook } ,{ 'S', -cam.m_dirLook },{ 'A', vecLeft },{ 'D',-vecLeft } };
 	for each(auto k in keys) {
 		if (GetAsyncKeyState(k.first) & 0x8000) {
-			auto result = k.second * dis_camerMove;
+			auto result = k.second * dis_camerMove ;
 			cam.setPos(cam.m_pos + result);
 			/* Do something useful */
 		}
@@ -216,6 +224,7 @@ void KContext::OnMouseUp(WPARAM buttonState, int x, int y)
 int mouseMoveXY[2] = {-1,-1};
 void KContext::OnMouseMove(WPARAM buttonState, int x, int y)
 {
+	float power = .010;
 	bool isContinue = true;
 	auto &cam = m_renderContexts.begin()->scene.m_camMain;
 	int xDis = x - mouseMoveXY[0];
@@ -226,10 +235,13 @@ void KContext::OnMouseMove(WPARAM buttonState, int x, int y)
 	mouseMoveXY[0] = x;
 	mouseMoveXY[1] = y;
 	if (!isContinue)return;
-	cam.setRotation(cam.m_rotation * Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), xDis*0.01)
-		* Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), yDis*0.01));
-	//cam.setRotation(cam.m_rotation * Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), yDis*0.01));
-	std::cout << x<<"\n";
+	if (xDis*xDis + yDis*yDis > 100) return;
+	
+	cam.setRotation(cam.m_rotation * Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), xDis*power));
+	//	+ Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), yDis*power));
+	Vector3 dirAxis = -cam.m_dirLook.Cross(Vector3(0, 1, 0));
+	cam.setRotation(cam.m_rotation * Quaternion::CreateFromAxisAngle(dirAxis, yDis*power));
+	//std::cout << x<<"\n";
 }
 
 // --------------------------------------------------------

@@ -11,6 +11,7 @@ namespace NGraphic {
 		class Light : public Camera {
 		protected:
 		public:
+			Light();
 			Vector4 m_lightColor;
 			float m_lightPower;
 			float m_lightAngle;
