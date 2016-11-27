@@ -1,3 +1,4 @@
+#include "point_light.hlsl"
 
 // Constant Buffer for external (C++) data
 cbuffer global00 :register(b0)
@@ -13,8 +14,12 @@ cbuffer global00 :register(b0)
 // External texture-related data
 Texture2D textureDiffuse		: register(t0);
 Texture2D textureNormal		: register(t1);
-Texture2D textureDepth		: register(t2);
-Texture2D textureLightDepth		: register(t3);
+Texture2D textureSpecular	: register(t2);
+Texture2D textureDepth		: register(t3);
+
+Texture2D textureLightDepth		: register(t4);
+Texture2D textureLightNormal		: register(t5);
+Texture2D textureLightRSM		: register(t5);
 
 SamplerState samplerDefault	: register(s0);
 SamplerState samplerLight	: register(s1);
@@ -67,6 +72,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float bias = 0.000050;
 	//values I can get from textures
 	float3 diffuse = textureDiffuse.Sample(samplerDefault, input.uv);
+	float specular = textureSpecular.Sample(samplerDefault, input.uv).x;
 	float3 normal = textureNormal.Sample(samplerDefault, input.uv) * 2 - 1;
 	
 	float4 posEye = mul(float4(0, 0, 0, 0), matProjViewInverse);
@@ -85,26 +91,31 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float3 dirFromEyeToPos = normalize(posWorld.xyz - posEye.xyz);
 
 	float lighted = posFromLightProjection.z - bias < textureLightDepth.Sample(samplerLight, uv).x;
+	return	spotLight(dirFromEyeToPos,
+			diffuse, lightColor, lightDir, posWorld.xyz - lightPos      , dirFromLightToPos, normal, specular) * lighted;
+	
 	//lighted = getShadowAt(posWorld, bias);// (posFromLightProjection.z - bias < lighted);
 	//float lighted = (posFromLightProjection.z  -bias< depthClosest );
 	
 
-	float powerSurfaceReflection = cos((   max(0,1 - dot(dirFromLightToPos, -normal)*10.0)  ) * 3.14/2 ); // not good
+	//float powerSurfaceReflection = cos((   max(0,1 - dot(dirFromLightToPos, -normal)*10.0)  ) * 3.14/2 ); // not good
 	//float powerSurfaceReflection = dot(dirFromLightToPos, -normal);
 	//return float4(powerSurfaceReflection,0,0,1);
-	float powerLuminance =
-		(lightColor.w) /
-		(1 +
-			disFromLightToPos.x * disFromLightToPos.x +
-			disFromLightToPos.y * disFromLightToPos.y +
-			disFromLightToPos.z * disFromLightToPos.z);
+	//float powerLuminance =
+	//	(lightColor.w) /
+	//	(1 +
+	//		disFromLightToPos.x * disFromLightToPos.x +
+	//		disFromLightToPos.y * disFromLightToPos.y +
+	//		disFromLightToPos.z * disFromLightToPos.z);
 
-	float lightMaxAngle = 0.5;
-	float dotAngle = dot(lightDir, dirFromLightToPos);
-	float ratio = max(0, 1 - pow(-dotAngle + 1 ,5) / pow(lightMaxAngle, 10) );
-	float isLightedSpotlight = (dotAngle > lightMaxAngle)*ratio;// *(dotAngle / lightMaxAngle);
-	return float4(
-		diffuse.xyz * lightColor.xyz*powerLuminance * spotLight(normal, dirFromEyeToPos, dirFromLightToPos, 2)  , lighted * isLightedSpotlight);
+	//float lightMaxAngle = 0.5;
+	//float dotAngle = dot(lightDir, dirFromLightToPos);
+	//float ratio = max(0, 1 - pow(-dotAngle + 1 ,5) / pow(lightMaxAngle, 10) );
+	//float isLightedSpotlight = (dotAngle > lightMaxAngle)*ratio;// *(dotAngle / lightMaxAngle);
+
+	//output.flux = spotLight(diffuse, lightColor, lightDir, input.worldPos.xyz - lightPos, dirLightToWorld  , normal, specular);
+	//return float4(
+	//	diffuse.xyz * lightColor.xyz*powerLuminance * spotLight(normal, dirFromEyeToPos, dirFromLightToPos, 2)  , lighted * isLightedSpotlight);
 
 	/*
 	

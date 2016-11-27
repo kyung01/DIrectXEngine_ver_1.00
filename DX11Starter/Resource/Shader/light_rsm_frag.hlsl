@@ -3,6 +3,8 @@
 cbuffer global00 :register(b0)
 {
 	float4 lightColor;
+	float3 lightPos;
+	float3 lightDir;
 };
 
 // External texture-related data
@@ -21,7 +23,8 @@ struct VertexToPixel
 	float3 normal		: NORMAL0;
 	float3 tangent		: NORMAL1;
 	float3 biTangent	: NORMAL2;
-	float4 worldPos		: POSITION;
+	float4 worldPos		: POSITION1;
+	float4 worldPosFromEye		: POSITION2;
 	float2 uv			: TEXCOORD;
 };
 
@@ -42,12 +45,19 @@ PS_OUTPUT main(VertexToPixel input) : SV_TARGET
 
 
 	PS_OUTPUT output;
+	float3 diffuse = texture_diffuse.Sample(sampler_default, input.uv);
+	float specular = texture_specular.Sample(sampler_default, input.uv).x;
 	float3 normal = texture_normal.Sample(sampler_default, input.uv).xyz * 2 - 1;
+	//float3 dirLightToWorld = input.worldPosFromEye.xyz;//0, 5.5, 0
+	//dirLightToWorld *= -1;
+	//dirLightToWorld = normalize(dirLightToWorld);//0, 5.5, 0
+	float3 dirLightToWorld = normalize(input.worldPos.xyz - lightPos );//0, 5.5, 0
 	normal = normal.x * input.tangent +normal.y * input.biTangent + normal.z * input.normal;
 
 	output.normal = float4((normal + 1) *.5, 1);
-	output.flux = texture_diffuse.Sample(sampler_default, input.uv);
-	output.flux = lightColor;
+	//output.flux = texture_diffuse.Sample(sampler_default, input.uv);
+	output.flux = spotLight(diffuse,lightColor,lightDir, input.worldPos.xyz - lightPos,dirLightToWorld, normal, specular);
+	//output.flux = float4(dirLightToWorld, 1);
 	//output.normal = float4(input.uv,0,1);
 	 //output.normal = float4(input.worldPos.xyz, 1);
 	 //output.worldPos = float4(input.worldPos.xyz, 1);

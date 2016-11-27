@@ -56,7 +56,8 @@ namespace NGraphic {
 
 		void renderPreDeffered(	ID3D11DeviceContext* context, NScene::Scene &scene, 
 								SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
-								RenderTexture& texture_diffuse, RenderTexture& texture_normal, DepthTexture& textureDepth,
+								RenderTexture& texture_diffuse, RenderTexture& texture_normal, RenderTexture& texture_specular,
+								DepthTexture& textureDepth,
 								std::map<KEnum, std::unique_ptr<Mesh*>> &meshes,std::map<KEnum, ID3D11ShaderResourceView*> &textures,
 								ID3D11SamplerState * sampler
 				
@@ -71,7 +72,8 @@ namespace NGraphic {
 						NScene::Scene &scene,
 						SimpleVertexShader& shaderVertLight, SimpleFragmentShader & shaderFragLight,
 						SimpleVertexShader& shaderVert, SimpleFragmentShader& shaderFrag, RenderTexture& target, DepthTexture& targetDepth,
-						RenderTexture& textureDiffuse, RenderTexture& textureNormal, DepthTexture& textureDepth,
+						RenderTexture& textureDiffuse, RenderTexture& textureNormal, RenderTexture & textureSpecular,
+			DepthTexture& textureDepth,
 			std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> &textures,
 						ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth
 			);

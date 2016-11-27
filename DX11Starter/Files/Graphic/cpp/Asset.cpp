@@ -67,7 +67,11 @@ std::list<LoadInfoTexture> Asset::getLoadListTexture()
 		{ TEXTURE_ID_TEST_05,			L"Resource/Texture/texture_test_05.jpg" },
 		{ TEXTURE_ID_TEST_06,			L"Resource/Texture/texture_test_06.jpg" },
 		{ TEXTURE_ID_ICN_LIGHT,		L"Resource/Texture/icn_light.png" },
-		{ TEXTURE_ID_WHITE,			L"Resource/Texture/texture_white.png" }
+		{ TEXTURE_ID_WHITE,			L"Resource/Texture/texture_white.png" },
+		{ TEXTURE_ID_HEIGHT_DEFAULT,		L"Resource/Texture/heightMap00.png" },
+		{ TEXTURE_ID_HEIGHT_BUMP,			L"Resource/Texture/heightMap01.png" },
+		{ TEXTURE_ID_HEIGHT_CIRCLES,		L"Resource/Texture/heightMap02.png" },
+		{ TEXTURE_ID_HEIGHT_CLOUD,			L"Resource/Texture/heightMap03.png" }
 	});
 	return lst;
 }

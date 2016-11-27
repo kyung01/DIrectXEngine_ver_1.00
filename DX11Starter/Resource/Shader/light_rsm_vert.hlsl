@@ -2,7 +2,6 @@
 // Constant Buffer for external (C++) data
 cbuffer externalData : register(b0)
 {
-	float3 worldSize;
 	matrix world;
 	matrix view;
 	matrix projection;
@@ -25,7 +24,8 @@ struct VertexToPixel
 	float3 normal		: NORMAL0;
 	float3 tangent		: NORMAL1;
 	float3 biTangent	: NORMAL2;
-	float4 worldPos		: POSITION;
+	float4 worldPos		: POSITION1;
+	float4 worldPosFromEye		: POSITION2;
 	float2 uv			: TEXCOORD;
 };
 
@@ -38,16 +38,19 @@ VertexToPixel main(VertexShaderInput input)
 	VertexToPixel output;
 
 	// Calculate output position
-	matrix worldViewProj = mul(mul(world, view), projection);
+	matrix worldView = mul(world, view);
+	matrix worldViewProj = mul(worldView, projection);
 	output.position = mul(float4(input.position, 1.0f), worldViewProj);
 
 	// Get the normal to the pixel shader
 	output.normal = mul(input.normal, (float3x3)world); // ASSUMING UNIFORM SCALE HERE!!!  If not, use inverse transpose of world matrix
 	output.tangent = mul(input.tangent, (float3x3)world); // ASSUMING UNIFORM SCALE HERE!!!  If not, use inverse transpose of world matrix
 	output.biTangent = mul(input.biTangent, (float3x3)world); // ASSUMING UNIFORM SCALE HERE!!!  If not, use inverse transpose of world matrix
-	float4 worldPos = mul(float4(input.position, 1.0f), world);
+	float3 worldPos			= mul(float4(input.position, 1.0f), world).xyz;
+	float3 worldPosFromEye	= mul(float4(input.position, 1.0f), worldView).xyz;
 	// Get world position of vertex
-	output.worldPos = float4(worldPos.xyz / worldSize, (1 - output.position.z / output.position.w));
+	output.worldPos			= float4(worldPos, 1);
+	output.worldPosFromEye	= float4(worldPosFromEye, 1);
 
 	// Pass through the uv
 	output.uv = input.uv;

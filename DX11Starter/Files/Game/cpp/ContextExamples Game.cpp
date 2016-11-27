@@ -15,6 +15,18 @@ void NGame::LoadExample00(Context &context)
 		NGraphic::MESH_ID_STONEHENGE_04,
 		NGraphic::MESH_ID_STONEHENGE_05,
 		NGraphic::MESH_ID_STONEHENGE_01 };
+	NGraphic::KEnum normalIds[] = {
+		NGraphic::TEXTURE_ID_NORMAL_BRICK,
+		NGraphic::TEXTURE_ID_NORMAL_COUCH,
+		NGraphic::TEXTURE_ID_NORMAL_DEFAULT,
+		NGraphic::TEXTURE_ID_NORMAL_DIRT,
+		NGraphic::TEXTURE_ID_NORMAL_ROCK,
+		NGraphic::TEXTURE_ID_NORMAL_WOOD };
+	NGraphic::KEnum reflectiveIds[] = {
+		NGraphic::TEXTURE_ID_HEIGHT_DEFAULT,
+		NGraphic::TEXTURE_ID_HEIGHT_BUMP,
+		NGraphic::TEXTURE_ID_HEIGHT_CLOUD,
+		NGraphic::TEXTURE_ID_HEIGHT_CIRCLES};
 
 	float angle = 0;
 	float distance = 3;
@@ -40,6 +52,8 @@ void NGame::LoadExample00(Context &context)
 		angle = 3.14 / 6 * i;
 		auto obj = context.m_scene->getObjSolid();
 		obj.get()->m_meshId = NGraphic::MESH_ID_SPHERE;
+		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_NORMAL] = normalIds[i % 6];
+		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_SPECULAR] = reflectiveIds[i %4];
 		auto e = new Entity();
 		context.addEntity(std::shared_ptr<Entity>(e));
 		e->m_graphicObjects.push_back(obj);
@@ -50,6 +64,8 @@ void NGame::LoadExample00(Context &context)
 		angle = 3.14 / 8 * i;
 		auto obj = context.m_scene->getObjSolid();
 		obj.get()->m_meshId = NGraphic::MESH_ID_SPHERE;
+		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_NORMAL] = normalIds[i % 6];
+		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_SPECULAR] = reflectiveIds[i % 4];
 		auto e = new Entity();
 		context.addEntity(std::shared_ptr<Entity>(e));
 		e->m_graphicObjects.push_back(obj);
