@@ -50,6 +50,20 @@ void NImGui::UIMain::render(std::map<KEnum, std::shared_ptr<DepthTexture>> textu
 	}
 	ImGui::End();
 }
+void NImGui::UIMain::render(std::map<int, ReflectiveShadowMap> textures)
+{
+	ImGui::Begin("ReflectiveShadowMaps", 0, ImGuiWindowFlags_ShowBorders);
+	for (auto it = textures.begin(); it != textures.end(); it++) {
+		ImGui::Text("REFLECTIVE SHADOW MAP", 500, 500);
+		ImTextureID normal = it->second.normal->GetShaderResourceView();
+		ImTextureID flux = it->second.flux->GetShaderResourceView();
+		ImTextureID depth = it->second.depth->getShaderResourceView();
+		ImGui::Image(normal, ImVec2(500, 500), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
+		ImGui::Image(flux, ImVec2(500, 500), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
+		ImGui::Image(depth, ImVec2(500, 500), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
+	}
+	ImGui::End();
+}
 void NImGui::UIMain::render()
 {
 	if (!graphicMain) return; // I don't have a pointer to the instance needed to initate drawing cycle
@@ -75,7 +89,8 @@ void NImGui::UIMain::render()
 	render(graphicMain->m_renderTextures);
 	render(graphicMain->m_depthTextures);
 	render(graphicMain->m_lightDepthTextures);
-
+	render(graphicMain->m_RSM);
+	/*
 	ImGui::Begin("Other window", 0, ImGuiWindowFlags_ShowBorders);
 	
 	if (ImGui::TreeNode("Images"))
@@ -117,6 +132,8 @@ void NImGui::UIMain::render()
 		ImGui::TreePop();
 	}
 	ImGui::End();
-	ImGui::ShowTestWindow();
+	*/
+
+	//ImGui::ShowTestWindow();
 	ImGui::Text("hiworld");
 }

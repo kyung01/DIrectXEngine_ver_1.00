@@ -48,11 +48,16 @@ namespace NGraphic {
 
 		bool initTextures		(ID3D11Device* device, ID3D11DeviceContext *context, int width, int height);
 		bool initShaders		(ID3D11Device* device, ID3D11DeviceContext *context);
-		
+
+		void renderSolidObjects(
+			ID3D11DeviceContext* context, NScene::Scene &scene,
+			SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
+			std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> &textures);
+
 		void renderPreDeffered(	ID3D11DeviceContext* context, NScene::Scene &scene, 
 								SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
 								RenderTexture& texture_diffuse, RenderTexture& texture_normal, DepthTexture& textureDepth,
-								std::map<KEnum, std::unique_ptr<Mesh*>> &meshes,std::map<KEnum, ID3D11ShaderResourceView*> *textures,
+								std::map<KEnum, std::unique_ptr<Mesh*>> &meshes,std::map<KEnum, ID3D11ShaderResourceView*> &textures,
 								ID3D11SamplerState * sampler
 				
 			);
@@ -64,10 +69,10 @@ namespace NGraphic {
 			ID3D11SamplerState * sampler);
 		void renderLights(ID3D11Device* device,	ID3D11DeviceContext* context,
 						NScene::Scene &scene,
-						SimpleVertexShader& shaderVertDepthOnly,
+						SimpleVertexShader& shaderVertLight, SimpleFragmentShader & shaderFragLight,
 						SimpleVertexShader& shaderVert, SimpleFragmentShader& shaderFrag, RenderTexture& target, DepthTexture& targetDepth,
 						RenderTexture& textureDiffuse, RenderTexture& textureNormal, DepthTexture& textureDepth,
-			std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> *textures,
+			std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> &textures,
 						ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth
 			);
 		
@@ -88,8 +93,7 @@ namespace NGraphic {
 		std::map<KEnum, std::shared_ptr<RenderTexture>>	m_renderTextures;
 		std::map<KEnum, std::shared_ptr<DepthTexture>>	m_depthTextures;
 		std::map<int, DepthTexture*>					m_lightDepthTextures;
-		std::map<int, std::shared_ptr<RenderTexture>*>  m_light_normals;
-		std::map<int, std::shared_ptr<RenderTexture>*>  m_light_flux;
+		std::map<int, ReflectiveShadowMap>				m_RSM;
 
 		std::map<int, Shader*> shaders;
 		// Width and hieght is for the resolution in wihich this graphic main will adjust to render things onto

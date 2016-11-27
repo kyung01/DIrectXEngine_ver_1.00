@@ -95,12 +95,47 @@ bool GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *context, int w
 	device->CreateBlendState(&transparent, &m_blendStateTransparent);
 	return true;
 }
+
+void NGraphic::GraphicMain::renderSolidObjects(
+	ID3D11DeviceContext * context, NScene::Scene & scene, 
+	SimpleVertexShader & shader_vert, SimpleFragmentShader & shader_frag,
+	std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> &textures)
+{
+
+	DirectX::XMFLOAT4X4 world, view, projection;
+
+	for (auto it = scene.objs_solid.begin(); it != scene.objs_solid.end(); it++) {
+		if ((*it)->m_ObjectType != OBJ_TYPE_SOLID)
+			continue;
+		auto mesh = *meshes[(*it)->m_meshId];
+		DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose((*it)->getModelMatrix())); // Transpose for HLSL!
+
+		shader_vert.SetMatrix4x4("world", world);
+		shader_frag.SetShaderResourceView("texture_diffuse", textures[(*it)->m_textures[TEXTURE_TYPE_DIFFUSE]]);
+		shader_frag.SetShaderResourceView("texture_normal", textures[(*it)->m_textures[TEXTURE_TYPE_NORMAL]]);
+		shader_frag.SetShaderResourceView("texture_specular", textures[(*it)->m_textures[TEXTURE_TYPE_SPECULAR]]);
+		shader_frag.SetShaderResourceView("texture_displacement", textures[(*it)->m_textures[TEXTURE_TYPE_DISPLACEMENT]]);
+		shader_vert.CopyAllBufferData();
+		shader_frag.CopyAllBufferData();
+
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+		context->IASetVertexBuffers(0, 1, &mesh->getBufferVertexRef(), &stride, &offset);
+		context->IASetIndexBuffer(mesh->getBufferIndex(), DXGI_FORMAT_R32_UINT, 0);
+
+		context->DrawIndexed(
+			mesh->getBufferIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
+			0,     // Offset to the first index we want to use
+			0);    // Offset to add to each index when looking up vertices
+	}
+}
+
 float temp_angle = 0;
 void GraphicMain::renderPreDeffered(
 	ID3D11DeviceContext * context, NScene::Scene& scene,
 	SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
 	RenderTexture& texture_diffuse, RenderTexture& texture_normal, DepthTexture& textureDepth,
-	std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum,ID3D11ShaderResourceView*> *textures, ID3D11SamplerState * sampler)
+	std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum,ID3D11ShaderResourceView*> &textures, ID3D11SamplerState * sampler)
 {
 	ID3D11RenderTargetView *renderTargets[]{
 		texture_diffuse.getRenderTargetView(),
@@ -134,30 +169,7 @@ void GraphicMain::renderPreDeffered(
 	shader_frag.SetShader();
 	int count = 0; //TODO why am I using this?
 
-	for (auto it = scene.objs_solid.begin(); it != scene.objs_solid.end(); it++, count++) {
-		if ((*it)->m_ObjectType != OBJ_TYPE_SOLID)
-			continue;
-		auto mesh = *meshes[(*it)->m_meshId];
-		DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose((*it)->getModelMatrix())); // Transpose for HLSL!
-
-		shader_vert.SetMatrix4x4("world", world);
-		shader_frag.SetShaderResourceView("texture_diffuse",		(*textures)[(*it)->m_textures[TEXTURE_TYPE_DIFFUSE]]);
-		shader_frag.SetShaderResourceView("texture_normal",			(*textures)[(*it)->m_textures[TEXTURE_TYPE_NORMAL]]);
-		shader_frag.SetShaderResourceView("texture_specular",		(*textures)[(*it)->m_textures[TEXTURE_TYPE_SPECULAR]]);
-		shader_frag.SetShaderResourceView("texture_displacement",	(*textures)[(*it)->m_textures[TEXTURE_TYPE_DISPLACEMENT]]);
-		shader_vert.CopyAllBufferData();
-		shader_frag.CopyAllBufferData();
-
-		UINT stride = sizeof(Vertex);
-		UINT offset = 0;
-		context->IASetVertexBuffers(0, 1, &mesh->getBufferVertexRef(), &stride, &offset);
-		context->IASetIndexBuffer(mesh->getBufferIndex(), DXGI_FORMAT_R32_UINT, 0);
-
-		context->DrawIndexed(
-			mesh->getBufferIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
-			0,     // Offset to the first index we want to use
-			0);    // Offset to add to each index when looking up vertices
-	}
+	renderSolidObjects(context, scene, shader_vert, shader_frag, meshes, textures);
 
 	shader_frag.SetShaderResourceView("texture_diffuse", 0);
 	shader_frag.SetShaderResourceView("texture_normal",0);
@@ -192,6 +204,7 @@ void GraphicMain::renderUI(
 	shader_vert.SetShader();
 	shader_frag.SetShader();
 	int count = 0;
+
 	for (auto it = scene.objs_ui.begin(); it != scene.objs_ui.end(); it++) {
 		if ((*it)->m_ObjectType != OBJ_TYPE_UI)
 			continue;
@@ -218,10 +231,11 @@ void GraphicMain::renderUI(
 }
 void GraphicMain::renderLights(
 	ID3D11Device * device, ID3D11DeviceContext * context,
-	NScene::Scene &scene, SimpleVertexShader & shaderVertDepthOnly, 
+	NScene::Scene &scene, 
+	SimpleVertexShader & shaderVertLight, SimpleFragmentShader & shaderFragLight,
 	SimpleVertexShader & shaderVert, SimpleFragmentShader & shaderFrag, RenderTexture& target, DepthTexture& targetDepth,
 	RenderTexture & textureDiffuse, RenderTexture & textureNormal, DepthTexture & textureDepth,
-	std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> *textures,
+	std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> &textures,
 	ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth)
 {
 	int count = 0; //TODO delete this
@@ -230,13 +244,33 @@ void GraphicMain::renderLights(
 	//auto lightProjectionMatrix = DirectX::XMMatrixOrthographicLH(15, 15, -10.0, 20);
 	auto matScreenOrtho = DirectX::XMMatrixOrthographicLH(1, 1, 0.0, 100);
 	target.ClearRenderTarget(context, 0, 0, 0, 1);
+	D3D11_VIEWPORT viewport;
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	viewport.Width = (float)SIZE_LIGHT_TEXTURE;
+	viewport.Height = (float)SIZE_LIGHT_TEXTURE;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+
 	for (auto it = scene.objs_lights.begin(); it != scene.objs_lights.end(); it++) {
 		if ((*it)->m_ObjectType != OBJ_TYPE_LIGHT)continue;
 		auto &p = **it;
 		auto lightCamera = dynamic_cast<NScene::Light*>(&(p));
-		shaderVertDepthOnly.SetShader();
-		context->OMSetBlendState(m_blendStateNoBlack, 0, 0xffffffff);//::NoBlack, blendFactor, 0xffffffff);
-		context->PSSetShader(NULL, NULL, 0); //set pixel writing stage to none
+		if (m_RSM.find((**it).m_id) == m_RSM.end()) {
+			m_RSM[(**it).m_id] = {
+				std::shared_ptr<RenderTexture>(new RenderTexture()),
+				std::shared_ptr<RenderTexture>(new RenderTexture()),
+				std::shared_ptr<DepthTexture>(new DepthTexture()) };
+			m_RSM[(**it).m_id].normal.get()->Initialize(device, SIZE_LIGHT_TEXTURE, SIZE_LIGHT_TEXTURE);
+			m_RSM[(**it).m_id].flux.get()->Initialize(device, SIZE_LIGHT_TEXTURE, SIZE_LIGHT_TEXTURE);
+			m_RSM[(**it).m_id].depth.get()->init(device, SIZE_LIGHT_TEXTURE, SIZE_LIGHT_TEXTURE);
+		}
+		auto rsm = m_RSM[(**it).m_id]; //Reflective shadow map
+		ID3D11RenderTargetView *renderTargets[]{
+			rsm.normal.get()->getRenderTargetView(),
+			rsm.flux.get()->getRenderTargetView()
+		};
+		//context->PSSetShader(NULL, NULL, 0); //set pixel writing stage to none
 		auto lightProjectionMatrix = lightCamera->getProjectionMatrix(.55*3.14f, SIZE_LIGHT_TEXTURE, SIZE_LIGHT_TEXTURE, 0.1, 50);
 
 		float progress = temp_angle;
@@ -244,24 +278,12 @@ void GraphicMain::renderLights(
 
 		//lightCamera->setPos(Vector3( sin(angle) * 10, 0, cos(angle)*-10 ));
 		auto lightViewProjection = DirectX::XMMatrixMultiply(lightCamera->getViewMatrix(), lightProjectionMatrix);
-		D3D11_VIEWPORT viewport;
-		viewport.TopLeftX = 0;
-		viewport.TopLeftY = 0;
-		viewport.Width = (float)SIZE_LIGHT_TEXTURE;
-		viewport.Height = (float)SIZE_LIGHT_TEXTURE;
-		viewport.MinDepth = 0.0f;
-		viewport.MaxDepth = 1.0f;
-		context->RSSetViewports(1, &viewport);
 		
-
-		auto depth = m_lightDepthTextures[(*it)->m_id];
-		if (depth == 0) {//TODO meh...it is going to take less than one second to check this it is dirty though. Think of better ways of doing it if you can.
-			m_lightDepthTextures[(*it)->m_id] = new DepthTexture();
-			m_lightDepthTextures[(*it)->m_id]->init(device, SIZE_LIGHT_TEXTURE, SIZE_LIGHT_TEXTURE);
-			depth = m_lightDepthTextures[(*it)->m_id];
-		}
-		context->OMSetRenderTargets(0, 0, depth->getDepthStencilView());
-		depth->clear(context);
+		context->RSSetViewports(1, &viewport);
+		context->OMSetRenderTargets(2, renderTargets, rsm.depth->getDepthStencilView());
+		rsm.normal.get()->ClearRenderTarget(context, 0, 0, 0, 1);
+		rsm.flux.get()->ClearRenderTarget(context, 0, 0, 0, 1);
+		rsm.depth.get()->clear(context);
 												  //DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose((*it)->getModelMatrix())); // Transpose for HLSL!
 																									  //auto wtf = cam->getViewMatrix();
 		if (temp_angle > 1) {
@@ -273,29 +295,20 @@ void GraphicMain::renderLights(
 																			 //DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(cam->getProjectionMatrix(512,512, 0.1f, 100.0f))); // Transpose for HLSL!
 
 
-		shaderVertDepthOnly.SetMatrix4x4("world", world);
-		shaderVertDepthOnly.SetMatrix4x4("view", view);
-		shaderVertDepthOnly.SetMatrix4x4("projection", projection);
-		shaderVertDepthOnly.CopyAllBufferData();
+		shaderVertLight.SetMatrix4x4("world", world);
+		shaderVertLight.SetMatrix4x4("view", view);
+		shaderVertLight.SetMatrix4x4("projection", projection);
+		DirectX::XMFLOAT4 storeVector4;
+		DirectX::XMStoreFloat4(&storeVector4, lightCamera->m_lightColor);
+		shaderFragLight.SetFloat4("lightColor", storeVector4);//	t()->m_pos * Vector3(0, 0, 1));
 
 
-		for (auto obj = scene.objs_solid.begin(); obj != scene.objs_solid.end(); obj++) {
+		shaderVertLight.SetShader();
+		shaderFragLight.SetShader();
+		context->OMSetBlendState(0, 0, 0xffffffff);
+		
+		renderSolidObjects(context, scene, shaderVertLight, shaderFragLight, meshes, textures);
 
-			auto mesh = *meshes[(*obj)->m_meshId];
-			DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose((*obj)->getModelMatrix())); // Transpose for HLSL!
-
-			shaderVertDepthOnly.SetMatrix4x4("world", world);
-			shaderVertDepthOnly.CopyAllBufferData();
-			UINT stride = sizeof(Vertex);
-			UINT offset = 0;
-			context->IASetVertexBuffers(0, 1, &mesh->getBufferVertexRef(), &stride, &offset);
-			context->IASetIndexBuffer(mesh->getBufferIndex(), DXGI_FORMAT_R32_UINT, 0);
-
-			context->DrawIndexed(
-				mesh->getBufferIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
-				0,     // Offset to the first index we want to use
-				0);    // Offset to add to each index when looking up vertices
-		}
 		//orthogonal display here
 		target.SetRenderTarget(context, targetDepth.getDepthStencilView());
 		targetDepth.clear(context);
@@ -316,8 +329,7 @@ void GraphicMain::renderLights(
 		}
 		DirectX::XMFLOAT3 storeVector3;
 		DirectX::XMStoreFloat3(&storeVector3, DirectX::XMVector3Rotate(Vector3(0, 0, 1), it->get()->m_rotation));
-		DirectX::XMFLOAT4 storeVector4;
-		DirectX::XMStoreFloat4(&storeVector4, lightCamera->m_lightColor);
+		
 		shaderFrag.SetFloat3("lightPos", it->get()->m_pos);
 		if (!shaderFrag.SetFloat3("lightDir", it->get()->m_dirLook)  ){
 			//std::cout << "lightDir FAIL FAIL FAIL";
@@ -330,7 +342,7 @@ void GraphicMain::renderLights(
 		shaderFrag.SetShaderResourceView("textureDiffuse", textureDiffuse.GetShaderResourceView());
 		shaderFrag.SetShaderResourceView("textureNormal", textureNormal.GetShaderResourceView());
 		shaderFrag.SetShaderResourceView("textureDepth", textureDepth.getShaderResourceView());
-		if (!shaderFrag.SetShaderResourceView("textureLightDepth", depth->getShaderResourceView())) {
+		if (!shaderFrag.SetShaderResourceView("textureLightDepth", rsm.depth->getShaderResourceView())) {
 			std::cout << "FAIL";
 			//textureLightDepth
 		}
@@ -344,6 +356,7 @@ void GraphicMain::renderLights(
 		shaderVert.CopyAllBufferData();
 		shaderFrag.CopyAllBufferData();
 
+		context->OMSetBlendState(m_blendStateNoBlack, 0, 0xffffffff);
 		{
 			auto mesh = *meshes[KEnum::MESH_ID_PLANE];
 			UINT stride = sizeof(Vertex);
@@ -381,16 +394,16 @@ void GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *context, As
 	renderPreDeffered(context, scene,
 		*asset->m_shadersVert[RENDER_TYPE_DEFFERED], *asset->m_shadersFrag[RENDER_TYPE_DEFFERED],
 		*m_renderTextures[RENDER_TYPE_DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL],*m_depthTextures[RENDER_TYPE_DEFFERED],
-		asset->m_meshes, &asset->m_textures,
+		asset->m_meshes, asset->m_textures,
 		asset->m_samplers[SAMPLER_ID_WRAP]
 		);
 	renderLights(device,context, 
 		scene,
-		*asset->m_shadersVert[RENDER_TYPE_DEPTH],
+		*asset->m_shadersVert[RENDER_TYPE_LIGHT_RSM], *asset->m_shadersFrag[RENDER_TYPE_LIGHT_RSM],
 		*asset->m_shadersVert[RENDER_TYPE_DEFFERED_LIGHT_SPOTLIGHT], *asset->m_shadersFrag[RENDER_TYPE_DEFFERED_LIGHT_SPOTLIGHT],
 		*m_renderTextures[RENDER_TYPE_DEFFERED_FINAL],* m_depthTextures[RENDER_TYPE_DEFFERED_FINAL],
 		*m_renderTextures[RENDER_TYPE_DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL], *m_depthTextures[RENDER_TYPE_DEFFERED],
-		asset->m_meshes, &asset->m_textures,
+		asset->m_meshes, asset->m_textures,
 		asset->m_samplers[SAMPLER_ID_WRAP], asset->m_samplers[SAMPLER_ID_BORDER_ONE]
 		);
 	renderUI(context, scene,
