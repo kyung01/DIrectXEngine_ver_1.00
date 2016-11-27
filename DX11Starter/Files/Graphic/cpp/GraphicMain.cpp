@@ -3,7 +3,7 @@
 
 using namespace NGraphic;
 
-static int SIZE_LIGHT_TEXTURE = 512;
+static int SIZE_LIGHT_TEXTURE = 512*2;
 void GraphicMain::processObject(NScene::Object obj) {
 }
 
@@ -240,8 +240,11 @@ void GraphicMain::renderLights(
 	SimpleVertexShader & shaderVert, SimpleFragmentShader & shaderFrag, RenderTexture& target, DepthTexture& targetDepth,
 	RenderTexture & textureDiffuse, RenderTexture & textureNormal, RenderTexture & textureSpecular, DepthTexture & textureDepth,
 	std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> &textures,
-	ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth)
+	ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth, ID3D11SamplerState * samplerLightRSM)
 {
+	//VERY IMPORTANT 
+	//THE ORDER IN WHICH YOU MULTIPLY MATRIX IS REVERSED WHY? I DONT KNOW
+	//DirectX::XMMatrixInverse(0, DirectX::XMMatrixMultiply(scene.m_camMain.getViewMatrix(), scene.m_camMain.getProjectionMatrix()));
 	int count = 0; //TODO delete this
 	DirectX::XMFLOAT4X4 world, view, projection;
 	auto sceneReverseProjectionView = DirectX::XMMatrixInverse(0, DirectX::XMMatrixMultiply(scene.m_camMain.getViewMatrix(), scene.m_camMain.getProjectionMatrix()));
@@ -276,12 +279,13 @@ void GraphicMain::renderLights(
 		};
 		//context->PSSetShader(NULL, NULL, 0); //set pixel writing stage to none
 		auto lightProjectionMatrix = lightCamera->getProjectionMatrix(.55*3.14f, SIZE_LIGHT_TEXTURE, SIZE_LIGHT_TEXTURE, 0.1, 50);
+		auto lightProjectionView = DirectX::XMMatrixMultiply(lightCamera->getViewMatrix(), lightProjectionMatrix);
+		auto lightProjectionViewInverse = DirectX::XMMatrixInverse(0, DirectX::XMMatrixMultiply(lightCamera->getViewMatrix(),lightProjectionMatrix));
 
 		float progress = temp_angle;
 		
 
 		//lightCamera->setPos(Vector3( sin(angle) * 10, 0, cos(angle)*-10 ));
-		auto lightViewProjection = DirectX::XMMatrixMultiply(lightCamera->getViewMatrix(), lightProjectionMatrix);
 		
 		context->RSSetViewports(1, &viewport);
 		context->OMSetRenderTargets(2, renderTargets, rsm.depth->getDepthStencilView());
@@ -331,8 +335,12 @@ void GraphicMain::renderLights(
 		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(sceneReverseProjectionView)); // Transpose for HLSL!
 		shaderFrag.SetMatrix4x4("matProjViewInverse", projection);
 		//ok so far
-		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(lightViewProjection)); // Transpose for HLSL!
-		if (!shaderFrag.SetMatrix4x4("matLightViewProj", projection)) {
+		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(lightProjectionView)); // Transpose for HLSL!
+		if (!shaderFrag.SetMatrix4x4("matLightProjView", projection)) {
+			std::cout << "ERER";
+		}
+		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(lightProjectionViewInverse)); // Transpose for HLSL!
+		if (!shaderFrag.SetMatrix4x4("matLightProjViewInverse", projection)) {
 			std::cout << "ERER";
 		}
 		DirectX::XMStoreFloat3(&storeVector3, DirectX::XMVector3Rotate(Vector3(0, 0, 1), it->get()->m_rotation));
@@ -347,16 +355,19 @@ void GraphicMain::renderLights(
 
 		//matProjInverse
 
-		shaderFrag.SetShaderResourceView("textureDiffuse", textureDiffuse.GetShaderResourceView());
-		shaderFrag.SetShaderResourceView("textureNormal", textureNormal.GetShaderResourceView());
+		shaderFrag.SetShaderResourceView("textureDiffuse", textureDiffuse.getShaderResourceView());
+		shaderFrag.SetShaderResourceView("textureNormal", textureNormal.getShaderResourceView());
 		shaderFrag.SetShaderResourceView("textureDepth", textureDepth.getShaderResourceView());
-		shaderFrag.SetShaderResourceView("textureSpecular", textureSpecular.GetShaderResourceView());
+		shaderFrag.SetShaderResourceView("textureSpecular", textureSpecular.getShaderResourceView());
 		if (!shaderFrag.SetShaderResourceView("textureLightDepth", rsm.depth->getShaderResourceView())) {
 			std::cout << "FAIL";
 			//textureLightDepth
 		}
+		shaderFrag.SetShaderResourceView("textureLightRSM", rsm.flux->getShaderResourceView());
+		shaderFrag.SetShaderResourceView("textureLightNormal", rsm.normal->getShaderResourceView());
 		shaderFrag.SetSamplerState("samplerDefault", samplerDefault);
 		shaderFrag.SetSamplerState("samplerLight", samplerLightDepth);
+		shaderFrag.SetSamplerState("samplerLightRSM", samplerLightRSM);
 
 
 
@@ -416,7 +427,7 @@ void GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *context, As
 		*m_renderTextures[RENDER_TYPE_DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL], *m_renderTextures[RENDER_TYPE_DEFFERED_SPECULAR],
 		*m_depthTextures[RENDER_TYPE_DEFFERED],
 		asset->m_meshes, asset->m_textures,
-		asset->m_samplers[SAMPLER_ID_WRAP], asset->m_samplers[SAMPLER_ID_BORDER_ONE]
+		asset->m_samplers[SAMPLER_ID_WRAP], asset->m_samplers[SAMPLER_ID_BORDER_ONE], asset->m_samplers[SAMPLER_ID_BORDER_ZERO]
 		);
 	renderUI(context, scene,
 		*asset->m_shadersVert[RENDER_TYPE_UI], *asset->m_shadersFrag[RENDER_TYPE_UI],

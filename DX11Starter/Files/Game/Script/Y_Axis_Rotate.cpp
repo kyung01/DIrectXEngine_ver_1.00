@@ -10,7 +10,7 @@ void NGame::NScript::Y_Axis_Rotate::init(Context& context, Entity& me)
 
 void NGame::NScript::Y_Axis_Rotate::update(Context & context, Entity & me, float timeElapsed)
 {
-	progress += progressDir * timeElapsed*0.5;
+	progress += progressDir * timeElapsed*0.1;
 	if (abs(progress) > 1){
 		progress = progressDir;
 		progressDir *= -1;

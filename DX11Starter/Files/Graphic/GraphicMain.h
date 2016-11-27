@@ -75,7 +75,7 @@ namespace NGraphic {
 						RenderTexture& textureDiffuse, RenderTexture& textureNormal, RenderTexture & textureSpecular,
 			DepthTexture& textureDepth,
 			std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> &textures,
-						ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth
+						ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth, ID3D11SamplerState * samplerLightRSM
 			);
 		
 	protected:

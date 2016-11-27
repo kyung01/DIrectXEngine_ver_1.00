@@ -147,7 +147,7 @@ ID3D11RenderTargetView * RenderTexture::getRenderTargetView() {
 	return m_renderTargetView;
 }
 
-ID3D11ShaderResourceView* RenderTexture::GetShaderResourceView()
+ID3D11ShaderResourceView* RenderTexture::getShaderResourceView()
 {
 	return m_shaderResourceView;
 }

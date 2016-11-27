@@ -32,7 +32,7 @@ namespace NGraphic {
 
 		void SetRenderTarget(ID3D11DeviceContext*, ID3D11DepthStencilView*);
 		void ClearRenderTarget(ID3D11DeviceContext*, float, float, float, float);
-		ID3D11ShaderResourceView* GetShaderResourceView();
+		ID3D11ShaderResourceView* getShaderResourceView();
 		ID3D11RenderTargetView * getRenderTargetView();
 
 		D3D11_VIEWPORT viewport;

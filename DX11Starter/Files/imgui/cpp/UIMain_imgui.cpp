@@ -14,7 +14,7 @@ void NImGui::UIMain::render(std::map<KEnum, std::shared_ptr<RenderTexture>> rend
 
 	for (auto it = renderTexutres.begin(); it != renderTexutres.end(); it++) {
 		ImGui::Text("RenderTextures", 500, 500);
-		ImTextureID tex_id = it->second->GetShaderResourceView();
+		ImTextureID tex_id = it->second->getShaderResourceView();
 		//ImTextureID tex_id = ImGui::GetIO().Fonts->TexID;
 		ImGui::Text("%.0fx%.0f", 500, 500);
 		ImGui::Image(tex_id, ImVec2(500, 500), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
@@ -55,8 +55,8 @@ void NImGui::UIMain::render(std::map<int, ReflectiveShadowMap> textures)
 	ImGui::Begin("ReflectiveShadowMaps", 0, ImGuiWindowFlags_ShowBorders);
 	for (auto it = textures.begin(); it != textures.end(); it++) {
 		ImGui::Text("REFLECTIVE SHADOW MAP", 500, 500);
-		ImTextureID normal = it->second.normal->GetShaderResourceView();
-		ImTextureID flux = it->second.flux->GetShaderResourceView();
+		ImTextureID normal = it->second.normal->getShaderResourceView();
+		ImTextureID flux = it->second.flux->getShaderResourceView();
 		ImTextureID depth = it->second.depth->getShaderResourceView();
 		ImGui::Image(normal, ImVec2(500, 500), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
 		ImGui::Image(flux, ImVec2(500, 500), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));

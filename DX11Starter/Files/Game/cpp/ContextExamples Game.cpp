@@ -33,6 +33,7 @@ void NGame::LoadExample00(Context &context)
 	{
 		auto obj = context.m_scene->getObjSolid();
 		obj.get()->m_meshId = NGraphic::MESH_ID_TERRAIN_00;
+		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_DIFFUSE] = NGraphic::KEnum::TEXTURE_ID_TEST_01;
 		ground->m_graphicObjects.push_back(obj);
 		ground->setPos(-25 , 0, -25);
 	}
@@ -48,48 +49,63 @@ void NGame::LoadExample00(Context &context)
 		e->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0,1,0), 3.14/2- 3.14 / 6 * i));
 	}
 	distance = 3;
-	for (int i = 0; i < 7; i++) {
+	for (int i = 0; i < 1; i++) {
 		angle = 3.14 / 6 * i;
 		auto obj = context.m_scene->getObjSolid();
-		obj.get()->m_meshId = NGraphic::MESH_ID_SPHERE;
-		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_NORMAL] = normalIds[i % 6];
+		obj.get()->m_meshId = NGraphic::MESH_ID_CUBE;
+		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_NORMAL] = NGraphic::KEnum::TEXTURE_ID_NORMAL_DEFAULT;// normalIds[i % 6];
 		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_SPECULAR] = reflectiveIds[i %4];
 		auto e = new Entity();
 		context.addEntity(std::shared_ptr<Entity>(e));
 		e->m_graphicObjects.push_back(obj);
-		e->setPos(cos(angle)*distance, 0.5, sin(angle)*distance);
+		e->setPos(cos(angle)*distance, 0.3, sin(angle)*distance);
 	}
+	{
+		distance = 6;
+		angle =0;
+		auto obj = context.m_scene->getObjSolid();
+		obj.get()->m_meshId = NGraphic::MESH_ID_CUBE;
+		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_NORMAL] = NGraphic::KEnum::TEXTURE_ID_NORMAL_DEFAULT;// normalIds[i % 6];
+		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_SPECULAR] = reflectiveIds[0 % 4];
+		obj.get()->setScale(Vector3(1, 25, 25));
+		auto e = new Entity();
+		context.addEntity(std::shared_ptr<Entity>(e));
+		e->m_graphicObjects.push_back(obj);
+		e->setPos(5+cos(angle)*distance, 0.3, sin(angle)*distance);
+	}
+
 	distance = 5;
 	for (int i = 0; i < 9; i++) {
 		angle = 3.14 / 8 * i;
 		auto obj = context.m_scene->getObjSolid();
-		obj.get()->m_meshId = NGraphic::MESH_ID_SPHERE;
+		obj.get()->m_meshId = NGraphic::MESH_ID_CUBE;
 		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_NORMAL] = normalIds[i % 6];
 		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_SPECULAR] = reflectiveIds[i % 4];
+		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_DIFFUSE] = NGraphic::KEnum::TEXTURE_ID_WHITE;
 		auto e = new Entity();
 		context.addEntity(std::shared_ptr<Entity>(e));
 		e->m_graphicObjects.push_back(obj);
-		e->setPos(cos(angle)*distance, 0.5, sin(angle)*distance);
+		e->setPos(cos(angle)*distance, 0.25, sin(angle)*distance);
 	}
 	{
 		auto obj = context.m_scene->getObjLight();
 		auto light = new Entity();
 		context.addEntity(std::shared_ptr<Entity>(light));
-		obj->m_lightColor = Vector4(1.0, 1.0, 1.0, 10);
+		obj->m_lightColor = Vector4(1.0, 1.0, 1.0, 50);
 		light->m_graphicObjects.push_back(obj);
 		light->setPos(0, 5.5, 0);
 		light->setRotation(Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), 3.14*0.25f));
 		light->addScript(context, std::shared_ptr<Script>(new NScript::Y_Axis_Rotate()));
 	}
 	{
-		auto obj = context.m_scene->getObjLight();
-		auto light = new Entity();
-		context.addEntity(std::shared_ptr<Entity>(light));
-		obj->m_lightColor = Vector4(1.0, 0.0, 0.0, 10);
-		light->m_graphicObjects.push_back(obj);
-		light->setPos(0, 5.5, 0);
-		//light_spotlight00->setRotation(Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), 3.14*0.25f));
-		light->addScript(context, std::shared_ptr<Script>(new NScript::X_Axis_Rotate()));
+		//auto obj = context.m_scene->getObjLight();
+		//auto light = new Entity();
+		//context.addEntity(std::shared_ptr<Entity>(light));
+		//obj->m_lightColor = Vector4(1.0, 0.0, 0.0, 50);
+		//light->m_graphicObjects.push_back(obj);
+		//light->setPos(0, 5.5, 0);
+		////light_spotlight00->setRotation(Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), 3.14*0.25f));
+		//light->addScript(context, std::shared_ptr<Script>(new NScript::X_Axis_Rotate()));
 	}
 
 }

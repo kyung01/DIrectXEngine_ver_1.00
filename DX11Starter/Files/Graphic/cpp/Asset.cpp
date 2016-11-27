@@ -126,10 +126,29 @@ bool Asset::init(ID3D11Device * device, ID3D11DeviceContext * context)
 	samplerDescLight.MaxAnisotropy = 16;
 	samplerDescLight.MinLOD = 0;
 	samplerDescLight.MaxLOD = D3D11_FLOAT32_MAX;
-	ID3D11SamplerState * samplerDefault, *samplerBorderOne;
+
+	D3D11_SAMPLER_DESC samplerDescLightRMS = {};
+	samplerDescLightRMS.Filter = D3D11_FILTER_ANISOTROPIC;
+	//samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDescLightRMS.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDescLightRMS.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDescLightRMS.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDescLightRMS.BorderColor[0] = 0.0f;
+	samplerDescLightRMS.BorderColor[1] = 0.0f;
+	samplerDescLightRMS.BorderColor[2] = 0.0f;
+	samplerDescLightRMS.BorderColor[3] = 0.0f;
+	samplerDescLightRMS.MaxAnisotropy = 16;
+	samplerDescLightRMS.MinLOD = 0;
+	samplerDescLightRMS.MaxLOD = D3D11_FLOAT32_MAX;
+
+
+
+	ID3D11SamplerState * samplerDefault, *samplerBorderOne,*samplerBorderZero;
 	device->CreateSamplerState(&samplerDesc, &samplerDefault);
 	device->CreateSamplerState(&samplerDescLight, &samplerBorderOne);
+	device->CreateSamplerState(&samplerDescLightRMS, &samplerBorderZero);
 	m_samplers[SAMPLER_ID_WRAP]		= samplerDefault;
-	m_samplers[SAMPLER_ID_BORDER_ONE]	= samplerBorderOne;
+	m_samplers[SAMPLER_ID_BORDER_ONE] = samplerBorderOne;
+	m_samplers[SAMPLER_ID_BORDER_ZERO] = samplerBorderZero;
 
 }
