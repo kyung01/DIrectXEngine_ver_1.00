@@ -24,7 +24,12 @@
 
 namespace NGraphic {
 	//TODO hlsl files are stroed in debug folder once they are built with extention .cso You need grasp them
-	
+	struct ReflectiveShadowMap{
+		std::shared_ptr<RenderTexture>	flux;
+		std::shared_ptr<RenderTexture>	normal;
+		std::shared_ptr<DepthTexture>	depth;
+
+	};
 	struct MeshLoadInformation {
 		KEnum id;
 		char* path;
@@ -82,7 +87,9 @@ namespace NGraphic {
 
 		std::map<KEnum, std::shared_ptr<RenderTexture>>	m_renderTextures;
 		std::map<KEnum, std::shared_ptr<DepthTexture>>	m_depthTextures;
-		std::map<int, DepthTexture*> m_lightDepthTextures;
+		std::map<int, DepthTexture*>					m_lightDepthTextures;
+		std::map<int, std::shared_ptr<RenderTexture>*>  m_light_normals;
+		std::map<int, std::shared_ptr<RenderTexture>*>  m_light_flux;
 
 		std::map<int, Shader*> shaders;
 		// Width and hieght is for the resolution in wihich this graphic main will adjust to render things onto
