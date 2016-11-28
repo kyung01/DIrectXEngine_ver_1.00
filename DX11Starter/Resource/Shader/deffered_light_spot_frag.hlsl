@@ -267,6 +267,107 @@ static float RSM_RND[200] = {
 ,0.040696600936678
 
 };
+static float RSM_RND_LENGTH[100] = { 0.048134897857967
+,0.36022071603696
+,0.21288760598418
+,0.025760351226553
+,0.26169597742227
+,0.073016679879751
+,0.39721957077143
+,0.29903253903567
+,0.48243113466652
+,0.29937521242508
+,0.040685007367602
+,0.38409085566368
+,0.30260948105837
+,0.041065108050157
+,0.18516915183755
+,0.0070912551633507
+,0.015345838160881
+,0.35674046951194
+,0.46557360490112
+,0.11148860962665
+,0.42925019791781
+,0.4629900033879
+,0.13080204843115
+,0.28110215849294
+,0.03125066125358
+,0.089183246758386
+,0.17452237879602
+,0.45328610527948
+,0.46608542858906
+,0.090733395465991
+,0.38503296621378
+,0.19659018269581
+,0.40427148267826
+,0.16235909548698
+,0.49346470925653
+,0.44382689518101
+,0.28178000020877
+,0.0053173450312192
+,0.058866160716334
+,0.03677529144882
+,0.057880547157433
+,0.35446438512507
+,0.18788235550182
+,0.038822927297476
+,0.47424016705446
+,0.37342772836491
+,0.38168176700439
+,0.074604749481475
+,0.32796327994576
+,0.06494606056481
+,0.33176832894411
+,0.46027175987152
+,0.19266047011719
+,0.0058828808860308
+,0.062813160970254
+,0.22524363977147
+,0.37279646767899
+,0.35950937697641
+,0.0737494733528
+,0.069422158677793
+,0.28159697786048
+,0.36049465875164
+,0.39472785982989
+,0.25086359342135
+,0.38838205667603
+,0.49645845964386
+,0.21568033784427
+,0.10097743389242
+,0.45836985039449
+,0.4539863199247
+,0.67659661810687
+,0.52877358744329
+,0.54175070116378
+,0.54950279092859
+,0.77800544084888
+,0.60467920061419
+,0.8161213066504
+,0.73574132250424
+,0.69018097603236
+,0.92486195099766
+,0.82579601664366
+,0.55149890251993
+,0.98926399228594
+,0.54862440007209
+,0.93345590817437
+,0.52829937754585
+,0.90471746931072
+,0.50886205234978
+,0.5951545960713
+,0.94743537481289
+,0.65996995808555
+,0.721557054539
+,0.56025612683047
+,0.98709781630295
+,0.83437393691129
+,0.90494566103674
+,0.70161193898023
+,0.53852744867957
+,0.91816387112167
+,0.6016344430864 };
+
 float3 getFluxColor(float2 uv,
 	float3 posWorld, float3 normal,
 	Texture2D textureLightDepth, Texture2D textureLightNormal, Texture2D textureLightRSM, matrix matLightProjViewInverse) {
@@ -321,20 +422,27 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float2 uvTemp = float2(posFromLightProjection.x*0.5 + 0.5, 1 - (posFromLightProjection.y*0.5 + 0.5));
 	float3 fluxColor = float3(0,0,0);
 
-	float theRange = min(1,length(posWorld.xyz - posEye.xyz)/100);
-	theRange = -pow(theRange - 1, 2) + 1;
-
-	for (float i = 0; i < 100; i++) {
-		float distance = 0.01+0.99*(i / 100);
-		float x =saturate(uv.x + cos(6.28*RSM_RND[i])*distance), y = saturate(uv.y + sin(6.28*RSM_RND[i])*distance);
+	float theRange = length(posWorld.xyz - posEye.xyz);
+	//theRange = -pow(theRange - 1, 2) + 1;
+	
+	float distanceMax = 1.0;
+	float	ratioPower = 10.0;
+	float iMax = 100;
+	
+	distanceMax =min(1, 0.15*(1+ theRange) );
+	ratioPower = 0.955;
+	for (float i = 0; i < iMax; i++) {
+		float distance = RSM_RND_LENGTH[i] * distanceMax;// / iMax);
+		float x = saturate(uv.x + cos(1 + 6.28*RSM_RND[i])*distance), y = saturate(uv.y + sin(1 + 6.28*RSM_RND[i])*distance);
 		//float x = RSM_RND[i * 2], y = RSM_RND[i*2+1];
 		float xx = x - uv.x, yy = y - uv.y;
-		float ratio = xx*xx + yy*yy;
-		fluxColor += sqrt(ratio)* getFluxColor(float2(x,y), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
+		float ratio = sqrt(xx*xx + yy*yy);
+		fluxColor += (ratio)* getFluxColor(float2(x, y), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
 
 	}
+
 	fluxColor *= specular;
-	fluxColor = saturate(fluxColor * 3.5);
+	fluxColor = saturate(fluxColor);
 	return float4(fluxColor, 1);
 
 	float3 disFromLightToPos = posWorld.xyz - lightPos;
