@@ -38,7 +38,7 @@ struct VertexToPixel
 float4 getPosWorld(float2 uv, Texture2D depthTexture, matrix matProjViewInverse) {
 	float4 posWorld = float4(
 		uv.x * 2 - 1, (1 - uv.y) * 2 - 1,
-		depthTexture.Sample(samplerDefault, uv).x, 1);
+		depthTexture.Sample(samplerLight, uv).x, 1);
 	posWorld = mul(posWorld, matProjViewInverse);
 	posWorld /= 0.00000001 + posWorld.w;
 
@@ -271,7 +271,7 @@ float3 getFluxColor(float2 uv,
 	float3 posWorld, float3 normal,
 	Texture2D textureLightDepth, Texture2D textureLightNormal, Texture2D textureLightRSM, matrix matLightProjViewInverse) {
 	float3 lightPosWorld = getPosWorld(uv, textureLightDepth, matLightProjViewInverse).xyz;
-	float3 lightNormal = textureLightNormal.Sample(samplerLightRSM, uv) * 2 - 1;
+	float3 lightNormal = textureLightNormal.Sample(samplerDefault, uv) * 2 - 1;
 	//if (uv.x < 0 || uv.x > 1 || uv.y < 0 || uv.y > 1)
 	//	return float3(0, 0, 0);
 	//return lightPosWorld ;
@@ -282,11 +282,16 @@ float3 getFluxColor(float2 uv,
 	//return  float3(uv*0.5, 0);
 
 	float3 lightFlux = textureLightRSM.Sample(samplerLightRSM, uv);
-	float result = max(0, dot(normal, lightPosWorld - posWorld))
-		* max(0, dot(lightNormal, posWorld - lightPosWorld));
-	float3 dis = posWorld.xyz - lightPosWorld.xyz;
-	//normalize(dis);
-	return lightFlux *(result / (0.00001 + pow(length(dis), 4)));
+	float3 dis = posWorld.xyz - lightPosWorld.xyz; 
+	float disMag = dis.x*dis.x + dis.y*dis.y + dis.z*dis.z;
+	float result = (
+		max(0,dot(normal, lightPosWorld - posWorld ))
+		* max(0, dot(lightNormal, posWorld - lightPosWorld ))
+		)/ pow(disMag,2);
+	return (lightFlux*result);// / (1 + disMag);
+	//normalize(dis;
+	//return float3(length(dis), 0, 0);
+	//return lightFlux;// / pow(length(dis), 4);// *(result / (0.00001 + pow(dis.x*dis.x + dis.y*dis.y + dis.z*dis.z, 2)));
 	//result /=  pow(normalize(dis), 4);
 	//return lightPosWorld;
 	//return float3(result, 0, 0);
@@ -319,98 +324,18 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float theRange = min(1,length(posWorld.xyz - posEye.xyz)/100);
 	theRange = -pow(theRange - 1, 2) + 1;
 
-	float xMax = ( 1 - uv.x);
-	float yMax = ( 1 - uv.y);
 	for (float i = 0; i < 200; i++) {
-		float distance = i / 200;
-		distance *= distance;
-		distance *= distance;
-		float x = saturate(uv.x + cos(16.3*RSM_RND[i])*distance), y = saturate(uv.y + sin(16.3*RSM_RND[i])*distance);
+		float distance = (i / 200);
+		float x =saturate(uv.x + cos(6.28*RSM_RND[i])*distance), y = saturate(uv.y + sin(6.28*RSM_RND[i])*distance);
 		//float x = RSM_RND[i * 2], y = RSM_RND[i*2+1];
 		float xx = x - uv.x, yy = y - uv.y;
-		float ratio = sqrt(pow(x - uv.x, 2) + pow(y - uv.y, 2));
-		//ratio*= ratio;
-		fluxColor += (ratio)*getFluxColor(float2(x,y), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
+		float ratio = sqrt(xx*xx + yy*yy);
+		fluxColor += ratio* getFluxColor(float2(x,y), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
 
 	}
-	fluxColor = fluxColor * specular;
-	//	
-	//return float4(theRange, 0, 0, 1);
-	//for (int i = 0; i < 200;i++ ) {
-	//	float ratio = min(1,i*i);
-	//	float r = RSM_SAMPLES[i];
-	//	float rr = r*r;
-	//	float xMax = min(1.0, max(0.007, min(1 - uv.x, uv.x)));// min(min(1 - uv.x, uv.x), min(1 - uv.y, uv.y));
-	//	float yMax = min(1.0, max(0.007, min(1 - uv.y, uv.y)));// min(min(1 - uv.x, uv.x), min(1 - uv.y, uv.y));
-	//	float x = cos(r*106.28)*xMax;
-	//	float y = sin(r*106.28)*yMax;
-	//	fluxColor += (x*x+y*y)	*getFluxColor(uv + float2(x,y), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-	//	//fluxColor += (x*x + y*y)*getFluxColor(uv + float2(-x, y), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-	//	//fluxColor += (x*x + y*y)*getFluxColor(uv + float2(x, -y), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-	//	//fluxColor += (x*x + y*y)*getFluxColor(uv + float2(-x, -y), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-	//	//fluxColor += rr*getFluxColor(uv + float2(cos(RSM_SAMPLES[(i+1)%20] * 20+1)*xMax, sin(RSM_SAMPLES[(i + 1) % 20] * 20 + 1)*yMax), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-	//	//fluxColor += rr*getFluxColor(uv + float2(cos(RSM_SAMPLES[(i + 2) % 20] * 7 + 2)*xMax, sin(RSM_SAMPLES[(i + 2) % 20] * 7 + 2)*yMax), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-	//	//fluxColor += rr*getFluxColor(uv + float2(cos(RSM_SAMPLES[(i + 3) % 20] * 7 + 3)*xMax, sin(RSM_SAMPLES[(i + 3) % 20] * 7 + 3)*yMax), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-	//	//fluxColor += rr*getFluxColor(uv + float2(cos(RSM_SAMPLES[(i + 4) % 20] * 7 + 4)*xMax, sin(RSM_SAMPLES[(i + 4) % 20] * 7 + 4)*yMax), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-	//	//fluxColor += rr*getFluxColor(uv + float2(cos(RSM_SAMPLES[(i + 5) % 20] * 7 + 5)*xMax, sin(RSM_SAMPLES[(i + 5) % 20] * 7 + 5)*yMax), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-	//	//fluxColor += rr*getFluxColor(uv + float2(cos(RSM_SAMPLES[(i + 6) % 20] * 7 + 6)*xMax, sin(RSM_SAMPLES[(i + 6) % 20] * 7 + 6)*yMax), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-	//	//fluxColor += rr*getFluxColor(uv + float2(cos(RSM_SAMPLES[(i + 7) % 20] * 7 + 7)*xMax, sin(RSM_SAMPLES[(i + 7) % 20] * 7 + 7)*yMax), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-	//	//fluxColor += rr*getFluxColor(uv + float2(cos(RSM_SAMPLES[(i + 8) % 20] * 7 + 8)*xMax, sin(RSM_SAMPLES[(i + 8) % 20] * 7+8)*yMax), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-	//}
-	//fluxColor *= 250;
-		//fluxColor += r*r*getFluxColor(uv - float2(cos(r * 10)*xMax, sin(r * 10)*yMax), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-
-		//fluxColor += r*r*getFluxColor(uv + float2(0,r * yMax), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-		//fluxColor += r*r*getFluxColor(uv - float2(0,r * yMax), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-
-		//fluxColor += ratio*getFluxColor(uv + float2(cos(RSM_SAMPLES[i]*3.), sin(RSM_SAMPLES[i])	)*0.3, posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-		//fluxColor += ratio*getFluxColor(uv + float2(cos(RSM_SAMPLES[i]*3.), sin(RSM_SAMPLES[i])	)*0.3, posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-		//fluxColor += ratio*getFluxColor(uv + float2(cos(RSM_SAMPLES[i]*3.), sin(RSM_SAMPLES[i])	)*0.3, posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-		//fluxColor += ratio*getFluxColor(uv + float2(ratio*-0.3, 0), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-		//fluxColor += ratio*getFluxColor(uv + float2(0,ratio*0.3), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-		//fluxColor += ratio*getFluxColor(uv + float2(0,ratio*-0.3), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-		//fluxColor += getFluxColor(uv + float2(0,i), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-		//fluxColor += getFluxColor(uv + 0.01*i*float2(cos(i + 3.14), sin(i + 3.14)), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-		//fluxColor += getFluxColor(uv + 0.01*i*float2(cos(i + 3.14 / 2), sin(i + 3.14 / 2)), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-		//fluxColor += getFluxColor(uv + 0.01*i*float2(cos(i + 3.14 *1.5), sin(i + 3.14 *1.5)), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-		//fluxColor += getFluxColor(uv + float2(cos(i + 30), sin(i + 30)), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-		//fluxColor += getFluxColor(uv - float2(0.01*i, 0), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-		//fluxColor += getFluxColor(uv + float2(0, 0.01*i), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-		//fluxColor += getFluxColor(uv - float2(0, 0.01*i), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-
-	
-	//return float4(fluxColor, 1);
-	//fluxColor = saturate(fluxColor * 10.05);
-	// lightFlux * result;
-	//return float4(textureLightNormal.Sample(samplerLight, uv).x, 0, 0, 1);
-	//return float4(fluxColor + normal * 0.05, 1);
-																																	  //fluxColor += getFluxColor(uv + float2(0.2, 0), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);// lightFlux * result;
-	//fluxColor += getFluxColor(uv + float2(0.3, 0), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);// lightFlux * result;
-	//fluxColor += getFluxColor(uv + float2(0.4, 0), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);// lightFlux * result;
-
-	//for(float i = 1; i < 2; i++)
-	//{
-	//	float2 uv;
-	//	uv = uvTemp + float2(0,0.01*i);
-	//	fluxColor += getFluxColor(uv, posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);// lightFlux * result;
-	//
-	//	uv = uvTemp + float2(0,0.01*i);
-	//	fluxColor += getFluxColor(uv, posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);// lightFlux * result;
-	//
-	//	uv = uvTemp + float2(0.01*i, 0);
-	//	fluxColor += getFluxColor(uv, posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);// lightFlux * result;
-	//	uv = uvTemp + float2(-0.01*i,0);
-	//	fluxColor += getFluxColor(uv, posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);// lightFlux * result;
-	//	//float2 uv = input.uv + float2(0.1, 0.1);
-	//	//float4 posWorld = getPosWorld(uv, textureDepth, matProjViewInverse);
-	//	//float4 posFromLightProjection = mul(posWorld, matLightViewProj);
-	//	//posFromLightProjection /= 0.000000001 + posFromLightProjection.w;
-	//	//float2 uvAtLight = float2(posFromLightProjection.x*0.5 + 0.5, 1 - (posFromLightProjection.y*0.5 + 0.5));
-	//}
-	//return float4(uv, 0, 1);
-	//posFromLightProjection /= posFromLightProjection.w;
-	//posFromLightProjection = mul(posFromLightProjection, matBias);
-
+	fluxColor *= specular;
+	fluxColor = saturate(fluxColor * 3.5);
+	return float4(fluxColor, 1);
 
 	float3 disFromLightToPos = posWorld.xyz - lightPos;
 	float3 dirFromLightToPos = normalize(disFromLightToPos);
@@ -418,11 +343,9 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 	float lighted = posFromLightProjection.z - bias < textureLightDepth.Sample(samplerLight, uv).x;
 	float3 light_spotLight = spotLight(dirFromEyeToPos, diffuse, lightColor, lightDir, posWorld.xyz - lightPos, dirFromLightToPos, normal, specular) * lighted;
-	light_spotLight.x = max(0, light_spotLight.x);
-	light_spotLight.y = max(0, light_spotLight.y);
-	light_spotLight.z = max(0, light_spotLight.z);
-	//return	float4( fluxColor , 1);
-	return	float4(light_spotLight + fluxColor + diffuse*0.01, 1);
+
+	//return	float4(saturate( fluxColor ), 1);
+	return	float4(saturate(light_spotLight + fluxColor + diffuse*0.01) , 1);
 	
 	//lighted = getShadowAt(posWorld, bias);// (posFromLightProjection.z - bias < lighted);
 	//float lighted = (posFromLightProjection.z  -bias< depthClosest );

@@ -23,7 +23,8 @@ float4 spotLight(
 	float ratio = max(0, 1 - pow(-dotAngle + 1, 5) / pow(lightMaxAngle, 10));
 	float isLightedSpotlight = (dotAngle > lightMaxAngle)*ratio;// *(dotAngle / lightMaxAngle);
 
-	return float4(diffuseColor*lightColor.xyz *getPower(dirLightToWorld, surfaceNormal, luminosity)*powerLuminance * isLightedSpotlight, 1);
+	return float4(
+		diffuseColor*lightColor.xyz *getPower(dirLightToWorld, surfaceNormal, luminosity)*powerLuminance * isLightedSpotlight, 1);
 }
 float3 spotLight(
 	float3 dirEyeToWorld,
@@ -43,11 +44,12 @@ float3 spotLight(
 	float ratio = max(0, 1 - pow(-dotAngle + 1, 5) / pow(lightMaxAngle, 10));
 	float isLightedSpotlight = (dotAngle > lightMaxAngle)*ratio;// *(dotAngle / lightMaxAngle);
 
-	return float3(diffuseColor*lightColor.xyz )
-		
+	return saturate(
+		float3(diffuseColor*lightColor.xyz)
+
 		*(
-			(getPower(dirLightToWorld, surfaceNormal, luminosity)+pow(dot(eye, -surfaceNormal), 10) )
+		(getPower(dirLightToWorld, surfaceNormal, luminosity) + pow(dot(eye, -surfaceNormal), 10))
 			*powerLuminance * isLightedSpotlight
 			)
-		;
+	);
 }
