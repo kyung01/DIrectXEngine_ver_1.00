@@ -324,13 +324,13 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float theRange = min(1,length(posWorld.xyz - posEye.xyz)/100);
 	theRange = -pow(theRange - 1, 2) + 1;
 
-	for (float i = 0; i < 200; i++) {
-		float distance = (i / 200);
+	for (float i = 0; i < 100; i++) {
+		float distance = 0.01+0.99*(i / 100);
 		float x =saturate(uv.x + cos(6.28*RSM_RND[i])*distance), y = saturate(uv.y + sin(6.28*RSM_RND[i])*distance);
 		//float x = RSM_RND[i * 2], y = RSM_RND[i*2+1];
 		float xx = x - uv.x, yy = y - uv.y;
-		float ratio = sqrt(xx*xx + yy*yy);
-		fluxColor += ratio* getFluxColor(float2(x,y), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
+		float ratio = xx*xx + yy*yy;
+		fluxColor += sqrt(ratio)* getFluxColor(float2(x,y), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
 
 	}
 	fluxColor *= specular;
