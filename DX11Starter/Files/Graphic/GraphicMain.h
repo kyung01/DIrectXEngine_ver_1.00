@@ -46,7 +46,7 @@ namespace NGraphic {
 		void processObject(NScene::Object obj);
 
 
-		bool initTextures		(ID3D11Device* device, ID3D11DeviceContext *context, int width, int height);
+		bool initTextures		(ID3D11Device* device, ID3D11DeviceContext *context, int width, int height, int textureIndirectLightWidth, int textureIndirectLightHeight);
 		bool initShaders		(ID3D11Device* device, ID3D11DeviceContext *context);
 
 		void renderSolidObjects(
@@ -68,15 +68,31 @@ namespace NGraphic {
 			RenderTexture& texture_final, DepthTexture& textureDepth,
 			std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> *textures,
 			ID3D11SamplerState * sampler);
-		void renderLights(ID3D11Device* device,	ID3D11DeviceContext* context,
-						NScene::Scene &scene,
-						SimpleVertexShader& shaderVertLight, SimpleFragmentShader & shaderFragLight,
-						SimpleVertexShader& shaderVert, SimpleFragmentShader& shaderFrag, RenderTexture& target, DepthTexture& targetDepth,
-						RenderTexture& textureDiffuse, RenderTexture& textureNormal, RenderTexture & textureSpecular,
+		void renderLights(
+			ID3D11Device* device, ID3D11DeviceContext* context,
+			NScene::Scene &scene,
+			SimpleVertexShader& shaderVertLight, SimpleFragmentShader & shaderFragLight,
+			SimpleVertexShader& shaderVertIndirectLight, SimpleFragmentShader & shaderFragIndirectLight,
+			SimpleVertexShader& shaderVert, SimpleFragmentShader& shaderFrag,
+
+			RenderTexture& target, DepthTexture& targetDepth,
+			RenderTexture& textureDiffuse, RenderTexture& textureNormal, RenderTexture & textureSpecular,
 			DepthTexture& textureDepth,
+			RenderTexture &textureLightIndirect, DepthTexture& textureLightIndirectDpeth,
 			std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> &textures,
-						ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth, ID3D11SamplerState * samplerLightRSM
-			);
+			ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth, ID3D11SamplerState * samplerLightRSM
+		);
+		void renderFinalScene(
+			ID3D11Device* device, ID3D11DeviceContext* context, NScene::Scene & scene,
+			SimpleVertexShader& shaderVert, SimpleFragmentShader& shaderFrag,
+
+			RenderTexture& target, DepthTexture& targetDepth,
+			RenderTexture& textureLightDirect, RenderTexture& textureLightIndirect, 
+			RenderTexture& textureNormal,DepthTexture& textureDepth,
+			std::unique_ptr<Mesh*> &meshePlane,
+			ID3D11SamplerState * samplerDefault,
+			ID3D11SamplerState * samplerLinear
+		);
 		
 	protected:
 		ID3D11BlendState 
@@ -100,7 +116,7 @@ namespace NGraphic {
 		std::map<int, Shader*> shaders;
 		// Width and hieght is for the resolution in wihich this graphic main will adjust to render things onto
 		GraphicMain();
-		bool init(ID3D11Device *device, ID3D11DeviceContext *context, int width, int height);
+		bool init(ID3D11Device *device, ID3D11DeviceContext *context, int textureWidth, int textureHeight, int textureIndirectLightWidth, int textureIndirectLightHeight);
 		void render(ID3D11Device * device , ID3D11DeviceContext* context,  Asset* asset, NScene::Scene scene);
 	};
 }

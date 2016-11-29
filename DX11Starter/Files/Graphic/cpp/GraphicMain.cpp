@@ -30,30 +30,32 @@ void GraphicMain::rendering(NScene::Scene scene)
 
 	
 }
-bool GraphicMain::initTextures(ID3D11Device * device, ID3D11DeviceContext * context,int width, int height)
+bool GraphicMain::initTextures(ID3D11Device * device, ID3D11DeviceContext * context,
+	int width, int height,
+	int textureIndirectLightWidth, int textureIndirectLightHeight)
 {
+#define HPR_ADD_DEPTH_TEXTURE(key,defWidth, defHeight) \
+m_depthTextures[key] = std::shared_ptr<DepthTexture>(new DepthTexture());\
+m_depthTextures[key]->init(device, defWidth, defHeight);
+#define HPR_ADD_RENDER_TEXTURE(key,defWidth, defHeight) \
+this->m_renderTextures[key]	= std::shared_ptr<RenderTexture>(new RenderTexture());\
+this->m_renderTextures[key]	->Initialize(device, defWidth, defHeight);
 	std::cout << "initTextures";
 
-	//auto lightTexture = std::shared_ptr<DepthTexture>(new DepthTexture());
-	this->m_depthTextures[KEnum::RENDER_TYPE_DEFFERED] = std::shared_ptr<DepthTexture>(new DepthTexture());
-	this->m_depthTextures[KEnum::RENDER_TYPE_DEFFERED_FINAL] = std::shared_ptr<DepthTexture>(new DepthTexture());
-	this->m_depthTextures[KEnum::RENDER_TYPE_DEFFERED]->init(device, width, height);
-	this->m_depthTextures[KEnum::RENDER_TYPE_DEFFERED_FINAL]->init(device, width, height);
+	HPR_ADD_DEPTH_TEXTURE(KEnum::RENDER_TYPE_DEFFERED, width, height);
+	HPR_ADD_DEPTH_TEXTURE(KEnum::RENDER_TYPE_DEFFERED_FINAL, width, height);
+	HPR_ADD_DEPTH_TEXTURE(KEnum::RENDER_TYPE_DEFFERED_LIGHT_DIRECT, width, height);
+	HPR_ADD_DEPTH_TEXTURE(KEnum::RENDER_TYPE_DEFERRED_LIGHT_INDIRECT, textureIndirectLightWidth, textureIndirectLightHeight);
 
-	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED_DIFFUSE]	= std::shared_ptr<RenderTexture>(new RenderTexture());
-	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED]		= std::shared_ptr<RenderTexture>(new RenderTexture());
-	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED_NORMAL]	= std::shared_ptr<RenderTexture>(new RenderTexture());
-	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED_WORLD]		= std::shared_ptr<RenderTexture>(new  RenderTexture());
-	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED_FINAL] = std::shared_ptr<RenderTexture>(new  RenderTexture());
-	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED_SPECULAR] = std::shared_ptr<RenderTexture>(new  RenderTexture());
+	HPR_ADD_RENDER_TEXTURE(KEnum::RENDER_TYPE_DEFFERED, width, height);
+	HPR_ADD_RENDER_TEXTURE(KEnum::RENDER_TYPE_DEFFERED_LIGHT_DIRECT, width, height);
+	HPR_ADD_RENDER_TEXTURE(KEnum::RENDER_TYPE_DEFFERED_DIFFUSE, width, height);
+	HPR_ADD_RENDER_TEXTURE(KEnum::RENDER_TYPE_DEFFERED_NORMAL, width, height);
+	HPR_ADD_RENDER_TEXTURE(KEnum::RENDER_TYPE_DEFFERED_WORLD, width, height);
+	HPR_ADD_RENDER_TEXTURE(KEnum::RENDER_TYPE_DEFFERED_FINAL, width, height);
+	HPR_ADD_RENDER_TEXTURE(KEnum::RENDER_TYPE_DEFFERED_SPECULAR, width, height);
+	HPR_ADD_RENDER_TEXTURE(KEnum::RENDER_TYPE_DEFERRED_LIGHT_INDIRECT, textureIndirectLightWidth, textureIndirectLightHeight);
 
-
-	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED_DIFFUSE]	->Initialize(device, width, height);
-	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED]	->Initialize(device, width, height);
-	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED_NORMAL]	->Initialize(device, width, height);
-	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED_WORLD]->Initialize(device, width, height);
-	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED_FINAL]->Initialize(device, width, height);
-	this->m_renderTextures[KEnum::RENDER_TYPE_DEFFERED_SPECULAR]->Initialize(device, width, height);
 	return true;
 }
 bool GraphicMain::initShaders(ID3D11Device* device, ID3D11DeviceContext *context) {
@@ -66,12 +68,12 @@ bool GraphicMain::initShaders(ID3D11Device* device, ID3D11DeviceContext *context
 GraphicMain::GraphicMain()
 {
 }
-bool GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *context, int width, int height)
+bool GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *context, int width, int height, int textureIndirectLightWidth, int textureIndirectLightHeight)
 {
 	this->m_width = width;
 	this->m_height = height;
 	if (!initShaders(device, context)||
-		!initTextures(device,context,width,height)
+		!initTextures(device,context,width,height, textureIndirectLightWidth, textureIndirectLightHeight)
 		
 		) return false;
 	D3D11_BLEND_DESC noBlack = {};
@@ -235,10 +237,13 @@ void GraphicMain::renderUI(
 }
 void GraphicMain::renderLights(
 	ID3D11Device * device, ID3D11DeviceContext * context,
-	NScene::Scene &scene, 
+	NScene::Scene &scene,
 	SimpleVertexShader & shaderVertLight, SimpleFragmentShader & shaderFragLight,
-	SimpleVertexShader & shaderVert, SimpleFragmentShader & shaderFrag, RenderTexture& target, DepthTexture& targetDepth,
+	SimpleVertexShader& shaderVertIndirectLight, SimpleFragmentShader & shaderFragIndirectLight,
+	SimpleVertexShader & shaderVert, SimpleFragmentShader & shaderFrag,
+	RenderTexture& target, DepthTexture& targetDepth,
 	RenderTexture & textureDiffuse, RenderTexture & textureNormal, RenderTexture & textureSpecular, DepthTexture & textureDepth,
+	RenderTexture &textureLightIndirect, DepthTexture& textureLightIndirectDpeth,
 	std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> &textures,
 	ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth, ID3D11SamplerState * samplerLightRSM)
 {
@@ -280,37 +285,35 @@ void GraphicMain::renderLights(
 		//context->PSSetShader(NULL, NULL, 0); //set pixel writing stage to none
 		auto lightProjectionMatrix = lightCamera->getProjectionMatrix(.55*3.14f, SIZE_LIGHT_TEXTURE, SIZE_LIGHT_TEXTURE, 0.1, 50);
 		auto lightProjectionView = DirectX::XMMatrixMultiply(lightCamera->getViewMatrix(), lightProjectionMatrix);
-		auto lightProjectionViewInverse = DirectX::XMMatrixInverse(0, DirectX::XMMatrixMultiply(lightCamera->getViewMatrix(),lightProjectionMatrix));
+		auto lightProjectionViewInverse = DirectX::XMMatrixInverse(0, DirectX::XMMatrixMultiply(lightCamera->getViewMatrix(), lightProjectionMatrix));
 
 		float progress = temp_angle;
-		
+
 
 		//lightCamera->setPos(Vector3( sin(angle) * 10, 0, cos(angle)*-10 ));
-		
+
 		context->RSSetViewports(1, &viewport);
 		context->OMSetRenderTargets(2, renderTargets, rsm.depth->getDepthStencilView());
 		rsm.normal.get()->ClearRenderTarget(context, 0, 0, 0, 1);
 		rsm.flux.get()->ClearRenderTarget(context, 0, 0, 0, 1);
 		rsm.depth.get()->clear(context);
-												  //DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose((*it)->getModelMatrix())); // Transpose for HLSL!
-																									  //auto wtf = cam->getViewMatrix();
+		//DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose((*it)->getModelMatrix())); // Transpose for HLSL!
+		//auto wtf = cam->getViewMatrix();
 		if (temp_angle > 1) {
 			int e = 3;
 		}
 		DirectX::XMStoreFloat4x4(&world, XMMatrixTranspose(lightCamera->getModelMatrix())); // Transpose for HLSL!
 		DirectX::XMStoreFloat4x4(&view, XMMatrixTranspose(lightCamera->getViewMatrix())); // Transpose for HLSL!
 		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(lightProjectionMatrix)); // Transpose for HLSL!
-																			 //DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(cam->getProjectionMatrix(512,512, 0.1f, 100.0f))); // Transpose for HLSL!
+																						 //DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(cam->getProjectionMatrix(512,512, 0.1f, 100.0f))); // Transpose for HLSL!
 
 
 		shaderVertLight.SetMatrix4x4("world", world);
 		shaderVertLight.SetMatrix4x4("view", view);
 		shaderVertLight.SetMatrix4x4("projection", projection);
-		DirectX::XMFLOAT3 storeVector3;
-		DirectX::XMFLOAT4 storeVector4;
 		//DirectX::XMStoreFloat4(&storeVector4, lightCamera->m_lightColor);
 		shaderFragLight.SetFloat4("lightColor", lightCamera->m_lightColor);//	t()->m_pos * Vector3(0, 0, 1));
-		//DirectX::XMStoreFloat3(&storeVector3, lightCamera->m_dirLook);
+																		   //DirectX::XMStoreFloat3(&storeVector3, lightCamera->m_dirLook);
 		shaderFragLight.SetFloat3("lightPos", lightCamera->m_pos);//	t()->m_pos * Vector3(0, 0, 1));
 		shaderFragLight.SetFloat3("lightDir", lightCamera->m_dirLook);//	t()->m_pos * Vector3(0, 0, 1));
 
@@ -318,7 +321,7 @@ void GraphicMain::renderLights(
 		shaderVertLight.SetShader();
 		shaderFragLight.SetShader();
 		context->OMSetBlendState(0, 0, 0xffffffff);
-		
+
 		renderSolidObjects(context, scene, shaderVertLight, shaderFragLight, meshes, textures);
 
 		//orthogonal display here
@@ -343,17 +346,17 @@ void GraphicMain::renderLights(
 		if (!shaderFrag.SetMatrix4x4("matLightProjViewInverse", projection)) {
 			std::cout << "ERER";
 		}
-		DirectX::XMStoreFloat3(&storeVector3, DirectX::XMVector3Rotate(Vector3(0, 0, 1), it->get()->m_rotation));
-		
+		//DirectX::XMStoreFloat3(&storeVector3, DirectX::XMVector3Rotate(Vector3(0, 0, 1), it->get()->m_rotation));
+
 		shaderFrag.SetFloat3("lightPos", it->get()->m_pos);
-		if (!shaderFrag.SetFloat3("lightDir", it->get()->m_dirLook)  ){
+		if (!shaderFrag.SetFloat3("lightDir", it->get()->m_dirLook)) {
 			//std::cout << "lightDir FAIL FAIL FAIL";
 		}
-		DirectX::XMStoreFloat4(&storeVector4, lightCamera->m_lightColor);
+		//DirectX::XMStoreFloat4(&storeVector4, lightCamera->m_lightColor);
 		//else std::cout << "succeess " << it->get()->m_dirLook.x  << " " << it->get()->m_dirLook.y << " " << it->get()->m_dirLook.z<<"\n";
 		shaderFrag.SetFloat4("lightColor", lightCamera->m_lightColor);//	t()->m_pos * Vector3(0, 0, 1));
 
-		//matProjInverse
+																	  //matProjInverse
 
 		shaderFrag.SetShaderResourceView("textureDiffuse", textureDiffuse.getShaderResourceView());
 		shaderFrag.SetShaderResourceView("textureNormal", textureNormal.getShaderResourceView());
@@ -395,6 +398,160 @@ void GraphicMain::renderLights(
 		shaderFrag.SetShaderResourceView("textureLightDepth", 0);
 		shaderFrag.SetShaderResourceView("textureSpecular", 0);
 	}
+	//indirect lighting is baked here
+	textureLightIndirect.ClearRenderTarget(context, 0, 0, 0, 0);
+	context->OMSetBlendState(m_blendStateNoBlack, 0, 0xffffffff);
+	for (auto it = scene.objs_lights.begin(); it != scene.objs_lights.end(); it++) {
+
+		auto &p = **it;
+		auto lightCamera = dynamic_cast<NScene::Light*>(&(p));
+		auto rsm = m_RSM[(**it).m_id]; //Reflective shadow map
+		auto lightProjectionMatrix = lightCamera->getProjectionMatrix(.55*3.14f, SIZE_LIGHT_TEXTURE, SIZE_LIGHT_TEXTURE, 0.1, 50);
+		auto lightProjectionView = DirectX::XMMatrixMultiply(lightCamera->getViewMatrix(), lightProjectionMatrix);
+		auto lightProjectionViewInverse = DirectX::XMMatrixInverse(0, DirectX::XMMatrixMultiply(lightCamera->getViewMatrix(), lightProjectionMatrix));
+		//orthogonal display here
+		textureLightIndirect.SetRenderTarget(context, textureLightIndirectDpeth.getDepthStencilView());
+		textureLightIndirectDpeth.clear(context);
+
+		//orthogonal render
+		auto pos = Vector3(0, 0, -10);
+		auto dir = Vector3(0, 0, 1);
+		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(DirectX::XMMatrixMultiply(
+			DirectX::XMMatrixLookToLH(pos, dir, Vector3::Up), matScreenOrtho))); // Transpose for HLSL!
+
+		shaderVertIndirectLight.SetMatrix4x4("matViewProjection", projection);
+		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(sceneReverseProjectionView)); // Transpose for HLSL!
+		shaderFragIndirectLight.SetMatrix4x4("matProjViewInverse", projection);
+		//ok so far
+		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(lightProjectionView)); // Transpose for HLSL!
+		if (!shaderFragIndirectLight.SetMatrix4x4("matLightProjView", projection)) {
+			std::cout << "ERER";
+		}
+		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(lightProjectionViewInverse)); // Transpose for HLSL!
+		if (!shaderFragIndirectLight.SetMatrix4x4("matLightProjViewInverse", projection)) {
+			std::cout << "ERER";
+		}
+		//DirectX::XMStoreFloat3(&storeVector3, DirectX::XMVector3Rotate(Vector3(0, 0, 1), it->get()->m_rotation));
+
+		shaderFragIndirectLight.SetFloat3("lightPos", it->get()->m_pos);
+		if (!shaderFragIndirectLight.SetFloat3("lightDir", it->get()->m_dirLook)) {
+			//std::cout << "lightDir FAIL FAIL FAIL";
+		}
+		//DirectX::XMStoreFloat4(&storeVector4, lightCamera->m_lightColor);
+		//else std::cout << "succeess " << it->get()->m_dirLook.x  << " " << it->get()->m_dirLook.y << " " << it->get()->m_dirLook.z<<"\n";
+		shaderFragIndirectLight.SetFloat4("lightColor", lightCamera->m_lightColor);//	t()->m_pos * Vector3(0, 0, 1));
+
+																	  //matProjInverse
+
+		shaderFragIndirectLight.SetShaderResourceView("textureDiffuse", textureDiffuse.getShaderResourceView());
+		shaderFragIndirectLight.SetShaderResourceView("textureNormal", textureNormal.getShaderResourceView());
+		shaderFragIndirectLight.SetShaderResourceView("textureDepth", textureDepth.getShaderResourceView());
+		shaderFragIndirectLight.SetShaderResourceView("textureSpecular", textureSpecular.getShaderResourceView());
+		if (!shaderFragIndirectLight.SetShaderResourceView("textureLightDepth", rsm.depth->getShaderResourceView())) {
+			std::cout << "FAIL";
+			//textureLightDepth
+		}
+		shaderFragIndirectLight.SetShaderResourceView("textureLightRSM", rsm.flux->getShaderResourceView());
+		shaderFragIndirectLight.SetShaderResourceView("textureLightNormal", rsm.normal->getShaderResourceView());
+		shaderFragIndirectLight.SetSamplerState("samplerDefault", samplerDefault);
+		shaderFragIndirectLight.SetSamplerState("samplerLight", samplerLightDepth);
+		shaderFragIndirectLight.SetSamplerState("samplerLightRSM", samplerLightRSM);
+
+
+
+		shaderVertIndirectLight.SetShader();
+		shaderFragIndirectLight.SetShader();
+		shaderVertIndirectLight.CopyAllBufferData();
+		shaderFragIndirectLight.CopyAllBufferData();
+
+		{
+			auto mesh = *meshes[KEnum::MESH_ID_PLANE];
+			UINT stride = sizeof(Vertex);
+			UINT offset = 0;
+			context->IASetVertexBuffers(0, 1, &mesh->getBufferVertexRef(), &stride, &offset);
+			context->IASetIndexBuffer(mesh->getBufferIndex(), DXGI_FORMAT_R32_UINT, 0);
+			context->DrawIndexed(
+				mesh->getBufferIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
+				0,     // Offset to the first index we want to use
+				0);    // Offset to add to each index when looking up vertices
+		}
+
+		shaderFragIndirectLight.SetShaderResourceView("textureDiffuse", 0);
+		shaderFragIndirectLight.SetShaderResourceView("textureNormal", 0);
+		shaderFragIndirectLight.SetShaderResourceView("textureDepth", 0);
+		shaderFragIndirectLight.SetShaderResourceView("textureLightDepth", 0);
+		shaderFragIndirectLight.SetShaderResourceView("textureSpecular", 0);
+	}
+
+	context->OMSetBlendState(0, 0, 0xffffffff);//::NoBlack, blendFactor, 0xffffffff);
+}
+void NGraphic::GraphicMain::renderFinalScene(
+	ID3D11Device * device, ID3D11DeviceContext * context, NScene::Scene & scene,
+	SimpleVertexShader & shaderVert, SimpleFragmentShader & shaderFrag, 
+	RenderTexture & target, DepthTexture & targetDepth, 
+	RenderTexture & textureLightDirect, RenderTexture & textureLightIndirect, RenderTexture & textureNormal, DepthTexture & textureDepth, 
+	std::unique_ptr<Mesh*>& meshePlane, 
+	ID3D11SamplerState * samplerDefault,ID3D11SamplerState * samplerLinear)
+{
+	DirectX::XMFLOAT4X4 world, view, projection;
+	auto sceneReverseProjectionView = DirectX::XMMatrixInverse(0, DirectX::XMMatrixMultiply(scene.m_camMain.getViewMatrix(), scene.m_camMain.getProjectionMatrix()));
+	auto matScreenOrtho = DirectX::XMMatrixOrthographicLH(1, 1, 0.0, 100);
+
+	//orthogonal display here
+	target.SetRenderTarget(context, targetDepth.getDepthStencilView());
+	target.ClearRenderTarget(context,0,0,0,0);
+	targetDepth.clear(context);
+
+	//orthogonal render
+	auto pos = Vector3(0, 0, -10);
+	auto dir = Vector3(0, 0, 1);
+	DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(DirectX::XMMatrixMultiply(
+		DirectX::XMMatrixLookToLH(pos, dir, Vector3::Up), matScreenOrtho))); // Transpose for HLSL!
+
+	shaderVert.SetMatrix4x4("matViewProjection", projection);
+	DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(sceneReverseProjectionView)); // Transpose for HLSL!
+	shaderFrag.SetMatrix4x4("matProjViewInverse", projection);
+	
+	
+	//DirectX::XMStoreFloat3(&storeVector3, DirectX::XMVector3Rotate(Vector3(0, 0, 1), it->get()->m_rotation));
+
+	
+	//DirectX::XMStoreFloat4(&storeVector4, lightCamera->m_lightColor);
+	//else std::cout << "succeess " << it->get()->m_dirLook.x  << " " << it->get()->m_dirLook.y << " " << it->get()->m_dirLook.z<<"\n";
+																  //matProjInverse
+
+	shaderFrag.SetShaderResourceView("textureLightDirect", textureLightDirect.getShaderResourceView());
+	shaderFrag.SetShaderResourceView("textureLightIndirect", textureLightIndirect.getShaderResourceView());
+	shaderFrag.SetShaderResourceView("textureNormal", textureNormal.getShaderResourceView());
+	shaderFrag.SetShaderResourceView("textureDepth", textureDepth.getShaderResourceView());
+
+	shaderFrag.SetSamplerState("samplerDefault", samplerDefault);
+	shaderFrag.SetSamplerState("samplerLinear", samplerLinear);
+
+
+
+	shaderVert.SetShader();
+	shaderFrag.SetShader();
+	shaderVert.CopyAllBufferData();
+	shaderFrag.CopyAllBufferData();
+
+	{
+		auto mesh = *meshePlane;
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+		context->IASetVertexBuffers(0, 1, &mesh->getBufferVertexRef(), &stride, &offset);
+		context->IASetIndexBuffer(mesh->getBufferIndex(), DXGI_FORMAT_R32_UINT, 0);
+		context->DrawIndexed(
+			mesh->getBufferIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
+			0,     // Offset to the first index we want to use
+			0);    // Offset to add to each index when looking up vertices
+	}
+
+	shaderFrag.SetShaderResourceView("textureDiffuse", 0);
+	shaderFrag.SetShaderResourceView("textureNormal", 0);
+	shaderFrag.SetShaderResourceView("textureDepth", 0);
+	shaderFrag.SetShaderResourceView("textureLightDepth", 0);
+	shaderFrag.SetShaderResourceView("textureSpecular", 0);
 
 	context->OMSetBlendState(0, 0, 0xffffffff);//::NoBlack, blendFactor, 0xffffffff);
 }
@@ -411,24 +568,37 @@ void GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *context, As
 
 
 	//renderPreDeffered(context, scene);
-	
+
 	renderPreDeffered(context, scene,
 		*asset->m_shadersVert[RENDER_TYPE_DEFFERED], *asset->m_shadersFrag[RENDER_TYPE_DEFFERED],
 		*m_renderTextures[RENDER_TYPE_DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL], *m_renderTextures[RENDER_TYPE_DEFFERED_SPECULAR],
 		*m_depthTextures[RENDER_TYPE_DEFFERED],
 		asset->m_meshes, asset->m_textures,
 		asset->m_samplers[SAMPLER_ID_WRAP]
-		);
-	renderLights(device,context, 
+	);
+	renderLights(device, context,
 		scene,
 		*asset->m_shadersVert[RENDER_TYPE_LIGHT_RSM], *asset->m_shadersFrag[RENDER_TYPE_LIGHT_RSM],
+		*asset->m_shadersVert[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT], *asset->m_shadersFrag[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT],
 		*asset->m_shadersVert[RENDER_TYPE_DEFFERED_LIGHT_SPOTLIGHT], *asset->m_shadersFrag[RENDER_TYPE_DEFFERED_LIGHT_SPOTLIGHT],
-		*m_renderTextures[RENDER_TYPE_DEFFERED_FINAL],* m_depthTextures[RENDER_TYPE_DEFFERED_FINAL],
+
+		*m_renderTextures[RENDER_TYPE_DEFFERED_LIGHT_DIRECT], *m_depthTextures[RENDER_TYPE_DEFFERED_LIGHT_DIRECT],
 		*m_renderTextures[RENDER_TYPE_DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL], *m_renderTextures[RENDER_TYPE_DEFFERED_SPECULAR],
 		*m_depthTextures[RENDER_TYPE_DEFFERED],
+		*m_renderTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT], *m_depthTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT],
 		asset->m_meshes, asset->m_textures,
 		asset->m_samplers[SAMPLER_ID_WRAP], asset->m_samplers[SAMPLER_ID_BORDER_ONE], asset->m_samplers[SAMPLER_ID_BORDER_ZERO]
-		);
+	);
+	renderFinalScene(device, context, scene,
+		*asset->m_shadersVert[RENDER_TYPE_DEFFERED_FINAL], *asset->m_shadersFrag[RENDER_TYPE_DEFFERED_FINAL],
+
+		*m_renderTextures[RENDER_TYPE_DEFFERED_FINAL], *m_depthTextures[RENDER_TYPE_DEFFERED_FINAL],
+		*m_renderTextures[RENDER_TYPE_DEFFERED_LIGHT_DIRECT], *m_renderTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT],
+		*m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL], *m_depthTextures[RENDER_TYPE_DEFFERED],
+		asset->m_meshes[KEnum::MESH_ID_PLANE],
+		asset->m_samplers[SAMPLER_ID_WRAP],
+		asset->m_samplers[SAMPLER_ID_LINEAR]
+	);
 	renderUI(context, scene,
 		*asset->m_shadersVert[RENDER_TYPE_UI], *asset->m_shadersFrag[RENDER_TYPE_UI],
 		*m_renderTextures[RENDER_TYPE_DEFFERED_FINAL], *m_depthTextures[RENDER_TYPE_DEFFERED],

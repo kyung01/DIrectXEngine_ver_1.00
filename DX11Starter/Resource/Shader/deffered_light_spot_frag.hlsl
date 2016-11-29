@@ -429,20 +429,18 @@ float4 main(VertexToPixel input) : SV_TARGET
 	//float	ratioPower = 10.0;
 	float iMax = 100;
 	
-	//distanceMax =min(1, 0.15*(1+ theRange) );
-	//ratioPower = 0.955;	
-	for (float angleInit = 0; angleInit < 10; angleInit++) {
-
-		for (float i = 0; i < iMax; i++) {
-			float distance = RSM_RND_LENGTH[i] * distanceMax;// / iMax);
-			float x = saturate(uv.x + cos(angleInit + 6.28*RSM_RND[i])*distance), y = saturate(uv.y + sin(angleInit + 6.28*RSM_RND[i])*distance);
-			//float x = RSM_RND[i * 2], y = RSM_RND[i*2+1];
-			float xx = x - uv.x, yy = y - uv.y;
-			float ratio = sqrt(xx*xx + yy*yy);
-			fluxColor += (ratio)* getFluxColor(float2(x, y), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-
-		}
-	}
+	//for (float angleInit = 0; angleInit < 10; angleInit++) {
+	//
+	//	for (float i = 0; i < iMax; i++) {
+	//		float distance = RSM_RND_LENGTH[i] * distanceMax;// / iMax);
+	//		float x = saturate(uv.x + cos(angleInit + 6.28*RSM_RND[i])*distance), y = saturate(uv.y + sin(angleInit + 6.28*RSM_RND[i])*distance);
+	//		//float x = RSM_RND[i * 2], y = RSM_RND[i*2+1];
+	//		float xx = x - uv.x, yy = y - uv.y;
+	//		float ratio = sqrt(xx*xx + yy*yy);
+	//		fluxColor += (ratio)* getFluxColor(float2(x, y), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
+	//
+	//	}
+	//}
 
 	//fluxColor *= specular * 10;
 	fluxColor = saturate(fluxColor);
@@ -456,7 +454,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float3 light_spotLight = spotLight(dirFromEyeToPos, diffuse, lightColor, lightDir, posWorld.xyz - lightPos, dirFromLightToPos, normal, specular) * lighted;
 
 	//return	float4(saturate( fluxColor ), 1);
-	return	float4(saturate(light_spotLight + fluxColor + diffuse*0.01) , 1);
+	return	float4(light_spotLight  , 1);
 	
 	//lighted = getShadowAt(posWorld, bias);// (posFromLightProjection.z - bias < lighted);
 	//float lighted = (posFromLightProjection.z  -bias< depthClosest );

@@ -30,6 +30,8 @@ std::list<LoadInfoShader> Asset::getLoadListShaderVert()
 		{ RENDER_TYPE_DEFFERED,			L"Resource/Shader/deffered_vert.hlsl" },
 		{ RENDER_TYPE_DEPTH,			L"Resource/Shader/depth_vert.hlsl" },
 		{ RENDER_TYPE_DEFFERED_LIGHT_SPOTLIGHT,		L"Resource/Shader/deffered_light_spot_vert.hlsl" },
+		{ RENDER_TYPE_DEFFERED_FINAL,		L"Resource/Shader/deffered_final_vert.hlsl" },
+		{ RENDER_TYPE_DEFERRED_LIGHT_INDIRECT,		L"Resource/Shader/deffered_indirect_vert.hlsl" },
 		{ RENDER_TYPE_UI,		L"Resource/Shader/simple_texture_vert.hlsl" },
 		{ RENDER_TYPE_LIGHT_RSM,		L"Resource/Shader/light_rsm_vert.hlsl" }
 	});
@@ -43,6 +45,8 @@ std::list<LoadInfoShader> Asset::getLoadListShaderFrag()
 		{ RENDER_TYPE_DEFFERED,		L"Resource/Shader/deffered_frag.hlsl" },
 		{ RENDER_TYPE_DEPTH,			L"Resource/Shader/depth_frag.hlsl" },
 		{ RENDER_TYPE_DEFFERED_LIGHT_SPOTLIGHT,		L"Resource/Shader/deffered_light_spot_frag.hlsl" },
+		{ RENDER_TYPE_DEFFERED_FINAL,		L"Resource/Shader/deffered_final_frag.hlsl" },
+		{ RENDER_TYPE_DEFERRED_LIGHT_INDIRECT,		L"Resource/Shader/deffered_indirect_frag.hlsl" },
 		{ RENDER_TYPE_UI,		L"Resource/Shader/simple_texture_frag.hlsl" },
 		{ RENDER_TYPE_LIGHT_RSM,		L"Resource/Shader/light_rsm_frag.hlsl" }
 	});
@@ -112,6 +116,15 @@ bool Asset::init(ID3D11Device * device, ID3D11DeviceContext * context)
 	samplerDesc.MaxAnisotropy = 16;
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	D3D11_SAMPLER_DESC samplerDescBilinear = {};
+	samplerDescBilinear.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; // Could be anisotropic
+	samplerDescBilinear.ComparisonFunc = D3D11_COMPARISON_LESS;
+	samplerDescBilinear.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDescBilinear.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDescBilinear.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDescBilinear.MaxAnisotropy = 16;
+	samplerDescBilinear.MinLOD = 0;
+	samplerDescBilinear.MaxLOD = D3D11_FLOAT32_MAX;
 
 	D3D11_SAMPLER_DESC samplerDescLight = {};
 	samplerDescLight.Filter = D3D11_FILTER_ANISOTROPIC;
@@ -143,12 +156,14 @@ bool Asset::init(ID3D11Device * device, ID3D11DeviceContext * context)
 
 
 
-	ID3D11SamplerState * samplerDefault, *samplerBorderOne,*samplerBorderZero;
+	ID3D11SamplerState * samplerDefault, *samplerBorderOne,*samplerBorderZero,*samplerLinear;
 	device->CreateSamplerState(&samplerDesc, &samplerDefault);
+	device->CreateSamplerState(&samplerDescBilinear , &samplerLinear);
 	device->CreateSamplerState(&samplerDescLight, &samplerBorderOne);
 	device->CreateSamplerState(&samplerDescLightRMS, &samplerBorderZero);
 	m_samplers[SAMPLER_ID_WRAP]		= samplerDefault;
 	m_samplers[SAMPLER_ID_BORDER_ONE] = samplerBorderOne;
 	m_samplers[SAMPLER_ID_BORDER_ZERO] = samplerBorderZero;
+	m_samplers[SAMPLER_ID_LINEAR] = samplerLinear;
 
 }
