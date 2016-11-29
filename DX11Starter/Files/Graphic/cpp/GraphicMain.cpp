@@ -526,7 +526,7 @@ void NGraphic::GraphicMain::renderFinalScene(
 	shaderFrag.SetShaderResourceView("textureDepth", textureDepth.getShaderResourceView());
 
 	shaderFrag.SetSamplerState("samplerDefault", samplerDefault);
-	shaderFrag.SetSamplerState("samplerLinear", samplerLinear);
+	shaderFrag.SetSamplerState("samplerIndirectLight", samplerLinear);
 
 
 

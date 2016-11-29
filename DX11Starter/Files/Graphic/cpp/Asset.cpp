@@ -117,7 +117,7 @@ bool Asset::init(ID3D11Device * device, ID3D11DeviceContext * context)
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	D3D11_SAMPLER_DESC samplerDescBilinear = {};
-	samplerDescBilinear.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; // Could be anisotropic
+	samplerDescBilinear.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT; // Could be anisotropic
 	samplerDescBilinear.ComparisonFunc = D3D11_COMPARISON_LESS;
 	samplerDescBilinear.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDescBilinear.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;

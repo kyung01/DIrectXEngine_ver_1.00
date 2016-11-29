@@ -16,7 +16,7 @@ Texture2D textureDepth		: register(t3);
 
 
 SamplerState samplerDefault	: register(s0);
-SamplerState samplerLinear	: register(s1);
+SamplerState samplerIndirectLight	: register(s1);
 
 struct VertexToPixel
 {
@@ -36,36 +36,62 @@ float4 getPosWorld(float2 uv, Texture2D depthTexture, matrix matProjViewInverse)
 	return posWorld;
 }
 
-static float PIXEL_DISTANCE = 1/200.0;
+static float PIXEL_DISTANCE = 1/ 64.0;
 
 float4 main(VertexToPixel input) : SV_TARGET
 {
 	float diffMaxLimit = 2.0;
 	float4 posWorld = getPosWorld(input.uv, textureDepth, matProjViewInverse);
 	float3 meNormal = textureNormal.Sample(samplerDefault, input.uv).xyz * 2 - 1;
-	float2 smaplingPositions[10] = { float2(0,0),
-		float2(-PIXEL_DISTANCE,-PIXEL_DISTANCE),float2(0,-PIXEL_DISTANCE),float2(-PIXEL_DISTANCE,-PIXEL_DISTANCE),
-		float2(-PIXEL_DISTANCE,0),float2(0,0),float2(-PIXEL_DISTANCE,0),
-		float2(-PIXEL_DISTANCE,PIXEL_DISTANCE),float2(0,PIXEL_DISTANCE),float2(-PIXEL_DISTANCE,PIXEL_DISTANCE)
+	float2 smaplingPositions[4] = {
+		float2(-PIXEL_DISTANCE,-PIXEL_DISTANCE),float2(PIXEL_DISTANCE,-PIXEL_DISTANCE),
+		float2(-PIXEL_DISTANCE,PIXEL_DISTANCE),float2(PIXEL_DISTANCE,PIXEL_DISTANCE)
 	};
+	float3 sampledColors[4] = { float3(0,0,0) ,float3(0,0,0) ,float3(0,0,0) ,float3(0,0,0) };
+
 	float3 color = textureLightDirect.Sample(samplerDefault, input.uv).xyz;
 	float3 colorIndirect = float3(0, 0, 0);
 	float angleDiff = 0;
 	float posDiffTotal = 0;
-	for (int i = 1; i < 10; i++) {
-		float2 uv = input.uv + smaplingPositions[i];
+	//return textureLightIndirect.Sample(samplerIndirectLight, input.uv);
+	for (int i = 0; i < 4; i++) {
+		//float2 uv = input.uv + smaplingPositions[i];
+		smaplingPositions[i] = float2(
+			PIXEL_DISTANCE*floor(input.uv.x / PIXEL_DISTANCE) + smaplingPositions[i].x,
+			PIXEL_DISTANCE*floor(input.uv.y / PIXEL_DISTANCE) + smaplingPositions[i].y);
+		sampledColors[i] = textureLightIndirect.Sample(samplerIndirectLight, smaplingPositions[i]);// *(posDiff < 5 && dot(meNormal, otherNormal) > 0.5);
 
-		float2 uvRelative = uv;// float2(PIXEL_DISTANCE*round(uv.x / PIXEL_DISTANCE), PIXEL_DISTANCE*round(uv.y / PIXEL_DISTANCE));
 
-		float4 otherPosWorld = getPosWorld(uvRelative, textureDepth, matProjViewInverse);
-		float3 otherNormal = textureNormal.Sample(samplerDefault, uv).xyz * 2 - 1;
-		//posDiffTotal += length(otherPosWorld.xyz - posWorld.xyz);
-		float posDiff = length(otherPosWorld.xyz - posWorld.xyz);
+		//float2 uvRelative = float2(PIXEL_DISTANCE*floor(uv.x / PIXEL_DISTANCE) + PIXEL_DISTANCE*0.5, PIXEL_DISTANCE*floor(uv.y / PIXEL_DISTANCE) + PIXEL_DISTANCE*0.5);
+		//
+		//
+		//float4 otherPosWorld = getPosWorld(uvRelative, textureDepth, matProjViewInverse);
+		//float3 otherNormal = textureNormal.Sample(samplerIndirectLight, uvRelative).xyz * 2 - 1;
+		////posDiffTotal += length(otherPosWorld.xyz - posWorld.xyz);
+		//float posDiff = length(otherPosWorld.xyz - posWorld.xyz);
+		//sampledColors[i] = textureLightIndirect.Sample(samplerIndirectLight, smaplingPositions[i]);// *(posDiff < 5 && dot(meNormal, otherNormal) > 0.5);
 		//if (posDiff < 5 && dot(meNormal, otherNormal) > 0.5)
-			colorIndirect += textureLightIndirect.Sample(samplerDefault, uv) * (1 / 9.0);
+		//	colorIndirect += textureLightIndirect.Sample(samplerIndirectLight, uv) * (1 / 9.0);
+
 		//return float4(length(uv-uvRelative)/3, 0, 0, 1);
 		//angleDiff += 1-dot(meNormal, normal);
 	}
+	float xRatioFromEdge =   (smaplingPositions[1].x - input.uv.x) / PIXEL_DISTANCE;
+	float xRatioFromStart =  (input.uv.x- smaplingPositions[0].x)  / PIXEL_DISTANCE;
+	
+	//float3 x00 = sampledColors[0] * (( ) / PIXEL_DISTANCE);
+	//float3 x01 = sampledColors[1] * ((input.uv.x - smaplingPositions[0].x) / PIXEL_DISTANCE);
+	//float3 x10 = sampledColors[2] * ((smaplingPositions[1].x - input.uv.x) / PIXEL_DISTANCE);
+	//float3 x11 = sampledColors[3] * ((input.uv.x - smaplingPositions[0].x) / PIXEL_DISTANCE);
+	
+	float3 x0 = xRatioFromEdge *sampledColors[0] + xRatioFromStart *sampledColors[1];
+	float3 x1 = xRatioFromEdge *sampledColors[2] + xRatioFromStart *sampledColors[3];
+	return float4(x0 + x1, 1);
+	float yFromEdge = (smaplingPositions[2].y - input.uv.y) / PIXEL_DISTANCE;
+	float yFromSTART = ( input.uv.y- smaplingPositions[0].y) / PIXEL_DISTANCE;
+	float3 y0 = x0 * yFromEdge;
+	float3 y1 = x1 *yFromSTART;
+	return float4(y0 + y1,1);
 	//return float4(saturate( colorIndirect), 1);
 	//colorIndirect /= 5;
 
