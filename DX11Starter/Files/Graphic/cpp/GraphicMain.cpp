@@ -72,6 +72,9 @@ bool GraphicMain::init(ID3D11Device *device, ID3D11DeviceContext *context, int w
 {
 	this->m_width = width;
 	this->m_height = height;
+	m_rsm_flux_eye_perspective_width = textureIndirectLightWidth;
+	m_rsm_flux_eye_perspective_height = textureIndirectLightHeight;
+
 	if (!initShaders(device, context)||
 		!initTextures(device,context,width,height, textureIndirectLightWidth, textureIndirectLightHeight)
 		
@@ -272,9 +275,11 @@ void GraphicMain::renderLights(
 			m_RSM[(**it).m_id] = {
 				std::shared_ptr<RenderTexture>(new RenderTexture()),
 				std::shared_ptr<RenderTexture>(new RenderTexture()),
+				std::shared_ptr<RenderTexture>(new RenderTexture()),
 				std::shared_ptr<DepthTexture>(new DepthTexture()) };
 			m_RSM[(**it).m_id].normal.get()->Initialize(device, SIZE_LIGHT_TEXTURE, SIZE_LIGHT_TEXTURE);
 			m_RSM[(**it).m_id].flux.get()->Initialize(device, SIZE_LIGHT_TEXTURE, SIZE_LIGHT_TEXTURE);
+			m_RSM[(**it).m_id].fluxEye.get()->Initialize(device, m_rsm_flux_eye_perspective_width, m_rsm_flux_eye_perspective_height);
 			m_RSM[(**it).m_id].depth.get()->init(device, SIZE_LIGHT_TEXTURE, SIZE_LIGHT_TEXTURE);
 		}
 		auto rsm = m_RSM[(**it).m_id]; //Reflective shadow map
@@ -422,6 +427,8 @@ void GraphicMain::renderLights(
 		shaderVertIndirectLight.SetMatrix4x4("matViewProjection", projection);
 		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(sceneReverseProjectionView)); // Transpose for HLSL!
 		shaderFragIndirectLight.SetMatrix4x4("matProjViewInverse", projection);
+		shaderFragLight.SetFloat3("lightPos", lightCamera->m_pos);//	t()->m_pos * Vector3(0, 0, 1));
+
 		//ok so far
 		DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(lightProjectionView)); // Transpose for HLSL!
 		if (!shaderFragIndirectLight.SetMatrix4x4("matLightProjView", projection)) {
@@ -489,7 +496,8 @@ void NGraphic::GraphicMain::renderFinalScene(
 	ID3D11Device * device, ID3D11DeviceContext * context, NScene::Scene & scene,
 	SimpleVertexShader & shaderVert, SimpleFragmentShader & shaderFrag, 
 	RenderTexture & target, DepthTexture & targetDepth, 
-	RenderTexture & textureLightDirect, RenderTexture & textureLightIndirect, RenderTexture & textureNormal, DepthTexture & textureDepth, 
+	RenderTexture & textureLightDirect, RenderTexture & textureLightIndirect, 
+	RenderTexture & textureNormal, RenderTexture & textureSpecular, DepthTexture & textureDepth,
 	std::unique_ptr<Mesh*>& meshePlane, 
 	ID3D11SamplerState * samplerDefault,ID3D11SamplerState * samplerLinear)
 {
@@ -520,10 +528,12 @@ void NGraphic::GraphicMain::renderFinalScene(
 	//else std::cout << "succeess " << it->get()->m_dirLook.x  << " " << it->get()->m_dirLook.y << " " << it->get()->m_dirLook.z<<"\n";
 																  //matProjInverse
 
+	//shaderFrag.SetFloat3("lightPos", lightCamera->m_pos);//	t()->m_pos * Vector3(0, 0, 1));
 	shaderFrag.SetShaderResourceView("textureLightDirect", textureLightDirect.getShaderResourceView());
 	shaderFrag.SetShaderResourceView("textureLightIndirect", textureLightIndirect.getShaderResourceView());
 	shaderFrag.SetShaderResourceView("textureNormal", textureNormal.getShaderResourceView());
 	shaderFrag.SetShaderResourceView("textureDepth", textureDepth.getShaderResourceView());
+	shaderFrag.SetShaderResourceView("textureSpecular", textureSpecular.getShaderResourceView());
 
 	shaderFrag.SetSamplerState("samplerDefault", samplerDefault);
 	shaderFrag.SetSamplerState("samplerIndirectLight", samplerLinear);
@@ -594,7 +604,7 @@ void GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *context, As
 
 		*m_renderTextures[RENDER_TYPE_DEFFERED_FINAL], *m_depthTextures[RENDER_TYPE_DEFFERED_FINAL],
 		*m_renderTextures[RENDER_TYPE_DEFFERED_LIGHT_DIRECT], *m_renderTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT],
-		*m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL], *m_depthTextures[RENDER_TYPE_DEFFERED],
+		*m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL], *m_renderTextures[RENDER_TYPE_DEFFERED_SPECULAR] ,*m_depthTextures[RENDER_TYPE_DEFFERED],
 		asset->m_meshes[KEnum::MESH_ID_PLANE],
 		asset->m_samplers[SAMPLER_ID_WRAP],
 		asset->m_samplers[SAMPLER_ID_LINEAR]

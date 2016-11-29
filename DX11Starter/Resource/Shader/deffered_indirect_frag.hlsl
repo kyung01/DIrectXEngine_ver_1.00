@@ -444,7 +444,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 		}
 	}
 	//fluxColor *= specular * 10;
-	fluxColor = saturate(fluxColor*specular);
+	fluxColor = saturate(fluxColor);
 	return float4(fluxColor,1);
 	//return float4(fluxColor, 1);
 

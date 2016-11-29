@@ -26,6 +26,7 @@ namespace NGraphic {
 	//TODO hlsl files are stroed in debug folder once they are built with extention .cso You need grasp them
 	struct ReflectiveShadowMap{
 		std::shared_ptr<RenderTexture>	flux;
+		std::shared_ptr<RenderTexture>	fluxEye;
 		std::shared_ptr<RenderTexture>	normal;
 		std::shared_ptr<DepthTexture>	depth;
 
@@ -41,6 +42,7 @@ namespace NGraphic {
 
 	class GraphicMain {
 	private:
+		int m_rsm_flux_eye_perspective_width, m_rsm_flux_eye_perspective_height;
 		
 		void rendering(NScene::Scene scene);
 		void processObject(NScene::Object obj);
@@ -88,7 +90,7 @@ namespace NGraphic {
 
 			RenderTexture& target, DepthTexture& targetDepth,
 			RenderTexture& textureLightDirect, RenderTexture& textureLightIndirect, 
-			RenderTexture& textureNormal,DepthTexture& textureDepth,
+			RenderTexture& textureNormal, RenderTexture&textureSpecular,DepthTexture& textureDepth,
 			std::unique_ptr<Mesh*> &meshePlane,
 			ID3D11SamplerState * samplerDefault,
 			ID3D11SamplerState * samplerLinear

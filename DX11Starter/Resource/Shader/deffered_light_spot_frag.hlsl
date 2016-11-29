@@ -319,23 +319,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	posFromLightProjection /=0.000000001+ posFromLightProjection.w;
 	float2 uv = float2(posFromLightProjection.x*0.5 + 0.5, 1 - (posFromLightProjection.y*0.5 + 0.5));
 	float2 uvTemp = float2(posFromLightProjection.x*0.5 + 0.5, 1 - (posFromLightProjection.y*0.5 + 0.5));
-	float3 fluxColor = float3(0,0,0);
-
-	float theRange = min(1,length(posWorld.xyz - posEye.xyz)/100);
-	theRange = -pow(theRange - 1, 2) + 1;
-
-	for (float i = 0; i < 200; i++) {
-		float distance = (i / 200);
-		float x =saturate(uv.x + cos(6.28*RSM_RND[i])*distance), y = saturate(uv.y + sin(6.28*RSM_RND[i])*distance);
-		//float x = RSM_RND[i * 2], y = RSM_RND[i*2+1];
-		float xx = x - uv.x, yy = y - uv.y;
-		float ratio = sqrt(xx*xx + yy*yy);
-		fluxColor += ratio* getFluxColor(float2(x,y), posWorld, normal, textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse);
-
-	}
-	fluxColor *= specular;
-	fluxColor = saturate(fluxColor * 3.5);
-	return float4(fluxColor, 1);
+	
 
 	float3 disFromLightToPos = posWorld.xyz - lightPos;
 	float3 dirFromLightToPos = normalize(disFromLightToPos);
@@ -343,9 +327,10 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 	float lighted = posFromLightProjection.z - bias < textureLightDepth.Sample(samplerLight, uv).x;
 	float3 light_spotLight = spotLight(dirFromEyeToPos, diffuse, lightColor, lightDir, posWorld.xyz - lightPos, dirFromLightToPos, normal, specular) * lighted;
-
+	
+	//return pow(max(0, dot(eye, -surfaceNormal)), 10 * luminosity);
 	//return	float4(saturate( fluxColor ), 1);
-	return	float4(saturate(light_spotLight + fluxColor + diffuse*0.01) , 1);
+	return	float4(light_spotLight, 1);
 	
 	//lighted = getShadowAt(posWorld, bias);// (posFromLightProjection.z - bias < lighted);
 	//float lighted = (posFromLightProjection.z  -bias< depthClosest );
