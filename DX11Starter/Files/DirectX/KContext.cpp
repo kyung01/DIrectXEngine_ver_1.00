@@ -65,7 +65,7 @@ void KContext::Init()
 		NGame::LoadExample00(it->gameContext);
 
 
-		if (!it->main.init(this->device, this->context, this->width, this->height)) {
+		if (!it->main.init(this->device, this->context, 128, 128)) {
 			std::cout << "GraphicMain failed to init" << std::endl;
 		}
 		it->scene.loadExample00();

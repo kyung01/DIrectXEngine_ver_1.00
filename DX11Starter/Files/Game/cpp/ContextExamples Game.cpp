@@ -99,14 +99,14 @@ void NGame::LoadExample00(Context &context)
 		light->addScript(context, std::shared_ptr<Script>(new NScript::Y_Axis_Rotate()));
 	}
 	{
-		auto obj = context.m_scene->getObjLight();
-		auto light = new Entity();
-		context.addEntity(std::shared_ptr<Entity>(light));
-		obj->m_lightColor = Vector4(1.0, 1.0, 1.0, 150);
-		light->m_graphicObjects.push_back(obj);
-		light->setPos(2, 5.5, 0);
-		//light_spotlight00->setRotation(Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), 3.14*0.25f));
-		light->addScript(context, std::shared_ptr<Script>(new NScript::X_Axis_Rotate()));
+		//auto obj = context.m_scene->getObjLight();
+		//auto light = new Entity();
+		//context.addEntity(std::shared_ptr<Entity>(light));
+		//obj->m_lightColor = Vector4(1.0, 1.0, 1.0, 150);
+		//light->m_graphicObjects.push_back(obj);
+		//light->setPos(2, 5.5, 0);
+		////light_spotlight00->setRotation(Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), 3.14*0.25f));
+		//light->addScript(context, std::shared_ptr<Script>(new NScript::X_Axis_Rotate()));
 	}
 
 }
