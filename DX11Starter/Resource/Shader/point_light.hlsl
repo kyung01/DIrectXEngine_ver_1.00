@@ -9,9 +9,9 @@ float getPower(float3 dirLightToWorld, float3 surfaceNormal) {
 	return max(0, dot(dirLightToWorld, -surfaceNormal) );
 }
 //used by reflective shadow map
-float4 spotLight(
+float4 spotLightRSM(
 	float3 diffuseColor,
-	float4 lightColor, float3 lightDir, float3 disLightToWorld, float3 dirLightToWorld, float3 surfaceNormal, float luminosity) {
+	float4 lightColor, float3 lightDir, float3 disLightToWorld, float3 dirLightToWorld, float3 surfaceNormal) {
 	float powerLuminance =
 		(lightColor.w) /
 		(1 +
@@ -26,6 +26,12 @@ float4 spotLight(
 
 	return float4(
 		diffuseColor*lightColor.xyz *getPower(dirLightToWorld, surfaceNormal)*powerLuminance * isLightedSpotlight, 1);
+}
+float specularPower(float3 dirEyeToWorld, float3 dirLightToWorld, float3 surfaceNormal, float power) {
+	float3 reflected = dirLightToWorld - 2 * dot(surfaceNormal, dirLightToWorld) *surfaceNormal;
+	float cosAngle = dot(dirEyeToWorld, -reflected);
+	//float3 eye = normalize(dirEyeToWorld + dirLightToWorld);
+	return pow(max(cosAngle, 0), 1 + 60 * (1 - power));
 }
 float3 spotLight(
 	float3 dirEyeToWorld,
@@ -48,11 +54,9 @@ float3 spotLight(
 	return saturate(
 		float3(diffuseColor*lightColor.xyz)
 
-		*(
-			(getPower(dirLightToWorld, surfaceNormal) 
-			+ pow(max(0,dot(eye, -surfaceNormal) ), 10* luminosity)
-		)/2
-			*powerLuminance * isLightedSpotlight
-			)
+		*(getPower(dirLightToWorld, surfaceNormal)
+			+ specularPower(dirEyeToWorld, dirLightToWorld, surfaceNormal, luminosity) //pow(max(0, dot(eye, -surfaceNormal)), 32 * luminosity)
+		 )
+		*powerLuminance * isLightedSpotlight
 	);
 }

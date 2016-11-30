@@ -56,7 +56,7 @@ PS_OUTPUT main(VertexToPixel input) : SV_TARGET
 
 	output.normal = float4((normal + 1) *.5, 1);
 	//output.flux = texture_diffuse.Sample(sampler_default, input.uv);
-	output.flux = spotLight(diffuse,lightColor,lightDir, input.worldPos.xyz - lightPos,dirLightToWorld, normal, specular);
+	output.flux = spotLightRSM(diffuse,lightColor,lightDir, input.worldPos.xyz - lightPos,dirLightToWorld, normal);
 	//output.flux = float4(dirLightToWorld, 1);
 	//output.normal = float4(input.uv,0,1);
 	 //output.normal = float4(input.worldPos.xyz, 1);

@@ -32,6 +32,7 @@ std::list<LoadInfoShader> Asset::getLoadListShaderVert()
 		{ RENDER_TYPE_DEFFERED_LIGHT_SPOTLIGHT,		L"Resource/Shader/deffered_light_spot_vert.hlsl" },
 		{ RENDER_TYPE_DEFFERED_FINAL,		L"Resource/Shader/deffered_final_vert.hlsl" },
 		{ RENDER_TYPE_DEFERRED_LIGHT_INDIRECT,		L"Resource/Shader/deffered_indirect_vert.hlsl" },
+		{ RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_APPLY,		L"Resource/Shader/deffered_indirect_apply_vert.hlsl" },
 		{ RENDER_TYPE_UI,		L"Resource/Shader/simple_texture_vert.hlsl" },
 		{ RENDER_TYPE_LIGHT_RSM,		L"Resource/Shader/light_rsm_vert.hlsl" }
 	});
@@ -47,6 +48,7 @@ std::list<LoadInfoShader> Asset::getLoadListShaderFrag()
 		{ RENDER_TYPE_DEFFERED_LIGHT_SPOTLIGHT,		L"Resource/Shader/deffered_light_spot_frag.hlsl" },
 		{ RENDER_TYPE_DEFFERED_FINAL,		L"Resource/Shader/deffered_final_frag.hlsl" },
 		{ RENDER_TYPE_DEFERRED_LIGHT_INDIRECT,		L"Resource/Shader/deffered_indirect_frag.hlsl" },
+		{ RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_APPLY,		L"Resource/Shader/deffered_indirect_apply_frag.hlsl" },
 		{ RENDER_TYPE_UI,		L"Resource/Shader/simple_texture_frag.hlsl" },
 		{ RENDER_TYPE_LIGHT_RSM,		L"Resource/Shader/light_rsm_frag.hlsl" }
 	});
