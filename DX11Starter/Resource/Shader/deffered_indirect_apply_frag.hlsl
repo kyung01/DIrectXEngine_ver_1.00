@@ -36,8 +36,18 @@ float4 getPosWorld(float2 uv, Texture2D depthTexture, matrix matProjViewInverse)
 }
 
 static float PIXEL_DISTANCE = 1/ 256.0;
+float getArea(float2 vertA, float2 vertB, float2 vertC) {
+	float2 sideA = vertB - vertA;
+	float2 sideB = vertC - vertB;
+	float2 sideC = vertA - vertC;
+	float a = length(sideA);
+	float b = length(sideB);
+	float c = length(sideC);
 
-float4 linearFilter (float2 uv, float3 colors[4],float2 uvs[4], int checks[4],float3 colorFail) {
+	float s = 0.5* (a + b + c);
+	return sqrt(s*(s - a)*(s - b)*(s - c));
+}
+float3 linearFilter (float2 uv, float3 colors[4],float2 uvs[4], int checks[4]) {
 	int count = 0;
 	for (int i = 0; i < 4; i++) {
 		if (checks[i] == -1) continue;
@@ -45,29 +55,16 @@ float4 linearFilter (float2 uv, float3 colors[4],float2 uvs[4], int checks[4],fl
 		uvs[count] = uvs[i];
 		count++;
 	}
-	//if(pow(uvs[0].x,2) > pow(uvs[1].x,2) || po)
-	float xEnd = uvs[1].x - uv.x;
-	float xBegin = uv.x - uvs[0].x;
-	float yEnd = uvs[1].y - uv.y;
-	float yBegin = uv.y - uvs[0].y;
-
-
-	float2 uvRelative = float2(
-		PIXEL_DISTANCE*floor(uv.x / PIXEL_DISTANCE),
-		PIXEL_DISTANCE*floor(uv.y / PIXEL_DISTANCE)
-		);
-
-	float3 color = textureLightIndirect.Sample(samplerIndirectLight, uv).xyz;
-	float4 posWorld = getPosWorld(uv, textureDepth, matProjViewInverse);
-	float3 meNormal = normalize(textureNormal.Sample(samplerDefault, uv).xyz * 2 - 1);
-
-	float4 otherPosWorld = getPosWorld(uvRelative, textureDepth, matProjViewInverse);
-	float3 otherNormal = normalize(textureNormal.Sample(samplerIndirectLight, uvRelative).xyz * 2 - 1);
-
-	if (dot(meNormal, otherNormal) < 0.12 || length(otherPosWorld.xyz - posWorld.xyz) > 1.0) {
-		return float4(1, 1, 0, 1);
-	}
-	return float4(colorFail, 1);
+	float total = PIXEL_DISTANCE*PIXEL_DISTANCE / 2;
+	float areaA = getArea(uv, uvs[1], uvs[2]);
+	float areaB = getArea(uv, uvs[2], uvs[0]);
+	float areaC = getArea(uv, uvs[0], uvs[1]);
+	if (areaA / total > 1 || areaB / total > 1 || areaC / total > 1)
+		return float3(0,0,0);
+	float3 colorA = colors[0] * (areaA / total);
+	float3 colorB = colors[1] * (areaB / total);
+	float3 colorC = colors[2] * (areaC / total);
+	return colorA + colorB + colorC;
 }
 float4 main(VertexToPixel input) : SV_TARGET
 {
@@ -85,6 +82,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 		float2(0,0),float2(PIXEL_DISTANCE,0),
 		float2(0,PIXEL_DISTANCE),float2(PIXEL_DISTANCE,PIXEL_DISTANCE)
 	};
+	
 	float3 sampledColors[4] = { float3(0,0,0) ,float3(0,0,0) ,float3(0,0,0) ,float3(0,0,0) };
 	int indexs[4] = { 0,1,2,3 };
 	int failCount = 0;
@@ -115,23 +113,55 @@ float4 main(VertexToPixel input) : SV_TARGET
 		//sampledColors[i] = textureLightIndirect.Sample(samplerIndirectLight, smaplingPositions[i]);// *(posDiff < 5 && dot(meNormal, otherNormal) > 0.5);
 		//if (posDiff < 5 && dot(meNormal, otherNormal) > 0.5)
 		//	colorIndirect += textureLightIndirect.Sample(samplerIndirectLight, uv) * (1 / 9.0);
-		if (dot(meNormal, otherNormal) < 0.12 || length(otherPosWorld.xyz - posWorld.xyz) > 1.0) {
+		if (dot(meNormal, otherNormal) < 0.11 || length(otherPosWorld.xyz - posWorld.xyz) > 1.0) {
 			indexs[i] = -1;
 			failCount++;
+			//sampledColors[i] *= 0;
 			//return float4(1, 0, 0, 1);
 			//return float4(colorDirect, 1);
 		}
-		sampledColors[i] *= (dot(meNormal, otherNormal) >0.1) * (length(otherPosWorld.xyz - posWorld.xyz) < 0.5);
+		//sampledColors[i] *= (dot(meNormal, otherNormal) >0.1) * (length(otherPosWorld.xyz - posWorld.xyz) < 0.5);
 		//sampledColors[i] *= max(0, dot(meNormal, otherNormal)) * posDiff;
 		//return float4(length(uv-uvRelative)/3, 0, 0, 1);
 		//angleDiff += 1-dot(meNormal, normal);
 	}
-	if (failCount == 1)return float4(1, 0, 0, 1);
-	if (failCount == 2) {
-		return float4(0,1,0, 1);
+	if (failCount == 1) {
+		//return float4(1, 0, 0, 1);
+		return float4(saturate(colorDirect +
+			linearFilter(input.uv, sampledColors, smaplingPositions, indexs)), 1);
+
 	}
-	if (failCount == 4)return float4(0,1,0, 1);
-	if (failCount == 3)return float4(0,1,0, 1);
+	//return float4(0, 0, 0, 1);
+	//
+	if (failCount ==2) {
+		return float4(1, 0, 0, 1);
+		float offset[5] = { 0.0, 1.0, 2.0, 3.0, 4.0 };
+		float weight[5] = { 0.2270270270, 0.1945945946, 0.1216216216, 0.0540540541, 0.0162162162 };
+		colorIndirect += textureLightIndirect.Sample(samplerDefault, input.uv)*weight[0];
+		//float3 color = sampledColors[0] + sampledColors[1] + sampledColors[2] + sampledColors[3];
+		for (int j = 1; j < 5; j++) {
+			colorIndirect += textureLightIndirect.Sample(samplerDefault, input.uv + float2(0, PIXEL_DISTANCE*offset[j]))*weight[j]/2;
+			colorIndirect += textureLightIndirect.Sample(samplerDefault, input.uv - float2(0, PIXEL_DISTANCE*offset[j]))*weight[j]/2;
+			colorIndirect += textureLightIndirect.Sample(samplerDefault, input.uv + float2( PIXEL_DISTANCE*offset[j],0))*weight[j]/2;
+			colorIndirect += textureLightIndirect.Sample(samplerDefault, input.uv - float2( PIXEL_DISTANCE*offset[j],0))*weight[j]/2;
+
+		}
+		//return float4(colorDirect, 1);
+		//colorIndirect += float3(1,0,0);
+		return float4(saturate(colorDirect+colorIndirect), 1);
+	}
+	if (failCount == 3) {
+		return float4(0, 1, 0, 1);
+	}
+	if (failCount == 4)
+		return float4(0, 0, 1, 1);
+	//return float4(0, 0, 0, 1);
+	
+	//if (failCount == 2) {
+	//	return float4(0,1,0, 1);
+	//}
+	//if (failCount == 4)return float4(0,1,0, 1);
+	//if (failCount == 3)return float4(0,1,0, 1);
 	float xRatioFromEdge =   (smaplingPositions[1].x - input.uv.x) / PIXEL_DISTANCE;
 	float xRatioFromStart =  (input.uv.x- smaplingPositions[0].x)  / PIXEL_DISTANCE;
 	
@@ -148,7 +178,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float3 y0 = x0 * yFromEdge;
 	float3 y1 = x1 *yFromSTART;
 
-	colorIndirect = (y0 + y1);// *(specularPower(normalize(posWorld.xyz - posEye.xyz), normalize(posWorld.xyz - lightPos), meNormal, specular));// pow(max(0, dot(eyeAndLight, -meNormal)), 10 * specular);
+	colorIndirect += (y0 + y1);// *(specularPower(normalize(posWorld.xyz - posEye.xyz), normalize(posWorld.xyz - lightPos), meNormal, specular));// pow(max(0, dot(eyeAndLight, -meNormal)), 10 * specular);
 	//return float4(colorIndirect, 1);
 	return float4(saturate( colorIndirect +saturate( colorDirect) ), 1);
 	//return float4(input.uv*0.1,1,1);
