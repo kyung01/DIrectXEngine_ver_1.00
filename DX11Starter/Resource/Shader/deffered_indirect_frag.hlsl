@@ -310,7 +310,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	//values I can get from textures
 	float3 diffuse = textureDiffuse.Sample(samplerDefault, input.uv);
 	float specular = textureSpecular.Sample(samplerDefault, input.uv).x;
-	float3 normal = textureNormal.Sample(samplerDefault, input.uv) * 2 - 1;
+	float3 normal = normalize(textureNormal.Sample(samplerDefault, input.uv) * 2 - 1);
 	
 	float4 posEye = mul(float4(0, 0, 0, 1), matProjViewInverse);
 	posEye /= 0.00000001 + posEye.w;
