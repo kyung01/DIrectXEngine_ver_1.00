@@ -15,6 +15,14 @@ void NGame::LoadExample00(Context &context)
 		NGraphic::MESH_ID_STONEHENGE_04,
 		NGraphic::MESH_ID_STONEHENGE_05,
 		NGraphic::MESH_ID_STONEHENGE_01 };
+	NGraphic::KEnum meshIds2[] = {
+		NGraphic::MESH_ID_CONE,
+		NGraphic::MESH_ID_CUBE,
+		NGraphic::MESH_ID_CYLINDER,
+		NGraphic::MESH_ID_HELIX,
+		NGraphic::MESH_ID_SPHERE,
+		NGraphic::MESH_ID_TORUS,
+		NGraphic::MESH_ID_SPHERE };
 	NGraphic::KEnum normalIds[] = {
 		NGraphic::TEXTURE_ID_NORMAL_BRICK,
 		NGraphic::TEXTURE_ID_NORMAL_COUCH,
@@ -79,7 +87,7 @@ void NGame::LoadExample00(Context &context)
 	for (int i = 0; i < 9; i++) {
 		angle = 3.14 / 8 * i;
 		auto obj = context.m_scene->getObjSolid();
-		obj.get()->m_meshId = NGraphic::MESH_ID_CUBE;
+		obj.get()->m_meshId = meshIds2[i % 7];
 		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_NORMAL] = normalIds[i % 6];
 		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_SPECULAR] = reflectiveIds[i % 4];
 		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_DIFFUSE] = NGraphic::KEnum::TEXTURE_ID_WHITE;

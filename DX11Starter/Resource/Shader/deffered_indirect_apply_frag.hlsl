@@ -37,6 +37,22 @@ float4 getPosWorld(float2 uv, Texture2D depthTexture, matrix matProjViewInverse)
 
 static float PIXEL_DISTANCE = 1/ 256.0;
 
+float4 linearFilter (float2 uv, float3 colors[4],float2 uvs[4], int checks[4]) {
+	int count = 0;
+	for (int i = 0; i < 4; i++) {
+		if (checks[i] == -1) continue;
+		colors[count] = colors[i];
+		uvs[count] = uvs[i];
+		count++;
+	}
+	if(pow(uvs[0].x,2) > pow(uvs[1].x,2) || po)
+	float xEnd = uvs[1].x - uv.x;
+	float xBegin = uv.x - uvs[0].x;
+	float yEnd = uvs[1].y - uv.y;
+	float yBegin = uv.y - uvs[0].y;
+
+	return colors[0] * (uvs[1] )float4(1, 1, 0, 1);
+}
 float4 main(VertexToPixel input) : SV_TARGET
 {
 	float diffMaxLimit = 2.0;
@@ -54,19 +70,23 @@ float4 main(VertexToPixel input) : SV_TARGET
 		float2(0,PIXEL_DISTANCE),float2(PIXEL_DISTANCE,PIXEL_DISTANCE)
 	};
 	float3 sampledColors[4] = { float3(0,0,0) ,float3(0,0,0) ,float3(0,0,0) ,float3(0,0,0) };
+	int indexs[4] = { 0,1,2,3 };
+	int failCount = 0;
 
 	float3 colorIndirect = float3(0, 0, 0);
 	float angleDiff = 0;
 	float posDiffTotal = 0;
+	for (int ii = 0; ii < 4; ii++) {
+		smaplingPositions[ii] = float2(
+			PIXEL_DISTANCE*floor(input.uv.x / PIXEL_DISTANCE) + smaplingPositions[ii].x,
+			PIXEL_DISTANCE*floor(input.uv.y / PIXEL_DISTANCE) + smaplingPositions[ii].y);
+		sampledColors[ii] = textureLightIndirect.Sample(samplerIndirectLight, smaplingPositions[ii]);// *(posDiff < 5 && dot(meNormal, otherNormal) > 0.5);
+	}
 	//return textureLightIndirect.Sample(samplerIndirectLight, input.uv);
 	for (int i = 0; i < 4; i++) {
 		//float2 uv = input.uv + smaplingPositions[i];
-		smaplingPositions[i] = float2(
-			PIXEL_DISTANCE*floor(input.uv.x / PIXEL_DISTANCE) + smaplingPositions[i].x,
-			PIXEL_DISTANCE*floor(input.uv.y / PIXEL_DISTANCE) + smaplingPositions[i].y);
 		//smaplingPositions[i] = float2(input.uv.x + smaplingPositions[i].x,
 		//	input.uv.y + smaplingPositions[i].y);
-		sampledColors[i] = textureLightIndirect.Sample(samplerIndirectLight, smaplingPositions[i]);// *(posDiff < 5 && dot(meNormal, otherNormal) > 0.5);
 
 
 		float2 uvRelative = float2(
@@ -82,15 +102,24 @@ float4 main(VertexToPixel input) : SV_TARGET
 		//sampledColors[i] = textureLightIndirect.Sample(samplerIndirectLight, smaplingPositions[i]);// *(posDiff < 5 && dot(meNormal, otherNormal) > 0.5);
 		//if (posDiff < 5 && dot(meNormal, otherNormal) > 0.5)
 		//	colorIndirect += textureLightIndirect.Sample(samplerIndirectLight, uv) * (1 / 9.0);
-		if (dot(meNormal, otherNormal) < 0.1 || length(otherPosWorld.xyz - posWorld.xyz) > 10.0) {
-			return float4(1, 0, 0, 1);
-			return float4(colorDirect, 1);
+		if (dot(meNormal, otherNormal) < 0.12 || length(otherPosWorld.xyz - posWorld.xyz) > 1.0) {
+			indexs[i] = -1;
+			failCount++;
+			//return float4(1, 0, 0, 1);
+			//return float4(colorDirect, 1);
 		}
 		sampledColors[i] *= (dot(meNormal, otherNormal) >0.1) * (length(otherPosWorld.xyz - posWorld.xyz) < 0.5);
 		//sampledColors[i] *= max(0, dot(meNormal, otherNormal)) * posDiff;
 		//return float4(length(uv-uvRelative)/3, 0, 0, 1);
 		//angleDiff += 1-dot(meNormal, normal);
 	}
+	if (failCount == 1)return float4(1, 0, 0, 1);
+	if (failCount == 2) {
+		
+		return linearFilter(input.uv,sampledColors, smaplingPositions, indexs);
+	}
+	if (failCount == 3)return float4(0, 0, 1, 1);
+	if (failCount == 4)return float4(1, 0, 1, 1);
 	float xRatioFromEdge =   (smaplingPositions[1].x - input.uv.x) / PIXEL_DISTANCE;
 	float xRatioFromStart =  (input.uv.x- smaplingPositions[0].x)  / PIXEL_DISTANCE;
 	
