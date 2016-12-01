@@ -43,7 +43,8 @@ float3 getFluxColor(
 		max(0,dot(normal, lightPosWorld - posWorld ))
 		* max(0, dot(lightNormal, posWorld - lightPosWorld ))
 		)/ pow(disMag,2);
-	return lightFlux*result *(1+ min(1,specularPower(dirEyeToWorld,normalize(0.000001 + posWorld - lightPosWorld), normal, specular) ) ) ;// / (1 + disMag);
+	return lightFlux*result *(1+ 
+		specularPower(dirEyeToWorld,normalize(0.000001 + posWorld - lightPosWorld), normal, specular ) ) ;// / (1 + disMag);
 
 }
 float3 IndirectLighting(float3 posWorld, float3 normal, float3 dirEyeToWorld, float2 uv, float specular,
@@ -53,13 +54,15 @@ float3 IndirectLighting(float3 posWorld, float3 normal, float3 dirEyeToWorld, fl
 {
 	float3 fluxColor = float3(0,0,0);
 	
-	float distanceMax = .1;
+	float distanceMax = .51;
 	float iMax = 100;	
-	for (float angleInit = 0; angleInit < 1; angleInit++) {
+	float angleMax = 1;
+	float angleTick = 6.28 / angleMax;
+	for (float angleInit = 0; angleInit < angleMax; angleInit++) {
 
 		for (float i = 0; i < iMax; i++) {
 			float distance = RSM_RND_LENGTH[i] * distanceMax;// / iMax);
-			float x = saturate(uv.x + cos(angleInit + 6.28*RSM_RND[i])*distance), y = saturate(uv.y + sin(angleInit + 6.28*RSM_RND[i])*distance);
+			float x = uv.x + cos(angleTick*angleInit + 6.28*RSM_RND[i])*distance, y = uv.y + sin(angleTick*angleInit + 6.28*RSM_RND[i])*distance;
 			float xx = x - uv.x, yy = y - uv.y;
 			float ratio = sqrt(xx*xx + yy*yy);
 			fluxColor += (ratio)* getFluxColor(
@@ -71,7 +74,7 @@ float3 IndirectLighting(float3 posWorld, float3 normal, float3 dirEyeToWorld, fl
 
 		}
 	}
-	return saturate(fluxColor);
+	return saturate(fluxColor*3);
 	
 	
 }

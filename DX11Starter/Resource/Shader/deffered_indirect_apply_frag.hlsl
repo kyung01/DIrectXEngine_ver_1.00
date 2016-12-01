@@ -35,7 +35,7 @@ float4 getPosWorld(float2 uv, Texture2D depthTexture, matrix matProjViewInverse)
 	return posWorld;
 }
 
-static float PIXEL_DISTANCE = 1/ 256.0;
+static float PIXEL_DISTANCE = 1.0/ 256.0;
 float getArea(float2 vertA, float2 vertB, float2 vertC) {
 	float2 sideA = vertB - vertA;
 	float2 sideB = vertC - vertB;
