@@ -16,7 +16,7 @@ Texture2D texture_normal		: register(t1);
 Texture2D texture_specular		: register(t2);
 Texture2D texture_displacement	: register(t3);
 
-SamplerState sampler_default	: register(s0);
+SamplerState samplerWrap	: register(s0);
 
 // Defines the input to this pixel shader
 // - Should match the output of our corresponding vertex shader
@@ -48,13 +48,13 @@ PS_OUTPUT main(VertexToPixel input) : SV_TARGET
 
 
 	PS_OUTPUT output;
-	float3 normal = texture_normal.Sample(sampler_default, input.uv).xyz * 2 - 1;
+	float3 normal = texture_normal.Sample(samplerWrap, input.uv).xyz * 2 - 1;
 	normal = normal.x * input.tangent +normal.y * input.biTangent + normal.z * input.normal;
 
-	output.diffuse = texture_diffuse.Sample(sampler_default, input.uv);
+	output.diffuse = texture_diffuse.Sample(samplerWrap, input.uv);
 	//output.normal = float4(input.uv,0,1);
 	 output.normal = float4((normal + 1) *.5, 1);
-	 output.specular = texture_specular.Sample(sampler_default, input.uv);
+	 output.specular = texture_specular.Sample(samplerWrap, input.uv);
 	 //output.normal = float4(input.worldPos.xyz, 1);
 	 //output.worldPos = float4(input.worldPos.xyz, 1);
 	//output.depth = float4(input.worldPos.w, input.worldPos.w, input.worldPos.w, 1);

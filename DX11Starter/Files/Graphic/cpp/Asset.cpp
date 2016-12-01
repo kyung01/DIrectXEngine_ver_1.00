@@ -109,24 +109,33 @@ bool Asset::init(ID3D11Device * device, ID3D11DeviceContext * context)
 		m_textures[it->id] = texture;
 	}
 
+	D3D11_SAMPLER_DESC samplerDescWrap = {};
+	samplerDescWrap.Filter = D3D11_FILTER_ANISOTROPIC; // Could be anisotropic
+	samplerDescWrap.ComparisonFunc = D3D11_COMPARISON_LESS;
+	samplerDescWrap.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDescWrap.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDescWrap.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDescWrap.MaxAnisotropy = 16;
+	samplerDescWrap.MinLOD = 0;
+	samplerDescWrap.MaxLOD = D3D11_FLOAT32_MAX;
 	D3D11_SAMPLER_DESC samplerDesc = {};
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC; // Could be anisotropic
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.MaxAnisotropy = 16;
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	D3D11_SAMPLER_DESC samplerDescBilinear = {};
-	samplerDescBilinear.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT; // Could be anisotropic
-	samplerDescBilinear.ComparisonFunc = D3D11_COMPARISON_LESS;
-	samplerDescBilinear.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDescBilinear.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDescBilinear.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDescBilinear.MaxAnisotropy = 16;
-	samplerDescBilinear.MinLOD = 0;
-	samplerDescBilinear.MaxLOD = D3D11_FLOAT32_MAX;
+	D3D11_SAMPLER_DESC sampler_IDontKnow = {};
+	sampler_IDontKnow.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT; // Could be anisotropic
+	sampler_IDontKnow.ComparisonFunc = D3D11_COMPARISON_LESS;
+	sampler_IDontKnow.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampler_IDontKnow.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampler_IDontKnow.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampler_IDontKnow.MaxAnisotropy = 16;
+	sampler_IDontKnow.MinLOD = 0;
+	sampler_IDontKnow.MaxLOD = D3D11_FLOAT32_MAX;
 
 	D3D11_SAMPLER_DESC samplerDescLight = {};
 	samplerDescLight.Filter = D3D11_FILTER_ANISOTROPIC;
@@ -158,12 +167,14 @@ bool Asset::init(ID3D11Device * device, ID3D11DeviceContext * context)
 
 
 
-	ID3D11SamplerState * samplerDefault, *samplerBorderOne,*samplerBorderZero,*samplerLinear;
-	device->CreateSamplerState(&samplerDesc, &samplerDefault);
-	device->CreateSamplerState(&samplerDescBilinear , &samplerLinear);
+	ID3D11SamplerState* samplerWrap,* samplerClamp, *samplerBorderOne,*samplerBorderZero,*samplerLinear;
+	device->CreateSamplerState(&samplerDescWrap, &samplerWrap);
+	device->CreateSamplerState(&samplerDesc, &samplerClamp);
+	device->CreateSamplerState(&sampler_IDontKnow , &samplerLinear);
 	device->CreateSamplerState(&samplerDescLight, &samplerBorderOne);
 	device->CreateSamplerState(&samplerDescLightRMS, &samplerBorderZero);
-	m_samplers[SAMPLER_ID_WRAP]		= samplerDefault;
+	m_samplers[SAMPLER_ID_WRAP] = samplerWrap;
+	m_samplers[SAMPLER_ID_CLAMP] = samplerClamp;
 	m_samplers[SAMPLER_ID_BORDER_ONE] = samplerBorderOne;
 	m_samplers[SAMPLER_ID_BORDER_ZERO] = samplerBorderZero;
 	m_samplers[SAMPLER_ID_LINEAR] = samplerLinear;

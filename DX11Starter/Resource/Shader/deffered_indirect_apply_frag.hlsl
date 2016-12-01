@@ -110,20 +110,39 @@ float4 main(VertexToPixel input) : SV_TARGET
 		float3 otherNormal = normalize(textureNormal.Sample(samplerIndirectLight, uvRelative).xyz * 2 - 1);
 		////posDiffTotal += length(otherPosWorld.xyz - posWorld.xyz);
 		float posDiff = 1 / (1+length(otherPosWorld.xyz - posWorld.xyz));
-		//sampledColors[i] = textureLightIndirect.Sample(samplerIndirectLight, smaplingPositions[i]);// *(posDiff < 5 && dot(meNormal, otherNormal) > 0.5);
-		//if (posDiff < 5 && dot(meNormal, otherNormal) > 0.5)
-		//	colorIndirect += textureLightIndirect.Sample(samplerIndirectLight, uv) * (1 / 9.0);
 		if (dot(meNormal, otherNormal) < 0.11 || length(otherPosWorld.xyz - posWorld.xyz) > 1.0) {
 			indexs[i] = -1;
 			failCount++;
-			//sampledColors[i] *= 0;
-			//return float4(1, 0, 0, 1);
-			//return float4(colorDirect, 1);
 		}
-		//sampledColors[i] *= (dot(meNormal, otherNormal) >0.1) * (length(otherPosWorld.xyz - posWorld.xyz) < 0.5);
-		//sampledColors[i] *= max(0, dot(meNormal, otherNormal)) * posDiff;
-		//return float4(length(uv-uvRelative)/3, 0, 0, 1);
-		//angleDiff += 1-dot(meNormal, normal);
+	}
+	if (failCount == 0) {
+
+		//return float4(0, 0, 0, 1);
+
+		//if (failCount == 2) {
+		//	return float4(0,1,0, 1);
+		//}
+		//if (failCount == 4)return float4(0,1,0, 1);
+		//if (failCount == 3)return float4(0,1,0, 1);
+		float xRatioFromEdge = (smaplingPositions[1].x - input.uv.x) / PIXEL_DISTANCE;
+		float xRatioFromStart = (input.uv.x - smaplingPositions[0].x) / PIXEL_DISTANCE;
+
+		//float3 x00 = sampledColors[0] * (( ) / PIXEL_DISTANCE);
+		//float3 x01 = sampledColors[1] * ((input.uv.x - smaplingPositions[0].x) / PIXEL_DISTANCE);
+		//float3 x10 = sampledColors[2] * ((smaplingPositions[1].x - input.uv.x) / PIXEL_DISTANCE);
+		//float3 x11 = sampledColors[3] * ((input.uv.x - smaplingPositions[0].x) / PIXEL_DISTANCE);
+
+		float3 x0 = xRatioFromEdge *sampledColors[0] + xRatioFromStart *sampledColors[1];
+		float3 x1 = xRatioFromEdge *sampledColors[2] + xRatioFromStart *sampledColors[3];
+		//return float4(x0 + x1, 1);
+		float yFromEdge = (smaplingPositions[2].y - input.uv.y) / PIXEL_DISTANCE;
+		float yFromSTART = (input.uv.y - smaplingPositions[0].y) / PIXEL_DISTANCE;
+		float3 y0 = x0 * yFromEdge;
+		float3 y1 = x1 *yFromSTART;
+
+		colorIndirect += (y0 + y1);// *(specularPower(normalize(posWorld.xyz - posEye.xyz), normalize(posWorld.xyz - lightPos), meNormal, specular));// pow(max(0, dot(eyeAndLight, -meNormal)), 10 * specular);
+								   //return float4(colorIndirect, 1);
+		return float4(saturate(colorIndirect + saturate(colorDirect)), 1);
 	}
 	if (failCount == 1) {
 		//return float4(1, 0, 0, 1);
@@ -131,55 +150,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 			linearFilter(input.uv, sampledColors, smaplingPositions, indexs)), 1);
 
 	}
-	//return float4(0, 0, 0, 1);
-	//
-	if (failCount ==2) {
-		return float4(1, 0, 0, 1);
-		float offset[5] = { 0.0, 1.0, 2.0, 3.0, 4.0 };
-		float weight[5] = { 0.2270270270, 0.1945945946, 0.1216216216, 0.0540540541, 0.0162162162 };
-		colorIndirect += textureLightIndirect.Sample(samplerDefault, input.uv)*weight[0];
-		//float3 color = sampledColors[0] + sampledColors[1] + sampledColors[2] + sampledColors[3];
-		for (int j = 1; j < 5; j++) {
-			colorIndirect += textureLightIndirect.Sample(samplerDefault, input.uv + float2(0, PIXEL_DISTANCE*offset[j]))*weight[j]/2;
-			colorIndirect += textureLightIndirect.Sample(samplerDefault, input.uv - float2(0, PIXEL_DISTANCE*offset[j]))*weight[j]/2;
-			colorIndirect += textureLightIndirect.Sample(samplerDefault, input.uv + float2( PIXEL_DISTANCE*offset[j],0))*weight[j]/2;
-			colorIndirect += textureLightIndirect.Sample(samplerDefault, input.uv - float2( PIXEL_DISTANCE*offset[j],0))*weight[j]/2;
-
-		}
-		//return float4(colorDirect, 1);
-		//colorIndirect += float3(1,0,0);
-		return float4(saturate(colorDirect+colorIndirect), 1);
-	}
-	if (failCount == 3) {
-		return float4(0, 1, 0, 1);
-	}
-	if (failCount == 4)
-		return float4(0, 0, 1, 1);
-	//return float4(0, 0, 0, 1);
+	return float4(1, 0, 1, 1);
 	
-	//if (failCount == 2) {
-	//	return float4(0,1,0, 1);
-	//}
-	//if (failCount == 4)return float4(0,1,0, 1);
-	//if (failCount == 3)return float4(0,1,0, 1);
-	float xRatioFromEdge =   (smaplingPositions[1].x - input.uv.x) / PIXEL_DISTANCE;
-	float xRatioFromStart =  (input.uv.x- smaplingPositions[0].x)  / PIXEL_DISTANCE;
-	
-	//float3 x00 = sampledColors[0] * (( ) / PIXEL_DISTANCE);
-	//float3 x01 = sampledColors[1] * ((input.uv.x - smaplingPositions[0].x) / PIXEL_DISTANCE);
-	//float3 x10 = sampledColors[2] * ((smaplingPositions[1].x - input.uv.x) / PIXEL_DISTANCE);
-	//float3 x11 = sampledColors[3] * ((input.uv.x - smaplingPositions[0].x) / PIXEL_DISTANCE);
-	
-	float3 x0 = xRatioFromEdge *sampledColors[0] + xRatioFromStart *sampledColors[1];
-	float3 x1 = xRatioFromEdge *sampledColors[2] + xRatioFromStart *sampledColors[3];
-	//return float4(x0 + x1, 1);
-	float yFromEdge = (smaplingPositions[2].y - input.uv.y) / PIXEL_DISTANCE;
-	float yFromSTART = ( input.uv.y- smaplingPositions[0].y) / PIXEL_DISTANCE;
-	float3 y0 = x0 * yFromEdge;
-	float3 y1 = x1 *yFromSTART;
-
-	colorIndirect += (y0 + y1);// *(specularPower(normalize(posWorld.xyz - posEye.xyz), normalize(posWorld.xyz - lightPos), meNormal, specular));// pow(max(0, dot(eyeAndLight, -meNormal)), 10 * specular);
-	//return float4(colorIndirect, 1);
-	return float4(saturate( colorIndirect +saturate( colorDirect) ), 1);
 	//return float4(input.uv*0.1,1,1);
 }
