@@ -46,6 +46,7 @@ this->m_renderTextures[key]	->Initialize(device, defWidth, defHeight);
 	HPR_ADD_DEPTH_TEXTURE(KEnum::RENDER_TYPE_DEFFERED_FINAL, width, height);
 	HPR_ADD_DEPTH_TEXTURE(KEnum::RENDER_TYPE_DEFFERED_LIGHT_DIRECT, width, height);
 	HPR_ADD_DEPTH_TEXTURE(KEnum::RENDER_TYPE_DEFERRED_LIGHT_INDIRECT, textureIndirectLightWidth, textureIndirectLightHeight);
+	HPR_ADD_DEPTH_TEXTURE(KEnum::RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR, textureIndirectLightWidth, textureIndirectLightHeight);
 
 	HPR_ADD_RENDER_TEXTURE(KEnum::RENDER_TYPE_DEFFERED, width, height);
 	HPR_ADD_RENDER_TEXTURE(KEnum::RENDER_TYPE_DEFFERED_LIGHT_DIRECT, width, height);
@@ -55,6 +56,7 @@ this->m_renderTextures[key]	->Initialize(device, defWidth, defHeight);
 	HPR_ADD_RENDER_TEXTURE(KEnum::RENDER_TYPE_DEFFERED_FINAL, width, height);
 	HPR_ADD_RENDER_TEXTURE(KEnum::RENDER_TYPE_DEFFERED_SPECULAR, width, height);
 	HPR_ADD_RENDER_TEXTURE(KEnum::RENDER_TYPE_DEFERRED_LIGHT_INDIRECT, textureIndirectLightWidth, textureIndirectLightHeight);
+	HPR_ADD_RENDER_TEXTURE(KEnum::RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR, textureIndirectLightWidth, textureIndirectLightHeight);
 
 	return true;
 }
@@ -496,6 +498,19 @@ void GraphicMain::renderLights(
 	context->OMSetBlendState(0, 0, 0xffffffff);//::NoBlack, blendFactor, 0xffffffff);
 }
 
+void GraphicMain::renderIndirectTextureBlur(
+	ID3D11Device* device, ID3D11DeviceContext* context, NScene::Scene & scene,
+	SimpleVertexShader& shaderVert, SimpleFragmentShader& shaderFrag,
+
+	RenderTexture& target, DepthTexture& targetDepth,
+	RenderTexture & textureBlurred,
+	RenderTexture& textureNormal, RenderTexture & textureSpecular, DepthTexture& textureDepth,
+	std::unique_ptr<Mesh*> &meshePlane,
+	ID3D11SamplerState * samplerDefault,
+	ID3D11SamplerState * samplerLinear
+	) {
+	//blur the texture up and down 
+}
 void NGraphic::GraphicMain::renderApplyDirectAndIndirectLights(
 	ID3D11Device * device, ID3D11DeviceContext * context, NScene::Scene & scene,
 	SimpleVertexShader & shaderVert, SimpleFragmentShader & shaderFrag, 
@@ -597,6 +612,17 @@ void GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *context, As
 		asset->m_meshes, asset->m_textures,
 		asset->m_samplers[SAMPLER_ID_CLAMP], asset->m_samplers[SAMPLER_ID_BORDER_ONE], asset->m_samplers[SAMPLER_ID_BORDER_ZERO]
 	);
+	renderIndirectTextureBlur(device, context, scene,
+		*asset->m_shadersVert[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR], *asset->m_shadersFrag[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR],
+
+		*m_renderTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR], *m_depthTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR],
+
+		*m_renderTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT],
+		*m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL], *m_renderTextures[RENDER_TYPE_DEFFERED_SPECULAR],*m_depthTextures[RENDER_TYPE_DEFFERED],
+		asset->m_meshes[KEnum::MESH_ID_PLANE],
+		asset->m_samplers[SAMPLER_ID_CLAMP],
+		asset->m_samplers[SAMPLER_ID_LINEAR]);
+
 	renderApplyDirectAndIndirectLights(device, context, scene,
 		*asset->m_shadersVert[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_APPLY], *asset->m_shadersFrag[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_APPLY],
 

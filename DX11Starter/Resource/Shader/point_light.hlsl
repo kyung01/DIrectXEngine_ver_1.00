@@ -52,11 +52,11 @@ float3 spotLight(
 	float isLightedSpotlight = (dotAngle > lightMaxAngle)*ratio;// *(dotAngle / lightMaxAngle);
 
 	return saturate(
-		float3(diffuseColor*lightColor.xyz)
-
-		*(getPower(dirLightToWorld, surfaceNormal)
-			+ specularPower(dirEyeToWorld, dirLightToWorld, surfaceNormal, luminosity) //pow(max(0, dot(eye, -surfaceNormal)), 32 * luminosity)
-		 )
+		float3(diffuseColor*lightColor.xyz) *
+		(	getPower(dirLightToWorld, surfaceNormal)
+			+ specularPower(dirEyeToWorld, dirLightToWorld, surfaceNormal, luminosity)
+		)//pow(max(0, dot(eye, -surfaceNormal)), 32 * luminosity)
+		 
 		*powerLuminance * isLightedSpotlight
 	);
 }
