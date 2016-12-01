@@ -45,36 +45,7 @@ float4 getPosWorld(float2 uv, Texture2D depthTexture, matrix matProjViewInverse)
 	return posWorld;
 }
 
-float3 getFluxColor(float2 uv,
-	float3 posWorld, float3 normal,
-	Texture2D textureLightDepth, Texture2D textureLightNormal, Texture2D textureLightRSM, matrix matLightProjViewInverse) {
-	float3 lightPosWorld = getPosWorld(uv, textureLightDepth, matLightProjViewInverse).xyz;
-	float3 lightNormal = textureLightNormal.Sample(samplerDefault, uv) * 2 - 1;
-	//if (uv.x < 0 || uv.x > 1 || uv.y < 0 || uv.y > 1)
-	//	return float3(0, 0, 0);
-	//return lightPosWorld ;
-	//return textureLightNormal.Sample(samplerLightRSM, uv);
-	//if (uv.x > 1 || uv.x < 0 || uv.y >1 || uv.y < 0) {
-	//	uv *= 0;
-	//}
-	//return  float3(uv*0.5, 0);
 
-	float3 lightFlux = textureLightRSM.Sample(samplerLightRSM, uv);
-	float3 dis = posWorld.xyz - lightPosWorld.xyz; 
-	float disMag = dis.x*dis.x + dis.y*dis.y + dis.z*dis.z;
-	float result = (
-		max(0,dot(normal, lightPosWorld - posWorld ))
-		* max(0, dot(lightNormal, posWorld - lightPosWorld ))
-		)/ pow(disMag,2);
-	return (lightFlux*result);// / (1 + disMag);
-	//normalize(dis;
-	//return float3(length(dis), 0, 0);
-	//return lightFlux;// / pow(length(dis), 4);// *(result / (0.00001 + pow(dis.x*dis.x + dis.y*dis.y + dis.z*dis.z, 2)));
-	//result /=  pow(normalize(dis), 4);
-	//return lightPosWorld;
-	//return float3(result, 0, 0);
-	//return lightFlux *result;// *result * 1000;
-}
 float4 main(VertexToPixel input) : SV_TARGET
 {
 	float4 output;

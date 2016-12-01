@@ -509,7 +509,64 @@ void GraphicMain::renderIndirectTextureBlur(
 	ID3D11SamplerState * samplerDefault,
 	ID3D11SamplerState * samplerLinear
 	) {
-	//blur the texture up and down 
+
+	DirectX::XMFLOAT4X4 world, view, projection;
+	auto sceneReverseProjectionView = DirectX::XMMatrixInverse(0, DirectX::XMMatrixMultiply(scene.m_camMain.getViewMatrix(), scene.m_camMain.getProjectionMatrix()));
+	auto matScreenOrtho = DirectX::XMMatrixOrthographicLH(1, 1, 0.0, 100);
+	context->OMSetBlendState(m_blendStateNoBlack, 0, 0xffffffff);
+
+	//orthogonal display here
+	target.SetRenderTarget(context, targetDepth.getDepthStencilView());
+	target.ClearRenderTarget(context, 0, 0, 0, 0);
+	targetDepth.clear(context);
+
+	//orthogonal render
+	auto pos = Vector3(0, 0, -10);
+	auto dir = Vector3(0, 0, 1);
+	DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(DirectX::XMMatrixMultiply(
+		DirectX::XMMatrixLookToLH(pos, dir, Vector3::Up), matScreenOrtho))); // Transpose for HLSL!
+
+	shaderVert.SetMatrix4x4("matViewProjection", projection);
+	DirectX::XMStoreFloat4x4(&projection, XMMatrixTranspose(sceneReverseProjectionView)); // Transpose for HLSL!
+	shaderFrag.SetMatrix4x4("matProjViewInverse", projection);
+
+
+	shaderFrag.SetFloat("PIXEL_DISTANCE", 1.0 / m_rsm_flux_eye_perspective_width);
+	shaderFrag.SetShaderResourceView("textureTarget", textureBlurred.getShaderResourceView());
+	shaderFrag.SetShaderResourceView("textureNormal", textureNormal.getShaderResourceView());
+	shaderFrag.SetShaderResourceView("textureSpecular", textureSpecular.getShaderResourceView());
+	shaderFrag.SetShaderResourceView("textureDepth", textureDepth.getShaderResourceView());
+
+	shaderFrag.SetSamplerState("samplerDefault", samplerDefault);
+	shaderFrag.SetSamplerState("samplerIndirectLight", samplerLinear);
+
+
+
+
+	shaderVert.SetShader();
+	shaderFrag.SetShader();
+	shaderVert.CopyAllBufferData();
+	shaderFrag.CopyAllBufferData();
+
+	{
+		auto mesh = *meshePlane;
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+		context->IASetVertexBuffers(0, 1, &mesh->getBufferVertexRef(), &stride, &offset);
+		context->IASetIndexBuffer(mesh->getBufferIndex(), DXGI_FORMAT_R32_UINT, 0);
+		context->DrawIndexed(
+			mesh->getBufferIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
+			0,     // Offset to the first index we want to use
+			0);    // Offset to add to each index when looking up vertices
+	}
+
+	shaderFrag.SetShaderResourceView("textureDiffuse", 0);
+	shaderFrag.SetShaderResourceView("textureNormal", 0);
+	shaderFrag.SetShaderResourceView("textureDepth", 0);
+	shaderFrag.SetShaderResourceView("textureLightDepth", 0);
+	shaderFrag.SetShaderResourceView("textureSpecular", 0);
+
+	context->OMSetBlendState(0, 0, 0xffffffff);//::NoBlack, blendFactor, 0xffffffff);
 }
 void NGraphic::GraphicMain::renderApplyDirectAndIndirectLights(
 	ID3D11Device * device, ID3D11DeviceContext * context, NScene::Scene & scene,

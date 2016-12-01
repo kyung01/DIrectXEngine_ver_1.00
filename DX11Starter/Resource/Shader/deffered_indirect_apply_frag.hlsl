@@ -146,7 +146,8 @@ float4 main(VertexToPixel input) : SV_TARGET
 	}
 	if (failCount == 1) {
 		//return float4(1, 0, 0, 1);
-		return float4(saturate(colorDirect +
+		return float4(saturate(
+			colorDirect +
 			linearFilter(input.uv, sampledColors, smaplingPositions, indexs)), 1);
 
 	}

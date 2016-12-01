@@ -30,8 +30,9 @@ float4 spotLightRSM(
 float specularPower(float3 dirEyeToWorld, float3 dirLightToWorld, float3 surfaceNormal, float power) {
 	float3 reflected = dirLightToWorld - 2 * dot(surfaceNormal, dirLightToWorld) *surfaceNormal;
 	float cosAngle = dot(dirEyeToWorld, -reflected);
-	//float3 eye = normalize(dirEyeToWorld + dirLightToWorld);
-	return pow(max(cosAngle, 0), 1 + 60 * (1 - power));
+	float3 eye = normalize(dirEyeToWorld + dirLightToWorld);
+	//return pow(dot(eye, -surfaceNormal), 1);
+	return pow(max(cosAngle, 0),1+ 10 * (power));
 }
 float3 spotLight(
 	float3 dirEyeToWorld,
@@ -53,10 +54,11 @@ float3 spotLight(
 
 	return saturate(
 		float3(diffuseColor*lightColor.xyz) *
-		(	getPower(dirLightToWorld, surfaceNormal)
+		(	
+			getPower(dirLightToWorld, surfaceNormal)
 			+ specularPower(dirEyeToWorld, dirLightToWorld, surfaceNormal, luminosity)
 		)//pow(max(0, dot(eye, -surfaceNormal)), 32 * luminosity)
-		 
-		*powerLuminance * isLightedSpotlight
+		*powerLuminance
+		 * isLightedSpotlight
 	);
 }
