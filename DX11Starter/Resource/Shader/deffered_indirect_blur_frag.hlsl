@@ -85,55 +85,51 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float4 posEye = mul(float4(0, 0, 0, 1), matProjViewInverse);
 	posEye /= 0.00000001 + posEye.w;
 	float3 eyeAndLight = normalize( normalize(posWorld.xyz- posEye.xyz) + normalize(posWorld.xyz- lightPos));
-	float3 color = textureTarget.Sample(samplerIndirectLight, input.uv ).xyz * weight[0];
-
+	float3 colorOriginal = textureTarget.Sample(samplerIndirectLight, input.uv).xyz;
+	float3 color = colorOriginal * weight[0];
 	for (int i = 1; i < 5; i++) {
+		float2 uv = input.uv + float2(offset[i], 0)*PIXEL_DISTANCE;
 
-		color += textureTarget.Sample(samplerIndirectLight, input.uv + float2(offset[i], 0) * PIXEL_DISTANCE).xyz * weight[i];
-		color += textureTarget.Sample(samplerIndirectLight, input.uv - float2(offset[i], 0) * PIXEL_DISTANCE).xyz * weight[i];
+		float2 uvRelative = float2(
+			PIXEL_DISTANCE*floor(uv.x / PIXEL_DISTANCE) + PIXEL_DISTANCE / 2,
+			PIXEL_DISTANCE*floor(uv.y / PIXEL_DISTANCE) + PIXEL_DISTANCE / 2
+			);
+		float4 otherPosWorld = getPosWorld(uvRelative, textureDepth, matProjViewInverse);
+		float3 otherNormal = normalize(textureNormal.Sample(samplerIndirectLight, uvRelative).xyz * 2 - 1);
+		float otherSpecular = textureSpecular.Sample(samplerDefault, uvRelative).x;
+		float posDiff = 1 / (1 + length(otherPosWorld.xyz - posWorld.xyz));
+		float normalDifference = max(0, dot(meNormal, otherNormal));
+		if ( length(otherPosWorld.xyz - posWorld.xyz) > 1.0) {
+			color += colorOriginal * weight[i];
+			continue;
+		}
+		float ratio = pow(normalDifference * (1 - abs(otherSpecular - specular)),10);
+		color += textureTarget.Sample(samplerIndirectLight, uv).xyz * weight[i] * ratio;
+		color += colorOriginal * (1- ratio)* weight[i];
+	}
+	for (int i = 1; i < 5; i++) {
+		float2 uv = input.uv - float2(offset[i], 0)*PIXEL_DISTANCE;
 
+		float2 uvRelative = float2(
+			PIXEL_DISTANCE*floor(uv.x / PIXEL_DISTANCE) + PIXEL_DISTANCE / 2,
+			PIXEL_DISTANCE*floor(uv.y / PIXEL_DISTANCE) + PIXEL_DISTANCE / 2
+			);
+		float4 otherPosWorld = getPosWorld(uvRelative, textureDepth, matProjViewInverse);
+		float3 otherNormal = normalize(textureNormal.Sample(samplerIndirectLight, uvRelative).xyz * 2 - 1);
+		float otherSpecular = textureSpecular.Sample(samplerDefault, uvRelative).x;
+		float posDiff = 1 / (1 + length(otherPosWorld.xyz - posWorld.xyz));
+		float normalDifference = max(0, dot(meNormal, otherNormal));
+		if (length(otherPosWorld.xyz - posWorld.xyz) > 1.0) {
+			color += colorOriginal * weight[i];
+			continue;
+		}
+
+		float ratio = pow(normalDifference * (1 - abs(otherSpecular - specular)), 10);
+		color += textureTarget.Sample(samplerIndirectLight, uv).xyz * weight[i] * ratio;
+		color += colorOriginal * (1 - ratio)* weight[i];
 	}
 
 	return float4(color,1);
-	//float3 eyeAndLight = normalize((posWorld.xyz - posEye.xyz) + dirLightToWorld);
-	//float	meSpecular = textureSpecular.Sample(samplerDefault, input.uv).x;
-	float2 smaplingPositions[4] = {
-		float2(-PIXEL_DISTANCE,PIXEL_DISTANCE),float2(PIXEL_DISTANCE,0),
-		float2(0,PIXEL_DISTANCE),float2(PIXEL_DISTANCE,PIXEL_DISTANCE)
-	};
-	
-	float3 sampledColors[4] = { float3(0,0,0) ,float3(0,0,0) ,float3(0,0,0) ,float3(0,0,0) };
-	int indexs[4] = { 0,1,2,3 };
-	int failCount = 0;
-
-	float3 colorIndirect = float3(0, 0, 0);
-	float angleDiff = 0;
-	float posDiffTotal = 0;
-	for (int ii = 0; ii < 4; ii++) {
-		smaplingPositions[ii] = float2(
-			PIXEL_DISTANCE*floor(input.uv.x / PIXEL_DISTANCE) + smaplingPositions[ii].x,
-			PIXEL_DISTANCE*floor(input.uv.y / PIXEL_DISTANCE) + smaplingPositions[ii].y);
-		sampledColors[ii] = textureTarget.Sample(samplerIndirectLight, smaplingPositions[ii]);// *(posDiff < 5 && dot(meNormal, otherNormal) > 0.5);
-	}
-	for (int i = 0; i < 4; i++) {
-
-
-		float2 uvRelative = float2(
-			PIXEL_DISTANCE*floor(smaplingPositions[i].x / PIXEL_DISTANCE) ,
-			PIXEL_DISTANCE*floor(smaplingPositions[i].y / PIXEL_DISTANCE) 
-			);
-		
-		//
-		float4 otherPosWorld = getPosWorld(uvRelative, textureDepth, matProjViewInverse);
-		float3 otherNormal = normalize(textureNormal.Sample(samplerIndirectLight, uvRelative).xyz * 2 - 1);
-		float posDiff = 1 / (1+length(otherPosWorld.xyz - posWorld.xyz));
-		if (dot(meNormal, otherNormal) < 0.11 || length(otherPosWorld.xyz - posWorld.xyz) > 1.0) {
-			indexs[i] = -1;
-			failCount++;
-		}
-	}
-	return textureTarget.Sample(samplerIndirectLight, input.uv);
-	return float4(1, 0, 1, 1);
 	
 	//return float4(input.uv*0.1,1,1);
 }

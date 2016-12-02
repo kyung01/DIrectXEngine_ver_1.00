@@ -559,12 +559,12 @@ void GraphicMain::renderIndirectTextureBlur(
 			0,     // Offset to the first index we want to use
 			0);    // Offset to add to each index when looking up vertices
 	}
-
-	shaderFrag.SetShaderResourceView("textureDiffuse", 0);
-	shaderFrag.SetShaderResourceView("textureNormal", 0);
-	shaderFrag.SetShaderResourceView("textureDepth", 0);
-	shaderFrag.SetShaderResourceView("textureLightDepth", 0);
-	shaderFrag.SetShaderResourceView("textureSpecular", 0);
+	//TODO you gotta do it at the end
+	//shaderFrag.SetShaderResourceView("textureDiffuse", 0);
+	//shaderFrag.SetShaderResourceView("textureNormal", 0);
+	//shaderFrag.SetShaderResourceView("textureDepth", 0);
+	//shaderFrag.SetShaderResourceView("textureLightDepth", 0);
+	//shaderFrag.SetShaderResourceView("textureSpecular", 0);
 
 	context->OMSetBlendState(0, 0, 0xffffffff);//::NoBlack, blendFactor, 0xffffffff);
 }
@@ -671,14 +671,60 @@ void GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *context, As
 	);
 	renderIndirectTextureBlur(device, context, scene,
 		*asset->m_shadersVert[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR], *asset->m_shadersFrag[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR],
-
 		*m_renderTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR], *m_depthTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR],
-
 		*m_renderTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT],
-		*m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL], *m_renderTextures[RENDER_TYPE_DEFFERED_SPECULAR],*m_depthTextures[RENDER_TYPE_DEFFERED],
+		*m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL], *m_renderTextures[RENDER_TYPE_DEFFERED_SPECULAR], *m_depthTextures[RENDER_TYPE_DEFFERED],
 		asset->m_meshes[KEnum::MESH_ID_PLANE],
 		asset->m_samplers[SAMPLER_ID_CLAMP],
 		asset->m_samplers[SAMPLER_ID_LINEAR]);
+	renderIndirectTextureBlur(device, context, scene,
+		*asset->m_shadersVert[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR_VERTICALLY], *asset->m_shadersFrag[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR_VERTICALLY],
+		*m_renderTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT], *m_depthTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR],
+		*m_renderTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR],
+		*m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL], *m_renderTextures[RENDER_TYPE_DEFFERED_SPECULAR], *m_depthTextures[RENDER_TYPE_DEFFERED],
+		asset->m_meshes[KEnum::MESH_ID_PLANE],
+		asset->m_samplers[SAMPLER_ID_CLAMP],
+		asset->m_samplers[SAMPLER_ID_LINEAR]);
+
+#define quickLoopRender(target, targetDepth,shaderFrag,textureBlurred)\
+		{	target->SetRenderTarget(context, targetDepth->getDepthStencilView());\
+			target->ClearRenderTarget(context, 0, 0, 0, 0);\
+			targetDepth->clear(context);\
+			shaderFrag->SetShaderResourceView("textureTarget", textureBlurred->getShaderResourceView());\
+			shaderFrag->SetShader();\
+			auto mesh = *asset->m_meshes[KEnum::MESH_ID_PLANE];\
+			UINT stride = sizeof(Vertex);\
+			UINT offset = 0;\
+			context->IASetVertexBuffers(0, 1, &mesh->getBufferVertexRef(), &stride, &offset);\
+			context->IASetIndexBuffer(mesh->getBufferIndex(), DXGI_FORMAT_R32_UINT, 0);\
+			context->DrawIndexed(mesh->getBufferIndexCount(),0,0); \
+		}
+
+
+	for (int i = 0; i < 3; i++) {
+		quickLoopRender(
+			m_renderTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT],
+			m_depthTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT],
+			asset->m_shadersFrag[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR_VERTICALLY],
+			m_renderTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR]);
+
+		if(i!=2)
+			quickLoopRender(
+			m_renderTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR],
+			m_depthTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR],
+			asset->m_shadersFrag[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR],
+			m_renderTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT]);
+		
+		//RenderTexture &target = *m_renderTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT];
+		//RenderTexture &textureBlurred = *m_renderTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT];
+		//DepthTexture &targetDepth = *m_depthTextures[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT];
+		//SimpleFragmentShader &shaderFrag = *asset->m_shadersFrag[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_BLUR_VERTICALLY];
+		//
+		//target.SetRenderTarget(context, targetDepth.getDepthStencilView());
+		//target.ClearRenderTarget(context, 0, 0, 0, 0);
+		//targetDepth.clear(context);
+		//shaderFrag.SetShaderResourceView("textureTarget", textureBlurred.getShaderResourceView());
+	}
 
 	renderApplyDirectAndIndirectLights(device, context, scene,
 		*asset->m_shadersVert[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_APPLY], *asset->m_shadersFrag[RENDER_TYPE_DEFERRED_LIGHT_INDIRECT_APPLY],

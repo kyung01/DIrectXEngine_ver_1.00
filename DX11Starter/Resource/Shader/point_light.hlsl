@@ -3,7 +3,6 @@ float4 getRed() {
 }
 
 float getPower(float3 dirLightToWorld, float3 surfaceNormal) {
-
 	//float3 lightDirReflected = (surfaceNormal * 2 * dot(surfaceNormal, lightDir)) - lightDir;
 	//return dot(dirLightToWorld, );
 	return max(0, dot(dirLightToWorld, -surfaceNormal) );
@@ -28,11 +27,10 @@ float4 spotLightRSM(
 		diffuseColor*lightColor.xyz *getPower(dirLightToWorld, surfaceNormal)*powerLuminance * isLightedSpotlight, 1);
 }
 float specularPower(float3 dirEyeToWorld, float3 dirLightToWorld, float3 surfaceNormal, float power) {
-	float3 reflected = dirLightToWorld - 2 * dot(surfaceNormal, dirLightToWorld) *surfaceNormal;
+	float3 reflected = normalize(dirLightToWorld - 2 * dot(surfaceNormal, dirLightToWorld) *surfaceNormal);
 	float cosAngle = dot(dirEyeToWorld, -reflected);
-	float3 eye = normalize(dirEyeToWorld + dirLightToWorld);
-	//return pow(dot(eye, -surfaceNormal), 1);
-	return pow(max(cosAngle, 0),1+ 10 * (power));
+	//float3 eye = normalize(dirEyeToWorld + dirLightToWorld);
+	return pow(max(0, cosAngle), 1 + 10 * (power));
 }
 float3 spotLight(
 	float3 dirEyeToWorld,
@@ -55,10 +53,10 @@ float3 spotLight(
 	return saturate(
 		float3(diffuseColor*lightColor.xyz) *
 		(	
-			getPower(dirLightToWorld, surfaceNormal)
+			getPower(dirLightToWorld, surfaceNormal)*powerLuminance
+			
 			+ specularPower(dirEyeToWorld, dirLightToWorld, surfaceNormal, luminosity)
-		)//pow(max(0, dot(eye, -surfaceNormal)), 32 * luminosity)
-		*powerLuminance
-		 * isLightedSpotlight
+		)* isLightedSpotlight//pow(max(0, dot(eye, -surfaceNormal)), 32 * luminosity)
+		
 	);
 }

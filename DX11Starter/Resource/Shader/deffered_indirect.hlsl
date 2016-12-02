@@ -54,7 +54,7 @@ float3 IndirectLighting(float3 posWorld, float3 normal, float3 dirEyeToWorld, fl
 {
 	float3 fluxColor = float3(0,0,0);
 	
-	float distanceMax = .51;
+	float distanceMax = .31;
 	float iMax = 100;	
 	float angleMax = 1;
 	float angleTick = 6.28 / angleMax;
@@ -74,7 +74,7 @@ float3 IndirectLighting(float3 posWorld, float3 normal, float3 dirEyeToWorld, fl
 
 		}
 	}
-	return saturate(fluxColor*3);
+	return saturate(fluxColor*2);
 	
 	
 }

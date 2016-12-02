@@ -75,7 +75,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float3 dirFromEyeToPos = normalize(posWorld.xyz - posEye.xyz);
 
 	float lighted = posFromLightProjection.z - bias < textureLightDepth.Sample(samplerLight, uv).x;
-	float3 light_spotLight = spotLight(dirFromEyeToPos, diffuse, lightColor, lightDir, posWorld.xyz - lightPos, dirFromLightToPos, normal, specular) * lighted;
+	float3 light_spotLight = spotLight(dirFromEyeToPos, diffuse, lightColor, lightDir, disFromLightToPos, dirFromLightToPos, normal, specular) * lighted;
 	
 	//return pow(max(0, dot(eye, -surfaceNormal)), 10 * luminosity);
 	//return	float4(saturate( fluxColor ), 1);

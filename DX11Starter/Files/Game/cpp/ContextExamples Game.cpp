@@ -100,7 +100,7 @@ void NGame::LoadExample00(Context &context)
 		auto obj = context.m_scene->getObjLight();
 		auto light = new Entity();
 		context.addEntity(std::shared_ptr<Entity>(light));
-		obj->m_lightColor = Vector4(1.0, 1.0, 1.0, 20);
+		obj->m_lightColor = Vector4(1.0, 1.0, 1.0, 30);
 		light->m_graphicObjects.push_back(obj);
 		light->setPos(0, 3.5, 0);
 		light->setRotation(Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), 3.14*0.25f));

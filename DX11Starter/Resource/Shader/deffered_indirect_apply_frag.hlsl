@@ -101,8 +101,8 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 
 		float2 uvRelative = float2(
-			PIXEL_DISTANCE*floor(smaplingPositions[i].x / PIXEL_DISTANCE) ,
-			PIXEL_DISTANCE*floor(smaplingPositions[i].y / PIXEL_DISTANCE) 
+			PIXEL_DISTANCE*floor(smaplingPositions[i].x / PIXEL_DISTANCE)+ PIXEL_DISTANCE/2,
+			PIXEL_DISTANCE*floor(smaplingPositions[i].y / PIXEL_DISTANCE) + PIXEL_DISTANCE / 2
 			);
 		
 		//
