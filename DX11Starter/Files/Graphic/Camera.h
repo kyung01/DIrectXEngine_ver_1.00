@@ -8,6 +8,7 @@ namespace NGraphic {
 
 	namespace NScene {
 		class Camera : public Object {
+			static float DEFAULT_CAMERA_ASPECT_RATIO;
 		private:
 			float
 				m_fov,
@@ -28,6 +29,7 @@ namespace NGraphic {
 
 			Camera();
 			Matrix getProjectionMatrix();
+			Matrix getProjectionMatrix(float screen_width, float screen_height);
 			Matrix getProjectionMatrix(float fov,float screen_width, float screen_height, float cam_near, float cam_far);
 			Matrix getViewMatrix();
 			Object setPos(Vector3 pos) override;
