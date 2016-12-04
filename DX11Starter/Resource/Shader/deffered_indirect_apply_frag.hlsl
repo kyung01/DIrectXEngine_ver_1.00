@@ -22,6 +22,11 @@ struct VertexToPixel
 	float4 position		: SV_POSITION;
 	float2 uv			: TEXCOORD;
 };
+struct PS_OUTPUT
+{
+	float4 color;
+	float4 error;
+};
 // Out of the vertex shader (and eventually input to the PS)
 
 
@@ -66,8 +71,11 @@ float3 linearFilter (float2 uv, float3 colors[4],float2 uvs[4], int checks[4]) {
 	float3 colorC = colors[2] * (areaC / total);
 	return colorA + colorB + colorC;
 }
-float4 main(VertexToPixel input) : SV_TARGET
+PS_OUTPUT main(VertexToPixel input) : SV_TARGET
 {
+	PS_OUTPUT output;
+	output.color = float4(0, 0, 0, 1);
+	output.error = float4(0, 0, 0, 1);
 	float diffMaxLimit = 2.0;
 	float3 colorDirect = textureLightDirect.Sample(samplerDefault, input.uv).xyz;
 	float4 posWorld = getPosWorld(input.uv, textureDepth, matProjViewInverse);
@@ -142,16 +150,21 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 		colorIndirect += (y0 + y1);// *(specularPower(normalize(posWorld.xyz - posEye.xyz), normalize(posWorld.xyz - lightPos), meNormal, specular));// pow(max(0, dot(eyeAndLight, -meNormal)), 10 * specular);
 								   //return float4(colorIndirect, 1);
-		return float4(saturate(colorIndirect + saturate(colorDirect)), 1);
+		output.color = float4(saturate(colorIndirect + saturate(colorDirect)), 1);
+		//return float4(saturate(colorIndirect + saturate(colorDirect)), 1);
 	}
-	if (failCount == 1) {
+	else if (failCount == 1) {
 		//return float4(1, 0, 0, 1);
-		return float4(saturate(
+		output.color = float4(saturate(
 			colorDirect +
 			linearFilter(input.uv, sampledColors, smaplingPositions, indexs)), 1);
 
 	}
-	return float4(1, 0, 1, 1);
+	else {
+		output.error = float4(1, 0, 0, 1);
+		//total failure
+	}
+	return output;
 	
 	//return float4(input.uv*0.1,1,1);
 }
