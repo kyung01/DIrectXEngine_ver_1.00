@@ -43,7 +43,7 @@ float getArea(float2 vertA, float2 vertB, float2 vertC) {
 	float s = 0.5* (a + b + c);
 	return sqrt(s*(s - a)*(s - b)*(s - c));
 }
-float3 linearFilter (float2 uv, float3 colors[4],float2 uvs[4], int checks[4]) {
+float4 linearFilter (float2 uv, float3 colors[4],float2 uvs[4], int checks[4]) {
 	int count = 0;
 	for (int i = 0; i < 4; i++) {
 		if (checks[i] == -1) continue;
@@ -56,11 +56,11 @@ float3 linearFilter (float2 uv, float3 colors[4],float2 uvs[4], int checks[4]) {
 	float areaB = getArea(uv, uvs[2], uvs[0]);
 	float areaC = getArea(uv, uvs[0], uvs[1]);
 	if (areaA / total > 1 || areaB / total > 1 || areaC / total > 1)
-		return float3(0,0,0);
+		return float4(0,0,0,0);
 	float3 colorA = colors[0] * (areaA / total);
 	float3 colorB = colors[1] * (areaB / total);
 	float3 colorC = colors[2] * (areaC / total);
-	return colorA + colorB + colorC;
+	return float4(colorA + colorB + colorC, 1);
 }
 PS_OUTPUT main(VertexToPixel input) : SV_TARGET
 {
@@ -68,7 +68,8 @@ PS_OUTPUT main(VertexToPixel input) : SV_TARGET
 	output.color = float4(0, 0, 0, 1.0);
 	output.error = float4(0, 1.0, 0, 1.0);
 	float diffMaxLimit = 2.0;
-	float3 colorDirect = textureLightDirect.Sample(samplerDefault, input.uv).xyz * 0;
+	float normalRaw = textureNormal.Sample(samplerDefault, input.uv).w;
+	float3 colorDirect = textureLightDirect.Sample(samplerDefault, input.uv).xyz *0;
 	float4 posWorld = getPosWorld(input.uv, textureDepth, matProjViewInverse, samplerDefault);
 	float3 meNormal = normalize(textureNormal.Sample(samplerDefault, input.uv).xyz * 2 - 1);
 	float specular = textureSpecular.Sample(samplerDefault, input.uv).x;
@@ -109,7 +110,7 @@ PS_OUTPUT main(VertexToPixel input) : SV_TARGET
 		float3 otherNormal = normalize(textureNormal.Sample(samplerIndirectLight, uvRelative).xyz * 2 - 1);
 		////posDiffTotal += length(otherPosWorld.xyz - posWorld.xyz);
 		float posDiff = 1 / (1+length(otherPosWorld.xyz - posWorld.xyz));
-		if (dot(meNormal, otherNormal) < 0.97 || length(otherPosWorld.xyz - posWorld.xyz) > 1.0) {
+		if (dot(meNormal, otherNormal) < 0.90 || length(otherPosWorld.xyz - posWorld.xyz) > 0.5) {
 			indexs[i] = -1;
 			failCount++;
 		}
@@ -146,9 +147,9 @@ PS_OUTPUT main(VertexToPixel input) : SV_TARGET
 	}
 	else if (failCount == 1) {
 		//return float4(1, 0, 0, 1);
-		output.color = float4(saturate(
-			colorDirect +
-			linearFilter(input.uv, sampledColors, smaplingPositions, indexs)), 1);
+		float4 color = linearFilter(input.uv, sampledColors, smaplingPositions, indexs);
+		output.color = float4(saturate(colorDirect + color.xyz *color.w), 1);
+		output.error = float4(color.w, 0, 1-color.w, 1.0);
 
 	}
 	else {
@@ -156,6 +157,7 @@ PS_OUTPUT main(VertexToPixel input) : SV_TARGET
 		output.error = float4(1.0, 0, 0, 1.0);
 		//total failure
 	}
+	output.error.x *= normalRaw;
 	return output;
 	
 	//return float4(input.uv*0.1,1,1);

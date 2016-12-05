@@ -45,8 +45,9 @@ float3 getFluxColor(
 		max(0,dot(normal, lightPosWorld - posWorld ))
 		* max(0, dot(lightNormal, posWorld - lightPosWorld ))
 		)/ pow(disMag,2);
-	return lightFlux*result *(1+ 
-		specularPower(dirEyeToWorld,normalize(0.000001 + posWorld - lightPosWorld), normal, specular ) ) ;// / (1 + disMag);
+	return lightFlux*result *(1 
+		+specularPower(dirEyeToWorld,normalize(0.000001 + posWorld - lightPosWorld), normal, specular )
+		) ;// / (1 + disMag);
 
 }
 float3 IndirectLighting(float3 posWorld, float3 normal, float3 dirEyeToWorld, float2 uv, float specular,

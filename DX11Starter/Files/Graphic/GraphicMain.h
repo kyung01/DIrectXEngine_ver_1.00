@@ -122,7 +122,7 @@ namespace NGraphic {
 			RenderTexture& textureDiffuse, RenderTexture& textureNormal, RenderTexture & textureSpecular,
 			DepthTexture& textureDepth, DepthTexture& textureLightIndirectDpeth,
 			std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> &textures,
-			ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth, ID3D11SamplerState * samplerLightRSM
+			ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth, ID3D11SamplerState * samplerLightRSM, ID3D11SamplerState * samplerError
 		);
 		void renderIndirectTextureBlur(
 			ID3D11Device* device, ID3D11DeviceContext* context, NScene::Scene & scene,

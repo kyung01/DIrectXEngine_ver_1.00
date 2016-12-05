@@ -174,9 +174,9 @@ void GraphicMain::renderPreDeffered(
 
 	textureDepth.clear(context);
 
-	texture_diffuse.ClearRenderTarget(context, 0, 0.0, 0, 1);
-	texture_normal.ClearRenderTarget(context, 0, 0, 0, 1);
-	texture_specular.ClearRenderTarget(context, 0, 0, 0, 1);
+	texture_diffuse.ClearRenderTarget(context, 0, 0.0, 0, 0);
+	texture_normal.ClearRenderTarget(context, 0, 0, 0, 0);
+	texture_specular.ClearRenderTarget(context, 0, 0, 0, 0);
 
 	shader_vert.SetFloat3("worldSize", scene.size);
 	shader_vert.SetMatrix4x4("world", world);
@@ -528,7 +528,7 @@ void NGraphic::GraphicMain::renderLightsFailCases(
 	RenderTexture& textureDiffuse, RenderTexture& textureNormal, RenderTexture & textureSpecular,
 	DepthTexture& textureDepth, DepthTexture& textureLightIndirectDpeth,
 	std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> &textures,
-	ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth, ID3D11SamplerState * samplerLightRSM
+	ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth, ID3D11SamplerState * samplerLightRSM, ID3D11SamplerState * samplerError
 )
 {
 	int count = 0; //TODO delete this
@@ -539,7 +539,7 @@ void NGraphic::GraphicMain::renderLightsFailCases(
 
 	targetIndirectLight.SetRenderTarget(context, targetIndirectDepth.getDepthStencilView());
 	//targetIndirectLight.ClearRenderTarget(context, 0, 0, 0, 0);
-	context->OMSetBlendState(m_blendStateNoBlack, 0, 0xffffffff);
+	context->OMSetBlendState(m_blendStateTransparent, 0, 0xffffffff);
 	for (auto it = scene.objs_lights.begin(); it != scene.objs_lights.end(); it++) {
 
 		auto lightCamera = dynamic_cast<NScene::Light*>(&(**it));
@@ -598,6 +598,7 @@ void NGraphic::GraphicMain::renderLightsFailCases(
 		shaderFragIndirectLight.SetSamplerState("samplerDefault", samplerDefault);
 		shaderFragIndirectLight.SetSamplerState("samplerLight", samplerLightDepth);
 		shaderFragIndirectLight.SetSamplerState("samplerLightRSM", samplerLightRSM);
+		shaderFragIndirectLight.SetSamplerState("samplerError", samplerError);
 
 
 
@@ -892,22 +893,60 @@ void GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *context, As
 		asset->m_samplers[SAMPLER_ID_CLAMP], asset->m_samplers[SAMPLER_ID_BORDER_ONE], asset->m_samplers[SAMPLER_ID_BORDER_ZERO]
 	);
 
+	renderIndirectTextureBlur(device, context, scene,
+		*asset->m_shadersVert[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_BLUR], *asset->m_shadersFrag[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_BLUR],
+		*m_renderTextures[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_BLUR], *m_depthTextures[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_BLUR],
+		*m_renderTextures[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT],
+		*m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL], *m_renderTextures[RENDER_TYPE_DEFFERED_SPECULAR], *m_depthTextures[RENDER_TYPE_DEFFERED],
+		asset->m_meshes[KEnum::MESH_ID_PLANE], asset->m_samplers[SAMPLER_ID_CLAMP], asset->m_samplers[SAMPLER_ID_BORDER_ZERO]
+	);
+	
+	#define quickLoopRender(target, targetDepth, shaderFrag, textureBlurred)\
+		{	target->SetRenderTarget(context, targetDepth->getDepthStencilView()); \
+		target->ClearRenderTarget(context, 0, 0, 0, 0); \
+		targetDepth->clear(context); \
+		shaderFrag->SetShaderResourceView("textureTarget", textureBlurred->getShaderResourceView()); \
+		shaderFrag->SetShader(); \
+		auto mesh = *asset->m_meshes[KEnum::MESH_ID_PLANE]; \
+		UINT stride = sizeof(Vertex); \
+		UINT offset = 0; \
+		context->IASetVertexBuffers(0, 1, &mesh->getBufferVertexRef(), &stride, &offset); \
+		context->IASetIndexBuffer(mesh->getBufferIndex(), DXGI_FORMAT_R32_UINT, 0); \
+		context->DrawIndexed(mesh->getBufferIndexCount(), 0, 0); \
+		}
+		
+		
+	for (int i = 0; i < 3; i++) {
+		quickLoopRender(
+			m_renderTextures[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT],
+			m_depthTextures[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT],
+			asset->m_shadersFrag[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_BLUR_VERTICALLY],
+			m_renderTextures[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_BLUR]);
+
+		if (i != 2)
+			quickLoopRender(
+				m_renderTextures[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_BLUR],
+				m_depthTextures[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_BLUR],
+				asset->m_shadersFrag[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_BLUR],
+				m_renderTextures[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT]);
+	}
+
+
 	renderApplyDirectAndIndirectLights(device, context, scene,
 		*asset->m_shadersVert[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_APPLY], *asset->m_shadersFrag[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_APPLY],
 
-		*m_renderTextures[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_APPLY], *m_renderTextures[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_ERROR], 
+		*m_renderTextures[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_APPLY], *m_renderTextures[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_ERROR],
 		*m_depthTextures[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_APPLY],
 
-		*m_renderTextures[RENDER_TYPE_DEFFERED_LIGHT_DIRECT], 
+		*m_renderTextures[RENDER_TYPE_DEFFERED_LIGHT_DIRECT],
 		*m_renderTextures[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT],
-		
-		*m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL], *m_renderTextures[RENDER_TYPE_DEFFERED_SPECULAR] ,
+
+		*m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL], *m_renderTextures[RENDER_TYPE_DEFFERED_SPECULAR],
 		*m_depthTextures[RENDER_TYPE_DEFFERED],
 		asset->m_meshes[KEnum::MESH_ID_PLANE],
 		asset->m_samplers[SAMPLER_ID_CLAMP],
 		asset->m_samplers[SAMPLER_ID_LINEAR]
 	);
-
 	//renderLights_indirect(device, context, scene,
 	//	*asset->m_shadersVert[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_APPLY], *asset->m_shadersFrag[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_APPLY],
 	//	*m_renderTextures[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT], *m_depthTextures[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT],
@@ -925,15 +964,15 @@ void GraphicMain::render(ID3D11Device * device, ID3D11DeviceContext *context, As
 		*m_renderTextures[RENDER_TYPE_DEFFERED_DIFFUSE], *m_renderTextures[RENDER_TYPE_DEFFERED_NORMAL], *m_renderTextures[RENDER_TYPE_DEFFERED_SPECULAR],
 		*m_depthTextures[RENDER_TYPE_DEFFERED], *m_depthTextures[RENDER_TYPE_DEFFERED_LIGHT_INDIRECT],
 		asset->m_meshes, asset->m_textures,
-		asset->m_samplers[SAMPLER_ID_CLAMP], asset->m_samplers[SAMPLER_ID_BORDER_ONE], asset->m_samplers[SAMPLER_ID_BORDER_ZERO]
+		asset->m_samplers[SAMPLER_ID_CLAMP], asset->m_samplers[SAMPLER_ID_BORDER_ONE], asset->m_samplers[SAMPLER_ID_BORDER_ZERO], asset->m_samplers[SAMPLER_ID_POINT]
 	);
 
-	//renderUI(context, scene,
-	//	*asset->m_shadersVert[RENDER_TYPE_UI], *asset->m_shadersFrag[RENDER_TYPE_UI],
-	//	*m_renderTextures[RENDER_TYPE_DEFFERED_FINAL], *m_depthTextures[RENDER_TYPE_DEFFERED],
-	//	asset->m_meshes, &asset->m_textures,
-	//	asset->m_samplers[SAMPLER_ID_CLAMP]
-	//);
+	renderUI(context, scene,
+		*asset->m_shadersVert[RENDER_TYPE_UI], *asset->m_shadersFrag[RENDER_TYPE_UI],
+		*m_renderTextures[RENDER_TYPE_DEFFERED_FINAL], *m_depthTextures[RENDER_TYPE_DEFFERED],
+		asset->m_meshes, &asset->m_textures,
+		asset->m_samplers[SAMPLER_ID_CLAMP]
+	);
 	
 	//renderLightDepth(device, context, scene);
 
