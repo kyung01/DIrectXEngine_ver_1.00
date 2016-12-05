@@ -2,7 +2,6 @@
 #include <iostream>
 using namespace NGraphic;
 using namespace NGraphic::NScene;
-float Camera::DEFAULT_CAMERA_ASPECT_RATIO = .25f *3.14;
 Camera::Camera():
 	m_clipFar(100),
 	m_clipNear(0),
@@ -24,11 +23,6 @@ Matrix NScene::Camera::getProjectionMatrix()
 			m_clipNear, m_clipFar);					// Far clip plane distance
 	}
 	return m_matProjection;
-}
-
-Matrix NGraphic::NScene::Camera::getProjectionMatrix(float width, float height)
-{
-	return getProjectionMatrix(DEFAULT_CAMERA_ASPECT_RATIO, width,height, 0.01f, 100.0f);
 }
 
 Matrix Camera::getProjectionMatrix( float fov, float screen_width, float screen_height,float clipNear,float clipFar)

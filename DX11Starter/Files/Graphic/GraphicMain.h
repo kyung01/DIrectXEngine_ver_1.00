@@ -64,14 +64,6 @@ namespace NGraphic {
 								ID3D11SamplerState * sampler
 				
 			);
-		void NGraphic::GraphicMain::renderLightIndirect_FirstBounce(
-			ID3D11Device * device, ID3D11DeviceContext * context,
-			NScene::Scene & scene, NScene::Light light,
-			SimpleVertexShader & shaderVert, SimpleFragmentShader & shaderFrag,
-			RenderTexture & targetColor, RenderTexture & targetNormal,
-			DepthTexture & depthTexture, std::map<KEnum, std::unique_ptr<Mesh*>>& meshes,
-			std::map<KEnum, ID3D11ShaderResourceView*>& textures, ID3D11SamplerState * samplerClamp);
-
 		void renderUI(
 			ID3D11DeviceContext* context, NScene::Scene &scene,
 			SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,

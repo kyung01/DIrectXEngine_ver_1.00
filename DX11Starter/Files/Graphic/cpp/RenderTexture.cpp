@@ -22,11 +22,8 @@ RenderTexture::~RenderTexture()
 }
 
 
-bool RenderTexture::init(ID3D11Device* device, int textureWidth, int textureHeight)
+bool RenderTexture::Initialize(ID3D11Device* device, int textureWidth, int textureHeight)
 {
-	this->m_width = textureWidth;
-	this->m_height = textureHeight;
-
 	D3D11_TEXTURE2D_DESC textureDesc;
 	HRESULT result;
 	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
@@ -116,7 +113,7 @@ void RenderTexture::Shutdown()
 }
 
 
-void RenderTexture::set(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView)
+void RenderTexture::SetRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView)
 {
 	// Bind the render target view and depth stencil buffer to the output render pipeline.
 	deviceContext->OMSetRenderTargets(1, &m_renderTargetView, depthStencilView);
@@ -126,7 +123,7 @@ void RenderTexture::set(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilVi
 }
 
 
-void RenderTexture::clear(ID3D11DeviceContext* deviceContext,
+void RenderTexture::ClearRenderTarget(ID3D11DeviceContext* deviceContext,
 	float red, float green, float blue, float alpha)
 {
 	float color[4];
@@ -148,16 +145,6 @@ void RenderTexture::clear(ID3D11DeviceContext* deviceContext,
 
 ID3D11RenderTargetView * RenderTexture::getRenderTargetView() {
 	return m_renderTargetView;
-}
-
-int NGraphic::RenderTexture::getWidth()
-{
-	return m_width;
-}
-
-int NGraphic::RenderTexture::getHeight()
-{
-	return m_height;
 }
 
 ID3D11ShaderResourceView* RenderTexture::getShaderResourceView()
