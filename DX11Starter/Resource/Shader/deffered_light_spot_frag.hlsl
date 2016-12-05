@@ -35,15 +35,6 @@ struct VertexToPixel
 // Out of the vertex shader (and eventually input to the PS)
 
 
-float4 getPosWorld(float2 uv, Texture2D depthTexture, matrix matProjViewInverse) {
-	float4 posWorld = float4(
-		uv.x * 2 - 1, (1 - uv.y) * 2 - 1,
-		depthTexture.Sample(samplerLight, uv).x, 1);
-	posWorld = mul(posWorld, matProjViewInverse);
-	posWorld /= 0.00000001 + posWorld.w;
-
-	return posWorld;
-}
 
 
 float4 main(VertexToPixel input) : SV_TARGET
@@ -62,7 +53,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	
 	float4 posEye = mul(float4(0, 0, 0, 1), matProjViewInverse);
 	posEye /= 0.001 + posEye.w;
-	float4 posWorld = getPosWorld(input.uv, textureDepth, matProjViewInverse);
+	float4 posWorld = getPosWorld(input.uv, textureDepth, matProjViewInverse, samplerLight);
 	float3 disFromEyeToWorld = posWorld.xyz-posEye.xyz;
 	float4 posFromLightProjection = mul(posWorld, matLightProjView);
 	posFromLightProjection /=0.001+ posFromLightProjection.w;

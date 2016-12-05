@@ -19,6 +19,6 @@ void NGame::NScript::Y_Axis_Rotate::update(Context & context, Entity & me, float
 	me.setRotation(rotationInit 
 		//* Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), progress*(3.14*0.1))
 
-		* Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), progress*(3.14*.5))
+		* Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), progress*(3.14*.00))
 	);
 }

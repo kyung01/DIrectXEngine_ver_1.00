@@ -6,7 +6,8 @@ Camera::Camera():
 	m_clipFar(100),
 	m_clipNear(0),
 	m_screenWidth(100),
-	m_screenHeight(100)
+	m_screenHeight(100),
+	m_fov(3.14*0.5)
 {
 	m_pos = Vector3(0, 0, 0);
 	m_isDirty_matView = true;

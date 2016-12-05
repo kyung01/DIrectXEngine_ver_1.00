@@ -1,4 +1,3 @@
-#include "point_light.hlsl"
 #include "deffered_indirect.hlsl"
 
 cbuffer global00 :register(b0)
@@ -13,9 +12,9 @@ Texture2D textureNormal		: register(t0);
 Texture2D textureSpecular	: register(t1);
 Texture2D textureDepth		: register(t2);
 
-Texture2D textureLightNormal		: register(t4);
-Texture2D textureLightRSM		: register(t5);
-Texture2D textureLightDepth		: register(t6);
+Texture2D textureLightNormal		: register(t3);
+Texture2D textureLightRSM		: register(t4);
+Texture2D textureLightDepth		: register(t5);
 
 SamplerState samplerDefault	: register(s0);
 SamplerState samplerLightRSM	: register(s1);

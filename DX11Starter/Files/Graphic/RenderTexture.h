@@ -19,6 +19,7 @@ namespace NGraphic {
 	class RenderTexture
 	{
 	private:
+		int m_width, m_height;
 		ID3D11Texture2D* m_renderTargetTexture;
 		ID3D11RenderTargetView* m_renderTargetView;
 		ID3D11ShaderResourceView* m_shaderResourceView;
@@ -36,6 +37,8 @@ namespace NGraphic {
 		ID3D11RenderTargetView * getRenderTargetView();
 
 		D3D11_VIEWPORT viewport;
+		int getWidth();
+		int getHeight();
 	};
 
 

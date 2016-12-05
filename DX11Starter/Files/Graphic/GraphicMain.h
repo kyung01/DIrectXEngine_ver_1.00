@@ -56,14 +56,22 @@ namespace NGraphic {
 			SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
 			std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> &textures);
 
-		void renderPreDeffered(	ID3D11DeviceContext* context, NScene::Scene &scene, 
-								SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
-								RenderTexture& texture_diffuse, RenderTexture& texture_normal, RenderTexture& texture_specular,
-								DepthTexture& textureDepth,
-								std::map<KEnum, std::unique_ptr<Mesh*>> &meshes,std::map<KEnum, ID3D11ShaderResourceView*> &textures,
-								ID3D11SamplerState * sampler
-				
-			);
+		void renderPreDeffered(ID3D11DeviceContext* context, NScene::Scene &scene,
+			SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
+			RenderTexture& texture_diffuse, RenderTexture& texture_normal, RenderTexture& texture_specular,
+			DepthTexture& textureDepth,
+			std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> &textures,
+			ID3D11SamplerState * sampler
+
+		);
+		void renderPreDefferedFake(ID3D11DeviceContext* context, NScene::Scene &scene,
+			SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
+			RenderTexture& texture_diffuse, RenderTexture& texture_normal, RenderTexture& texture_specular,
+			DepthTexture& textureDepth,
+			std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> &textures,
+			ID3D11SamplerState * sampler
+
+		);
 		void renderUI(
 			ID3D11DeviceContext* context, NScene::Scene &scene,
 			SimpleVertexShader& shader_vert, SimpleFragmentShader& shader_frag,
@@ -73,7 +81,6 @@ namespace NGraphic {
 		void renderLights_directLight(
 			ID3D11Device * device, ID3D11DeviceContext * context,
 			NScene::Scene &scene,
-			SimpleVertexShader & shaderVertLight, SimpleFragmentShader & shaderFragLight,
 			SimpleVertexShader & shaderVert, SimpleFragmentShader & shaderFrag,
 			RenderTexture& targetDirectLight, DepthTexture& targetDirectDepth,
 			RenderTexture & textureDiffuse, RenderTexture & textureNormal, RenderTexture & textureSpecular,
@@ -81,14 +88,21 @@ namespace NGraphic {
 			std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> &textures,
 			ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth
 		);
+		void NGraphic::GraphicMain::renderLightIndirect_FirstBounce(
+			ID3D11Device * device, ID3D11DeviceContext * context,
+			NScene::Scene & scene, NScene::Light light,
+			SimpleVertexShader & shaderVert, SimpleFragmentShader & shaderFrag,
+			RenderTexture & targetColor, RenderTexture & targetNormal,
+			DepthTexture & depthTexture, std::map<KEnum, std::unique_ptr<Mesh*>>& meshes,
+			std::map<KEnum, ID3D11ShaderResourceView*>& textures, ID3D11SamplerState * samplerClamp);
 		void renderLights_indirect(
 			ID3D11Device* device, ID3D11DeviceContext* context,
 			NScene::Scene &scene,
-			SimpleVertexShader& shaderVertLight, SimpleFragmentShader & shaderFragLight,
+			//SimpleVertexShader& shaderVertLight, SimpleFragmentShader & shaderFragLight,
 			SimpleVertexShader& shaderVertIndirectLight, SimpleFragmentShader & shaderFragIndirectLight,
-			SimpleVertexShader& shaderVert, SimpleFragmentShader& shaderFrag,
+			//SimpleVertexShader& shaderVert, SimpleFragmentShader& shaderFrag,
 
-			RenderTexture& target, DepthTexture& targetDepth,
+			//RenderTexture& target, DepthTexture& targetDepth,
 			RenderTexture& targetIndirectLight, DepthTexture& targetIndirectDepth,
 			RenderTexture& textureDiffuse, RenderTexture& textureNormal, RenderTexture & textureSpecular,
 			DepthTexture& textureDepth, DepthTexture& textureLightIndirectDpeth,
@@ -98,16 +112,17 @@ namespace NGraphic {
 		void renderLightsFailCases(
 			ID3D11Device* device, ID3D11DeviceContext* context,
 			NScene::Scene &scene,
-			SimpleVertexShader& shaderVertLight, SimpleFragmentShader & shaderFragLight,
+			//SimpleVertexShader& shaderVertLight, SimpleFragmentShader & shaderFragLight,
 			SimpleVertexShader& shaderVertIndirectLight, SimpleFragmentShader & shaderFragIndirectLight,
-			SimpleVertexShader& shaderVert, SimpleFragmentShader& shaderFrag,
+			//SimpleVertexShader& shaderVert, SimpleFragmentShader& shaderFrag,
 
-			RenderTexture& target, DepthTexture& targetDepth,
+			//RenderTexture& target, DepthTexture& targetDepth,
 			RenderTexture& targetIndirectLight, DepthTexture& targetIndirectDepth,
+			RenderTexture & textureError, RenderTexture & textureDirectLight,
 			RenderTexture& textureDiffuse, RenderTexture& textureNormal, RenderTexture & textureSpecular,
 			DepthTexture& textureDepth, DepthTexture& textureLightIndirectDpeth,
 			std::map<KEnum, std::unique_ptr<Mesh*>> &meshes, std::map<KEnum, ID3D11ShaderResourceView*> &textures,
-			ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth, ID3D11SamplerState * samplerLightRSM, RenderTexture& textureError
+			ID3D11SamplerState * samplerDefault, ID3D11SamplerState * samplerLightDepth, ID3D11SamplerState * samplerLightRSM
 		);
 		void renderIndirectTextureBlur(
 			ID3D11Device* device, ID3D11DeviceContext* context, NScene::Scene & scene,

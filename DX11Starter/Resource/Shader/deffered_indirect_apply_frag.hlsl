@@ -30,15 +30,6 @@ struct PS_OUTPUT
 // Out of the vertex shader (and eventually input to the PS)
 
 
-float4 getPosWorld(float2 uv, Texture2D depthTexture, matrix matProjViewInverse) {
-	float4 posWorld = float4(
-		uv.x * 2 - 1, (1 - uv.y) * 2 - 1,
-		depthTexture.Sample(samplerDefault, uv).x, 1);
-	posWorld = mul(posWorld, matProjViewInverse);
-	posWorld /= 0.00000001 + posWorld.w;
-
-	return posWorld;
-}
 
 static float PIXEL_DISTANCE = 1.0/ 256.0;
 float getArea(float2 vertA, float2 vertB, float2 vertC) {
@@ -74,11 +65,11 @@ float3 linearFilter (float2 uv, float3 colors[4],float2 uvs[4], int checks[4]) {
 PS_OUTPUT main(VertexToPixel input) : SV_TARGET
 {
 	PS_OUTPUT output;
-	output.color = float4(0, 0, 0, 1);
-	output.error = float4(0, 0, 0, 1);
+	output.color = float4(0, 0, 0, 1.0);
+	output.error = float4(0, 1.0, 0, 1.0);
 	float diffMaxLimit = 2.0;
-	float3 colorDirect = textureLightDirect.Sample(samplerDefault, input.uv).xyz;
-	float4 posWorld = getPosWorld(input.uv, textureDepth, matProjViewInverse);
+	float3 colorDirect = textureLightDirect.Sample(samplerDefault, input.uv).xyz * 0;
+	float4 posWorld = getPosWorld(input.uv, textureDepth, matProjViewInverse, samplerDefault);
 	float3 meNormal = normalize(textureNormal.Sample(samplerDefault, input.uv).xyz * 2 - 1);
 	float specular = textureSpecular.Sample(samplerDefault, input.uv).x;
 	float4 posEye = mul(float4(0, 0, 0, 1), matProjViewInverse);
@@ -114,11 +105,11 @@ PS_OUTPUT main(VertexToPixel input) : SV_TARGET
 			);
 		
 		//
-		float4 otherPosWorld = getPosWorld(uvRelative, textureDepth, matProjViewInverse);
+		float4 otherPosWorld = getPosWorld(uvRelative, textureDepth, matProjViewInverse, samplerDefault);
 		float3 otherNormal = normalize(textureNormal.Sample(samplerIndirectLight, uvRelative).xyz * 2 - 1);
 		////posDiffTotal += length(otherPosWorld.xyz - posWorld.xyz);
 		float posDiff = 1 / (1+length(otherPosWorld.xyz - posWorld.xyz));
-		if (dot(meNormal, otherNormal) < 0.11 || length(otherPosWorld.xyz - posWorld.xyz) > 1.0) {
+		if (dot(meNormal, otherNormal) < 0.97 || length(otherPosWorld.xyz - posWorld.xyz) > 1.0) {
 			indexs[i] = -1;
 			failCount++;
 		}
@@ -161,7 +152,8 @@ PS_OUTPUT main(VertexToPixel input) : SV_TARGET
 
 	}
 	else {
-		output.error = float4(1, 0, 0, 1);
+		output.color = float4(colorDirect, 1);
+		output.error = float4(1.0, 0, 0, 1.0);
 		//total failure
 	}
 	return output;

@@ -25,15 +25,7 @@ struct VertexToPixel
 // Out of the vertex shader (and eventually input to the PS)
 
 
-float4 getPosWorld(float2 uv, Texture2D depthTexture, matrix matProjViewInverse) {
-	float4 posWorld = float4(
-		uv.x * 2 - 1, (1 - uv.y) * 2 - 1,
-		depthTexture.Sample(samplerDefault, uv).x, 1);
-	posWorld = mul(posWorld, matProjViewInverse);
-	posWorld /= 0.00000001 + posWorld.w;
 
-	return posWorld;
-}
 
 float getArea(float2 vertA, float2 vertB, float2 vertC) {
 	float2 sideA = vertB - vertA;
@@ -79,7 +71,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 	float diffMaxLimit = 2.0;
 	//float3 colorDirect = textureLightDirect.Sample(samplerDefault, input.uv).xyz;
-	float4 posWorld = getPosWorld(input.uv, textureDepth, matProjViewInverse);
+	float4 posWorld = getPosWorld(input.uv, textureDepth, matProjViewInverse, samplerDefault);
 	float3 meNormal = normalize(textureNormal.Sample(samplerDefault, input.uv).xyz * 2 - 1);
 	float specular = textureSpecular.Sample(samplerDefault, input.uv).x;
 	float4 posEye = mul(float4(0, 0, 0, 1), matProjViewInverse);
@@ -94,7 +86,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 			PIXEL_DISTANCE*floor(uv.x / PIXEL_DISTANCE) + PIXEL_DISTANCE / 2,
 			PIXEL_DISTANCE*floor(uv.y / PIXEL_DISTANCE) + PIXEL_DISTANCE / 2
 			);
-		float4 otherPosWorld = getPosWorld(uvRelative, textureDepth, matProjViewInverse);
+		float4 otherPosWorld = getPosWorld(uvRelative, textureDepth, matProjViewInverse, samplerDefault);
 		float3 otherNormal = normalize(textureNormal.Sample(samplerIndirectLight, uvRelative).xyz * 2 - 1);
 		float otherSpecular = textureSpecular.Sample(samplerDefault, uvRelative).x;
 		float posDiff = 1 / (1 + length(otherPosWorld.xyz - posWorld.xyz));
@@ -114,7 +106,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 			PIXEL_DISTANCE*floor(uv.x / PIXEL_DISTANCE) + PIXEL_DISTANCE / 2,
 			PIXEL_DISTANCE*floor(uv.y / PIXEL_DISTANCE) + PIXEL_DISTANCE / 2
 			);
-		float4 otherPosWorld = getPosWorld(uvRelative, textureDepth, matProjViewInverse);
+		float4 otherPosWorld = getPosWorld(uvRelative, textureDepth, matProjViewInverse,samplerDefault);
 		float3 otherNormal = normalize(textureNormal.Sample(samplerIndirectLight, uvRelative).xyz * 2 - 1);
 		float otherSpecular = textureSpecular.Sample(samplerDefault, uvRelative).x;
 		float posDiff = 1 / (1 + length(otherPosWorld.xyz - posWorld.xyz));

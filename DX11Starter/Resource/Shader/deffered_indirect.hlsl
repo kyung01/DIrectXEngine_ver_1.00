@@ -28,6 +28,8 @@ static float RSM_RND_LENGTH[100] = {
 ,0.036607869452149,0.745971437891,0.2518574033174,0.28768258555219,0.42272533449471,0.709542144886,0.37594491819662,0.85356229443735
 ,0.87369922728916,0.68225410658971,0.47773826470493,0.70689343321458,0.95382645677488};
 
+
+
 float3 getFluxColor(
 	float3 dirEyeToWorld,
 	float2 uv,
@@ -77,4 +79,36 @@ float3 IndirectLighting(float3 posWorld, float3 normal, float3 dirEyeToWorld, fl
 	return saturate(fluxColor*2);
 	
 	
+}
+
+float3 IndirectLightingIntense(float3 posWorld, float3 normal, float3 dirEyeToWorld, float2 uv, float specular,
+	Texture2D textureLightNormal, Texture2D textureLightRSM, Texture2D textureLightDepth,
+	matrix matLightProjViewInverse,
+	SamplerState samplerClamp, SamplerState samplerLightRSM)
+{
+	float3 fluxColor = float3(0, 0, 0);
+
+	float distanceMax = .31;
+	float iMax = 100;
+	float angleMax = 1;
+	float angleTick = 6.28 / angleMax;
+	for (float angleInit = 0; angleInit < angleMax; angleInit++) {
+
+		for (float i = 0; i < iMax; i++) {
+			float distance = RSM_RND_LENGTH[i] * distanceMax;// / iMax);
+			float x = uv.x + cos(angleTick*angleInit + 6.28*RSM_RND[i])*distance, y = uv.y + sin(angleTick*angleInit + 6.28*RSM_RND[i])*distance;
+			float xx = x - uv.x, yy = y - uv.y;
+			float ratio = sqrt(xx*xx + yy*yy);
+			fluxColor += (ratio)* getFluxColor(
+				dirEyeToWorld,
+				float2(x, y),
+				posWorld, normal, specular,
+				textureLightDepth, textureLightNormal, textureLightRSM, matLightProjViewInverse,
+				samplerClamp, samplerLightRSM);
+
+		}
+	}
+	return saturate(fluxColor * 2);
+
+
 }

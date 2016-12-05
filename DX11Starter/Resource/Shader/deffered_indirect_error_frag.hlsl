@@ -1,4 +1,4 @@
-#include "point_light.hlsl"
+
 #include "deffered_indirect.hlsl"
 
 cbuffer global00 :register(b0)
@@ -9,14 +9,16 @@ cbuffer global00 :register(b0)
 };
 
 // External texture-related data
-Texture2D textureError		: register(t3);
-Texture2D textureNormal		: register(t0);
-Texture2D textureSpecular	: register(t1);
-Texture2D textureDepth		: register(t2);
+Texture2D textureError		: register(t0);
+Texture2D textureDirectLight: register(t1);
 
-Texture2D textureLightNormal		: register(t4);
-Texture2D textureLightRSM		: register(t5);
-Texture2D textureLightDepth		: register(t6);
+Texture2D textureSpecular	: register(t2);
+Texture2D textureNormal		: register(t3);
+Texture2D textureDepth		: register(t4);
+
+Texture2D textureLightNormal	: register(t5);
+Texture2D textureLightRSM		: register(t6);
+Texture2D textureLightDepth		: register(t7);
 
 SamplerState samplerDefault	: register(s0);
 SamplerState samplerLightRSM	: register(s1);
@@ -33,23 +35,27 @@ struct VertexToPixel
 
 float4 main(VertexToPixel input) : SV_TARGET
 {
+	float isError  = textureError.Sample(samplerDefault, input.uv).x;
+	//return float4(0.3*isError,0,0,1);
+//float4 errorCheck = textureError.Sample(samplerDefault, input.uv);// .x;
+	//if (errorCheck.x != 1.0) return float4(0, 0, 0, 0);
 	float specular = textureSpecular.Sample(samplerDefault, input.uv).x;
-float3 normal = normalize(textureNormal.Sample(samplerDefault, input.uv) * 2 - 1);
+	float3 normal = normalize(textureNormal.Sample(samplerDefault, input.uv) * 2 - 1);
 
-float4 posEye = mul(float4(0, 0, 0, 1), matProjViewInverse);
-posEye /= 0.00000001 + posEye.w;
-float4 posWorld = getPosWorld(input.uv, textureDepth, matProjViewInverse,samplerDefault);
-float3 disFromEyeToWorld = posWorld.xyz - posEye.xyz;
-float3 dirEyeToWorld = normalize(disFromEyeToWorld);
-float4 posFromLightProjection = mul(posWorld, matLightProjView);
-posFromLightProjection /= 0.000000001 + posFromLightProjection.w;
-float2 uv = float2(posFromLightProjection.x*0.5 + 0.5, 1 - (posFromLightProjection.y*0.5 + 0.5));
+	float4 posEye = mul(float4(0, 0, 0, 1), matProjViewInverse);
+	posEye /= 0.00000001 + posEye.w;
+	float4 posWorld = getPosWorld(input.uv, textureDepth, matProjViewInverse,samplerDefault);
+	float3 disFromEyeToWorld = posWorld.xyz - posEye.xyz;
+	float3 dirEyeToWorld = normalize(disFromEyeToWorld);
+	float4 posFromLightProjection = mul(posWorld, matLightProjView);
+	posFromLightProjection /= 0.000000001 + posFromLightProjection.w;
+	float2 uv = float2(posFromLightProjection.x*0.5 + 0.5, 1 - (posFromLightProjection.y*0.5 + 0.5));
 
 
-return float4(
-	IndirectLighting(posWorld, normal, dirEyeToWorld, uv, specular,
-		textureLightNormal, textureLightRSM, textureLightDepth,
-		matLightProjViewInverse,
-		samplerDefault, samplerLightRSM)
-	, 1) + float4(0.1,0,0,0);
+	return float4(
+		IndirectLightingIntense(posWorld, normal, dirEyeToWorld, uv, specular,
+			textureLightNormal, textureLightRSM, textureLightDepth,
+			matLightProjViewInverse,
+			samplerDefault, samplerLightRSM)
+		, 1) *saturate(isError);
 }

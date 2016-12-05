@@ -24,6 +24,8 @@ RenderTexture::~RenderTexture()
 
 bool RenderTexture::Initialize(ID3D11Device* device, int textureWidth, int textureHeight)
 {
+	m_width = textureWidth;
+	m_height = textureHeight;
 	D3D11_TEXTURE2D_DESC textureDesc;
 	HRESULT result;
 	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
@@ -145,6 +147,16 @@ void RenderTexture::ClearRenderTarget(ID3D11DeviceContext* deviceContext,
 
 ID3D11RenderTargetView * RenderTexture::getRenderTargetView() {
 	return m_renderTargetView;
+}
+
+int NGraphic::RenderTexture::getWidth()
+{
+	return m_width;
+}
+
+int NGraphic::RenderTexture::getHeight()
+{
+	return m_height;
 }
 
 ID3D11ShaderResourceView* RenderTexture::getShaderResourceView()

@@ -1,3 +1,4 @@
+#include "fragment_utility.hlsl"
 float4 getRed() {
 	return float4(1, 0, 0, 1);
 }
@@ -26,12 +27,7 @@ float4 spotLightRSM(
 	return float4(
 		diffuseColor*lightColor.xyz *getPower(dirLightToWorld, surfaceNormal)*powerLuminance * isLightedSpotlight, 1);
 }
-float specularPower(float3 dirEyeToWorld, float3 dirLightToWorld, float3 surfaceNormal, float power) {
-	float3 reflected = normalize(dirLightToWorld - 2 * dot(surfaceNormal, dirLightToWorld) *surfaceNormal);
-	float cosAngle = dot(dirEyeToWorld, -reflected);
-	//float3 eye = normalize(dirEyeToWorld + dirLightToWorld);
-	return pow(max(0, cosAngle), 1 + 10 * (power));
-}
+
 float3 spotLight(
 	float3 dirEyeToWorld,
 	float3 diffuseColor,

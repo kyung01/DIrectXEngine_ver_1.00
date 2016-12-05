@@ -31,8 +31,8 @@ struct VertexToPixel
 
 struct PS_OUTPUT
 {
-	float4 normal: SV_Target0;
 	float4 flux: SV_Target1;
+	float4 normal: SV_Target0;
 	//float4 texture_specular: SV_Target4; At some point...
 };
 
