@@ -4,7 +4,7 @@ using namespace NGraphic;
 using namespace NGraphic::NScene;
 Camera::Camera():
 	m_clipFar(100),
-	m_clipNear(0),
+	m_clipNear(0.1),
 	m_screenWidth(100),
 	m_screenHeight(100),
 	m_fov(3.14*0.5)
@@ -16,6 +16,19 @@ Camera::Camera():
 
 Matrix NScene::Camera::getProjectionMatrix()
 {
+	if (m_isDirty_matProjection) {
+		m_isDirty_matProjection = false;
+		m_matProjection = DirectX::XMMatrixPerspectiveFovLH(
+			m_fov,		// Field of View Angle
+			m_screenWidth / m_screenHeight,		// Aspect ratio
+			m_clipNear, m_clipFar);					// Far clip plane distance
+	}
+	return m_matProjection;
+}
+Matrix NScene::Camera::getProjectionMatrix(float width, float height)
+{
+	m_screenWidth = width;
+	m_screenHeight = height;
 	if (m_isDirty_matProjection) {
 		m_isDirty_matProjection = false;
 		m_matProjection = DirectX::XMMatrixPerspectiveFovLH(

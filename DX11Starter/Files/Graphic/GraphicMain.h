@@ -135,6 +135,16 @@ namespace NGraphic {
 			ID3D11SamplerState * samplerDefault,
 			ID3D11SamplerState * samplerLinear
 		);
+		void renderFinalScene(
+			ID3D11Device* device, ID3D11DeviceContext* context,
+			SimpleVertexShader& shaderVert, SimpleFragmentShader& shaderFrag,
+
+			RenderTexture& target, DepthTexture& targetDepth,
+			RenderTexture & directLight,
+			RenderTexture& indirectLight, 
+			std::unique_ptr<Mesh*> &meshePlane,
+			ID3D11SamplerState * samplerDefault
+		);
 		void renderApplyDirectAndIndirectLights(
 			ID3D11Device* device, ID3D11DeviceContext* context, NScene::Scene & scene,
 			SimpleVertexShader& shaderVert, SimpleFragmentShader& shaderFrag,

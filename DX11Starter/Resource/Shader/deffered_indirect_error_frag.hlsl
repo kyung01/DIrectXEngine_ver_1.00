@@ -37,7 +37,7 @@ struct VertexToPixel
 float4 main(VertexToPixel input) : SV_TARGET
 {
 	float isError  = textureError.Sample(samplerError, input.uv).x;
-	if (isError < 0.9) return float4(0, 0, 0, 0);
+	if (isError  <0.9) return float4(0, 0, 0, 0);
 	float specular = textureSpecular.Sample(samplerDefault, input.uv).x;
 	float3 normal = normalize(textureNormal.Sample(samplerDefault, input.uv) * 2 - 1);
 

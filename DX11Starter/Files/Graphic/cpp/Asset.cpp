@@ -37,6 +37,7 @@ std::list<LoadInfoShader> Asset::getLoadListShaderVert()
 		{ RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_BLUR,		L"Resource/Shader/deffered_indirect_blur_vert.hlsl" },
 		{ RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_BLUR_VERTICALLY,		L"Resource/Shader/deffered_indirect_blur_vertically_vert.hlsl" },
 		{ RENDER_TYPE_UI,		L"Resource/Shader/simple_texture_vert.hlsl" },
+		{ RENDER_TYPE_DEFFERED_FINAL ,		L"Resource/Shader/finalScene_vert.hlsl" },
 		{ RENDER_TYPE_LIGHT_RSM,		L"Resource/Shader/light_rsm_vert.hlsl" }
 	});
 	return lst;
@@ -55,6 +56,7 @@ std::list<LoadInfoShader> Asset::getLoadListShaderFrag()
 		{ RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_APPLY,		L"Resource/Shader/deffered_indirect_apply_frag.hlsl" },
 		{ RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_BLUR,		L"Resource/Shader/deffered_indirect_blur_frag.hlsl" },
 		{ RENDER_TYPE_DEFFERED_LIGHT_INDIRECT_BLUR_VERTICALLY,		L"Resource/Shader/deffered_indirect_blur_vertically_frag.hlsl" },
+		{ RENDER_TYPE_DEFFERED_FINAL ,		L"Resource/Shader/finalScene_frag.hlsl" },
 		{ RENDER_TYPE_UI,		L"Resource/Shader/simple_texture_frag.hlsl" },
 		{ RENDER_TYPE_LIGHT_RSM,		L"Resource/Shader/light_rsm_frag.hlsl" }
 	});
@@ -116,7 +118,7 @@ bool Asset::init(ID3D11Device * device, ID3D11DeviceContext * context)
 	}
 
 	D3D11_SAMPLER_DESC samplerDescPOINT = {};
-	samplerDescPOINT.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT; // Could be anisotropic
+	samplerDescPOINT.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT; // Could be anisotropic
 	samplerDescPOINT.ComparisonFunc = D3D11_COMPARISON_LESS;
 	samplerDescPOINT.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDescPOINT.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;

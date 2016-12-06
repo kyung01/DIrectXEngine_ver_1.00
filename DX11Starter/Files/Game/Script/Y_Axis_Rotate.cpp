@@ -10,7 +10,7 @@ void NGame::NScript::Y_Axis_Rotate::init(Context& context, Entity& me)
 
 void NGame::NScript::Y_Axis_Rotate::update(Context & context, Entity & me, float timeElapsed)
 {
-	progress += progressDir * timeElapsed*0.1;
+	progress += progressDir * timeElapsed*0.01;
 	if (abs(progress) > 1){
 		progress = progressDir;
 		progressDir *= -1;
@@ -19,6 +19,6 @@ void NGame::NScript::Y_Axis_Rotate::update(Context & context, Entity & me, float
 	me.setRotation(rotationInit 
 		//* Quaternion::CreateFromAxisAngle(Vector3(1, 0, 0), progress*(3.14*0.1))
 
-		* Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), progress*(3.14*.00))
+		* Quaternion::CreateFromAxisAngle(Vector3(0, 1, 0), progress*(3.14*.50))
 	);
 }

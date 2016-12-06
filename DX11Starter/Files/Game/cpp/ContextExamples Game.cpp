@@ -45,6 +45,19 @@ void NGame::LoadExample00(Context &context)
 		ground->m_graphicObjects.push_back(obj);
 		ground->setPos(-25 , 0, -25);
 	}
+	distance = 3;
+	for (int i = 0; i < 6; i++) {
+		angle = 3.14 / 6 * i;
+		auto obj = context.m_scene->getObjSolid();
+		obj.get()->m_meshId = NGraphic::MESH_ID_SPHERE;
+		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_NORMAL] = NGraphic::KEnum::TEXTURE_ID_NORMAL_DEFAULT;// normalIds[i % 6];
+		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_SPECULAR] = reflectiveIds[i % 4];
+		obj.get()->setScale(Vector3(0.5, 0.5, 0.5));
+		auto e = new Entity();
+		context.addEntity(std::shared_ptr<Entity>(e));
+		e->m_graphicObjects.push_back(obj);
+		e->setPos(cos(angle)*distance, 0.15, sin(angle)*distance);
+	}
 	distance = 13;
 	for (int i = 0; i < 7; i++) {
 		angle = 3.14 / 6 * i;
@@ -56,19 +69,7 @@ void NGame::LoadExample00(Context &context)
 		e->setPos(cos(angle)*distance, -0.25, sin(angle)*distance);
 		e->setRotation(Quaternion::CreateFromAxisAngle(Vector3(0,1,0), 3.14/2- 3.14 / 6 * i));
 	}
-	distance = 3;
-	for (int i = 0; i < 6; i++) {
-		angle = 3.14 / 6 * i;
-		auto obj = context.m_scene->getObjSolid();
-		obj.get()->m_meshId = NGraphic::MESH_ID_SPHERE;
-		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_NORMAL] = NGraphic::KEnum::TEXTURE_ID_NORMAL_DEFAULT;// normalIds[i % 6];
-		obj.get()->m_textures[NGraphic::TEXTURE_TYPE_SPECULAR] = reflectiveIds[i %4];
-		obj.get()->setScale(Vector3(0.5, 0.5, 0.5));
-		auto e = new Entity();
-		context.addEntity(std::shared_ptr<Entity>(e));
-		e->m_graphicObjects.push_back(obj);
-		e->setPos(cos(angle)*distance, 0.5, sin(angle)*distance);
-	}
+	
 	{
 		distance = 6;
 		angle =0;
